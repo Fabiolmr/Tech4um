@@ -1,0 +1,113 @@
+/* Corpo da página */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #6a0dad, #1e90ff); /* De roxo para azul */
+}
+
+/* Caixa de login e registro */
+.login-box {
+    background-color: #ffffff; /* Branco puro para destacar */
+    width: 380px;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25); /* Sombra grande */
+    text-align: center;
+}
+
+/* Título da caixa */
+.login-box h2 {
+    color: #6a0dad; /* Roxo */
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+
+/* Inputs de texto e senha */
+.login-box input[type="text"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 2px solid #1e90ff; /* Azul */
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* Placeholder */
+.login-box input::placeholder {
+    color: #6a0dad; /* Roxo */
+}
+
+/* Botões */
+.login-box button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(to right, #6a0dad, #1e90ff);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.login-box button:hover {
+    background: linear-gradient(to right, #1e90ff, #6a0dad);
+}
+
+/* Mensagens de erro/sucesso */
+.flash-message {
+    color: red;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Links de navegação */
+.login-box a {
+    display: block;
+    margin-top: 15px;
+    color: #6a0dad;
+    text-decoration: none;
+}
+
+.login-box a:hover {
+    text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .login-box {
+        width: 90%;
+        padding: 30px;
+    }
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 35px; /* espaço pro olhinho */
+    box-sizing: border-box;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #555;
+}
+
+
+

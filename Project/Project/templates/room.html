@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="message-box">
+    <h2>Chat Room: {{ session['room'] }}</h2>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="inputs">
+        <input 
+            type="text"
+            placeholder="Message"
+            id="message"
+            autocomplete="off"
+        />
+        <button type="button" id="send-btn" onclick="sendMessage()">
+            Send
+        </button>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+
+    // Entra na sala automaticamente quando a página abre
+    socket.emit("join", {
+        username: "{{ session['name'] }}",
+        room: "{{ session['room'] }}"
+    });
+
+    // Recebe mensagens do servidor
+    socket.on("message", (data) => {
+        const messagesDiv = document.getElementById("messages");
+        const p = document.createElement("p");
+        p.textContent = data;
+        messagesDiv.appendChild(p);
+
+        // Scroll automático para última mensagem
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    // Função para enviar mensagens
+    function sendMessage() {
+        const input = document.getElementById("message");
+        let message = input.value.trim();
+
+        if (!message) return;
+
+        socket.emit("message", {
+            message: message,
+            username: "{{ session['name'] }}",
+            room: "{{ session['room'] }}"
+        });
+
+        input.value = "";
+    }
+
+    // Enviar apertando ENTER
+    document.getElementById("message").addEventListener("keypress", function(e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+</script>
+
+{% endblock %}
