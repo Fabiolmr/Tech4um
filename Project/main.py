@@ -3,10 +3,25 @@ from flask_socketio import join_room, leave_room, send, SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, login_user, login_required, logout_user, current_user, LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
-import random
+import random, os
 from string import ascii_uppercase
 
+#bibliotecas para autenticação de login
+from flask_dance.contrib.google import make_google_blueprint, google
+from flask_dance.consumer import oauth_authorized
+from sqlalchemy.orm.exc import NoResultFound
+
 app = Flask(__name__)
+
+#Configuração do Google OAuth com Flask-Dance
+google_bp = make_google_blueprint(
+    client_id= os.environ.get("GOOGLE_CLIENT_ID"),
+    client_secret= os.environ.get("CLIENT_SECRET"),
+    scope=["profile", "email"],
+    redirect_to="google.login" 
+)
+
+app.register_blueprint(google_bp, url_prefix="/login")
 
 # Configuração do Banco de Dados
 app.config['SECRET_KEY'] = "DSISHDSHDS"
@@ -28,6 +43,39 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+
+#Função par caso o login google dê certo
+@oauth_authorized.connect_via(google_bp)
+def google_logged_in(blueprint, token):
+    if not token:
+        flash("Falha ao fazer login com o Google.", category="danger")
+        return redirect(url_for("login"))
+
+    resp = blueprint.session.get("/oauth2/v2/userinfo")
+    if not resp.ok:
+        flash("Falha ao obter dados do Google.", category="danger")
+        return False
+
+    google_user_info = resp.json()
+    email = google_user_info["email"]
+    name = google_user_info["name"]
+
+    user = User.query.filter_by(username=email).first()
+
+    if user:
+        #Usuário existe: Apenas faz o login
+        login_user(user)
+        flash(f"Login bem-sucedido com Google! Bem-vindo(a), {name}.", category="success")
+    else:
+        #Usuário novo: Cria e salva o novo usuário no banco de dados
+        #Como o login é via OAuth, não precisamos de senha
+        new_user = User(username=email, password=generate_password_hash("NO_PASSWORD_NEEDED_OAUTH"))
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        flash(f"Conta criada com Google! Bem-vindo(a), {name}.", category="success")
+
+    return redirect(url_for("home"))
 
 with app.app_context():
     db.create_all()
@@ -89,8 +137,9 @@ def login():
         flash("Nome de usuário ou senha inválidos.", "danger")
         return redirect(url_for("login"))
 
-    return render_template("login.html")
+    google_login_url = url_for("google.login")
 
+    return render_template("login.html", google_login_url=google_login_url)
 
 @app.route("/logout")
 @login_required
