@@ -4,6 +4,7 @@ from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash
 from flask_dance.contrib.google import google
 
+#-----------CLASSE USUÁRIO-------------
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
@@ -13,16 +14,16 @@ class User(UserMixin, db.Model):
 # Loader para o Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.get(int(user_id)) #RETORNA USUÁRIO
 
 
-# Função par caso o login google dê certo (ainda está fortemente ligada ao Model)
+# Função par caso o login google dê certo
 def google_logged_in(blueprint, token):
     from flask_login import login_user # Import local para evitar circular
     
     if not token:
         flash("Falha ao fazer login com o Google.", category="danger")
-        return redirect(url_for("auth.login")) # Usamos auth.login agora
+        return redirect(url_for("auth.login"))
 
     resp = blueprint.session.get("/oauth2/v2/userinfo")
     if not resp.ok:

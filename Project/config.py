@@ -1,3 +1,4 @@
+#REGISTRO DE DADOS SENSÍVEIS 
 
 class Config:
     SECRET_KEY = "DSISHDSHDS"

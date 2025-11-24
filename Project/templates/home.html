@@ -1,50 +1,55 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-{% if messages %}
-        <ul>
-        {% for category, message in messages %}
-            <li class="alert alert-{{ category }}">{{ message }}</li>
+{% block content %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+                <ul>
+                {% for category, message in messages %}
+                    <li class="alert alert-{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+    {% endwith %}
+
+    {% if current_user.is_authenticated %} <!-- SE O USUÁRIO JÁ FOR AUTENTICADO -->
+        <form method="post" class="buttons">
+            <h3>Cadastre fórum</h3>
+            <div>               <!-- CAMPOS DE ENTRADA PARA CADASTRO DE FORUM -->
+                <label>Nome:</label>
+                    <input type="text" id="create_name" name="create_name" placeholder="Pick a name!" />
+                <label>descrição:</label>
+                    <input type="text" id="create-desc" name="create-desc" placeholder="description" />
+
+            </div>              <!-- FIM CAMPO -->
+            <button type="submit" name="create" class="create-btn">Create a Room</button>
+        </form>
+
+        {% else %} <!-- SE NÃO -->
+            <!-- ESTILIZAÇÃO RÁPIDA -->
+        <div style="text-align: center; margin: 20px; padding: 20px; background-color: #f0f0f0; border-radius: 8px;">
+                <h3>Quer criar sua própria sala?</h3>
+                <p>Você precisa estar logado para criar uma nova sala de chat.</p>
+                <a href="{{ url_for('auth.login') }}" style="font-weight: bold;">Fazer Login</a> ou 
+                <a href="{{ url_for('auth.register') }}">Criar Conta</a>
+            </div>
+    {% endif %} <!-- FIM IF -->
+
+    <hr>
+        <!-- -------- LISTAGEM DE SALAS CADASTRADAS -------------- -->
+    <div>
+        {% for room in rooms %}
+        <form method="post">
+            <ul>
+                <li>id = {{ room.id }}</li>
+                <li>nome = {{ room.name }}</li>
+                <li>descrição = {{ room.description }}</li>
+            </ul>
+            <button type="submit" name="entrar" value="{{ room.id }}">Entrar</button>
+        </form>
+        {% else %}
+            <p>Nenhuma sala criada</p>
         {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-
-{% if current_user.is_authenticated %}
-<form method="post" class="buttons">
-    <h3>Enter the chat Room</h3>
-<div>
-        <label>Name:</label>
-        <input type="text" id="create_name" name="create_name" placeholder="Pick a name!" />
-        <label>descrição:</label>
-        <input type="text" id="create-desc" name="create-desc" placeholder="description" />
-    
     </div>
-    <button type="submit" name="create" class="create-btn">Create a Room</button>
-</form>
-{% else %}
-<div style="text-align: center; margin: 20px; padding: 20px; background-color: #f0f0f0; border-radius: 8px;">
-        <h3>Quer criar sua própria sala?</h3>
-        <p>Você precisa estar logado para criar uma nova sala de chat.</p>
-        <a href="{{ url_for('auth.login') }}" style="font-weight: bold;">Fazer Login</a> ou 
-        <a href="{{ url_for('auth.register') }}">Criar Conta</a>
-    </div>
-{% endif %}
-<hr>
-
-<div>
-    {% for room in rooms %}
-    <form method="post">
-        <ul>
-            <li>id = {{ room.id }}</li>
-            <li>nome = {{ room.name }}</li>
-            <li>descrição = {{ room.description }}</li>
-        </ul>
-        <button type="submit" name="entrar" value="{{ room.id }}">Entrar</button>
-    </form>
-    {% else %}
-        <p>Nenhuma sala criada</p>
-    {% endfor %}
-</div>
 
 {% endblock %}

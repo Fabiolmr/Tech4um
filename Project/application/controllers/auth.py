@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
-from application.models.user import User # Importamos o Model
-
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from application.models.user import User
 from application import db
 
 auth_bp = Blueprint('auth', __name__)
@@ -18,16 +18,20 @@ def register():
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
+        #CONFIRMAÇÃO DE SENHAS
         if password != confirm_password:
             flash("As senhas não coincidem!", "danger")
             return redirect(url_for("auth.register"))
-
+        
+        # VERIFICA SE O USUÁRIO JÁ ESTÁ CADASTRADO
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash("Nome de usuário já existe.", "danger")
             return redirect(url_for("auth.register"))
-
+        
+        # GERA SENHA HASH
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
+        # CRIA NOVO USUÁRIO
         new_user = User(username=username, password=hashed_password)
 
         db.session.add(new_user)
@@ -41,14 +45,16 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    # SE USUÁRIO JÁ É CADASTRATO, REDIRECIONA PARA MAIN
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
+    
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
         user = User.query.filter_by(username=username).first()
-
+        
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash("Login bem-sucedido!", "success")

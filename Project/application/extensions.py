@@ -2,15 +2,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 
-# Inicializamos as extensões aqui, mas sem vincular ao "app" ainda
+# Inicializamos as extensões aqui
 db = SQLAlchemy()
 login_manager = LoginManager()
 socketio = SocketIO()
 
-# Variável global para armazenar salas criadas dinamicamente (se houver)
+# Variável global para armazenar salas criadas dinamicamente
 rooms = {}
 
-# Função de utilidade
+# Função para criar código de fórum
 from string import ascii_uppercase
 import random
 def generate_unique_code(length):

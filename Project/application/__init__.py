@@ -1,15 +1,14 @@
 from flask import Flask
 from flask_socketio import SocketIO
+
 from .extensions import db, login_manager, socketio
 from config import Config
-from flask_dance.contrib.google import google
 
 from flask_dance.contrib.google import make_google_blueprint
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import google 
 
-socketio = SocketIO()
-    
+socketio = SocketIO()    
 
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -23,7 +22,8 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    from .models.user import User, load_user, google_logged_in
+    from .models.user import User, load_user, google_logged_in # import local
+
 
     @login_manager.user_loader
     def user_loader(user_id):
@@ -34,6 +34,7 @@ def create_app():
     from .controllers.auth import auth_bp  # Suas rotas de login/logout
     from .controllers.main import main_bp # Rotas da homepage
     
+    #---------------- autenticação google ---------------------
     google_bp = make_google_blueprint(
         client_id=app.config["GOOGLE_CLIENT_ID"],
         client_secret=app.config["GOOGLE_CLIENT_SECRET"],
@@ -54,7 +55,7 @@ def create_app():
 
 
     # 3. WebSockets
-    from .websockets.handlers import register_socketio_handlers
+    from .websockets.handlers import register_socketio_handlers # import local
     register_socketio_handlers(socketio)
 
     return app
