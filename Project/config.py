@@ -1,0 +1,8 @@
+
+class Config:
+    SECRET_KEY = "DSISHDSHDS"
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///users.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    GOOGLE_CLIENT_ID = ""
+    GOOGLE_CLIENT_SECRET = ""

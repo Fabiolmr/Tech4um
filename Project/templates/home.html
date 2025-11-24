@@ -17,4 +17,15 @@
 </ul>
 {% endif %}  
 </form>
+
+<div>
+    {% for room in rooms %}
+    <ul>
+        <li>id = {{ room.id }}</li>
+        <li>nome = {{ room.name }}</li>
+        <li>descrição = {{ room.description }}</li>
+    </ul>
+    {% endfor %}
+</div>
+
 {% endblock %}
