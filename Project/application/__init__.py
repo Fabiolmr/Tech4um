@@ -1,26 +1,15 @@
 from flask import Flask
 from flask_socketio import SocketIO
-#from flask_sqlalchemy import SQLAlchemy
-#from flask_login import LoginManager
 from .extensions import db, login_manager, socketio
 from config import Config
 from flask_dance.contrib.google import google
 
 from flask_dance.contrib.google import make_google_blueprint
 from flask_dance.consumer import oauth_authorized
-#from .models.user import User, load_user
-#from .controllers.auth import auth_bp # Importa apenas o seu Blueprint de rotas
-from flask_dance.contrib.google import google # Importa o objeto não configurado
+from flask_dance.contrib.google import google 
 
-
-#db = SQLAlchemy()
-#login_manager = LoginManager()
 socketio = SocketIO()
-
-## Dicionário global de salas (aqui fica ok para começar)
-#rooms = {} 
-
-        
+    
 
 def create_app():
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -30,7 +19,7 @@ def create_app():
     socketio.init_app(app)
     db.init_app(app)
 
-    # 1. Models e LoginManager
+    #Models e LoginManager
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
@@ -41,7 +30,7 @@ def create_app():
         # Chama a função do seu Model para carregar o usuário
         return load_user(user_id)
     
-     # 2. Registro dos seus Blueprints de Controller
+     # Registro dos seus Blueprints de Controller
     from .controllers.auth import auth_bp  # Suas rotas de login/logout
     from .controllers.main import main_bp # Rotas da homepage
     

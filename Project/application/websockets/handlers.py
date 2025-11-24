@@ -1,6 +1,5 @@
 from flask_socketio import join_room, leave_room, send, SocketIO
 
-
 # Função para registrar todos os handlers
 def register_socketio_handlers(socketio: SocketIO):
     

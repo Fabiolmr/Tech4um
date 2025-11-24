@@ -3,5 +3,4 @@ from application import create_app, socketio
 app = create_app()
 
 if __name__ == "__main__":
-    # Usamos socketio.run para garantir que o servidor WebSocket esteja funcionando
     socketio.run(app, debug=True)

@@ -5,9 +5,11 @@ class Forum:
         self.description = description
         self.participantes = []
 
+    def add_participant(self, user):
+        if not any(p.id == user.id for p in self.participantes):
+                self.participantes.append(user)
+
 def get_all_forums():
-    """Retorna a lista de todos os fóruns disponíveis."""
-    # *Em um projeto real, isso faria uma query no Banco de Dados*
     
     # Dados simulados para a Homepage
     return [

@@ -1,51 +1,49 @@
-from flask import Blueprint, render_template, request, session, redirect, url_for
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash
 from flask_login import login_required, current_user
 from application.extensions import rooms, generate_unique_code # Importa o sistema de salas
+#objetos forums
+from application.models.forum import Forum
 
 chat_bp = Blueprint('chat', __name__)
 
-@chat_bp.route("/forum/<int:forum_id>")
+@chat_bp.route("/forum/<forum_id>")
 @login_required
 def access_forum(forum_id):
-    # Aqui você validaria se o fórum existe usando o Model
+    forum = rooms.get(forum_id)
+
+    if not forum:
+        return (redirect(url_for("chat.home")))
+    
+    forum.add_participant(current_user)
+
     session["room"] = forum_id
     session["name"] = current_user.username
-    return render_template("room.html", room=forum_id, name=current_user.username)
+
+    return render_template("room.html", room=forum_id, name=current_user.username, forum=forum)
+
 
 @chat_bp.route("/", methods=["GET", "POST"])
-@login_required
+#@login_required
 def home():
     if request.method == "POST":
-        name = request.form.get("name")
-        code = request.form.get("code")
-        join = request.form.get("join")
-        create = request.form.get("create")
+        create_name = request.form.get("create_name")
+        create_desc = request.form.get("create-desc")
 
-        if not name:
-            return render_template("home.html", error="Please enter a name.", code=code, name=name)
+        if create_name:
+            if not current_user.is_authenticated:
+                flash("Você precisa estar logado para criar uma sala.", "danger")
+                return redirect(url_for("auth.login"))
 
-        # Criar sala
-        if create:
-            room = generate_unique_code(4)
-            rooms[room] = {"members": 0, "messages": []}
-            
+            new_id = generate_unique_code(4)
+            new_forum = Forum(new_id, create_name, create_desc)
+            rooms[new_id] = new_forum
+            return redirect(url_for("chat.access_forum", forum_id=new_id))
 
-        # Entrar em sala existente
-        elif join:
-            if not code:
-                return render_template("home.html", error="Please enter a room code", name=name)
-
-            if code not in rooms:
-                return render_template("home.html", error="Room does not exist.", name=name)
-
-            room = code
-
-        session["room"] = room
-        session["name"] = name
-
-        return redirect(url_for("chat.room"))
-
-    return render_template("home.html")
+        code = request.form.get("entrar")
+        if code in rooms:
+            return redirect(url_for("chat.access_forum", forum_id=code))
+        
+    return render_template("home.html", rooms=rooms.values())
 
 
 @chat_bp.route("/room")

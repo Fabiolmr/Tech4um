@@ -1,8 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
-#from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.user import User # Importamos o Model
-#from flask_dance.contrib.google import make_google_blueprint
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from application import db
@@ -27,7 +25,7 @@ def register():
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash("Nome de usuário já existe.", "danger")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
         new_user = User(username=username, password=hashed_password)
@@ -57,7 +55,7 @@ def login():
             return redirect(url_for("chat.home"))
 
         flash("Nome de usuário ou senha inválidos.", "danger")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     google_login_url = url_for("google.login")
 
