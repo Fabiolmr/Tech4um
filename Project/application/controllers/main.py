@@ -5,6 +5,9 @@ from application.models.forum import Forum
 
 main_bp = Blueprint('main', __name__)
 
+#AQUI TEMOS A ROTA HOME
+
+
 # HOME PÚBLICA
 @main_bp.route("/", methods=["GET", "POST"])
 def home():

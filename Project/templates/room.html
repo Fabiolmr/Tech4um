@@ -34,6 +34,15 @@
     </div>
 </div>
 
+<div class="participantes">
+    <h3>Participantes</h3>
+    <ul id="participants-list">
+        {% for user in participantes %}
+            <li>{{ user.username }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
 <script type="text/javascript">
     // Conectar ao backend Socket.IO
     const socketio = io();
@@ -55,6 +64,17 @@
     // Evento recebido do backend (Flask-SocketIO usa "message")
     socketio.on("message", (data) => {
         addMessage(data);
+    });
+
+    socketio.on("update_participants", (data) =>{
+        const listElement = document.getElementById("participants-list");
+        listElement.innerHTML = "";
+
+        data.users.forEach(user =>{
+            const li = document.createElement("li");
+            li.innerText = user.username;
+            listElement.appendChild(li);
+        });
     });
 
     // Enviar mensagem ao backend
