@@ -10,28 +10,26 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
+    # → Usuário logado não deve ir para /main.home
+    # → Deve ir para a área interna (dashboard)
     if current_user.is_authenticated:
-        return redirect(url_for('main.home')) # Impede registro se já logado
-    
+        return redirect(url_for('main.dashboard'))
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        #CONFIRMAÇÃO DE SENHAS
         if password != confirm_password:
             flash("As senhas não coincidem!", "danger")
             return redirect(url_for("auth.register"))
         
-        # VERIFICA SE O USUÁRIO JÁ ESTÁ CADASTRADO
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             flash("Nome de usuário já existe.", "danger")
             return redirect(url_for("auth.register"))
         
-        # GERA SENHA HASH
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
-        # CRIA NOVO USUÁRIO
         new_user = User(username=username, password=hashed_password)
 
         db.session.add(new_user)
@@ -45,7 +43,8 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # SE USUÁRIO JÁ É CADASTRATO, REDIRECIONA PARA MAIN
+    # CORREÇÃO!
+    # → Usuário logado deve ir para a página interna (dashboard)
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     
@@ -58,7 +57,8 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash("Login bem-sucedido!", "success")
-            return redirect(url_for("chat.home"))
+            # após login -> usuário sempre vai pro dashboard (não pro chat)
+            return redirect(url_for("main.home"))
 
         flash("Nome de usuário ou senha inválidos.", "danger")
         return redirect(url_for("auth.login"))
@@ -66,6 +66,7 @@ def login():
     google_login_url = url_for("google.login")
 
     return render_template("login.html", google_login_url=google_login_url)
+
 
 @auth_bp.route("/logout")
 @login_required

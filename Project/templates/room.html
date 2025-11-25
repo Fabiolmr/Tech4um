@@ -1,28 +1,82 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<!-- BOTÃO DE LOGOUT FIXO NO TOPO DIREITO -->
+{% if current_user.is_authenticated %}
+<div style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
+    <a href="{{ url_for('auth.logout') }}"
+       style="padding: 5px 10px; background-color: #ff4d4d; color: white; text-decoration: none; border-radius: 4px;">
+        Logout
+    </a>
+</div>
+{% endif %}
+
+<!-- CONTEÚDO DO CHAT -->
 <div class="message-box">
     <h2>Chat Room: {{ room }} </h2>
+
     <div class="messages" id="messages"></div>
+
     <div class="inputs">
         <input 
-            type="text" 
-            rows="3" 
-            placeholder="Message" 
-            id="message" 
+            type="text"
+            placeholder="Message"
+            id="message"
         />
-        <button type="button" name="send" id="send-btn" onclick="sendMessage()">
+        <button type="button" id="send-btn" onclick="sendMessage()">
             Send
         </button>
     </div>
 </div>
 
 <script>
-    var socketio = io();
+    // Conectar ao backend Socket.IO
+    const socketio = io();
 
-    const sendMessage = () => {
-        console.log("Send");
-    };
+    // Entrar na sala assim que a página abrir
+    socketio.emit("join", {
+        room: "{{ room }}",
+        username: "{{ username }}"
+    });
+
+    // Função para mostrar mensagens na tela
+    function addMessage(text) {
+        const messages = document.getElementById("messages");
+        const div = document.createElement("div");
+        div.innerText = text;
+        messages.appendChild(div);
+    }
+
+    // Evento recebido do backend (Flask-SocketIO usa "message")
+    socketio.on("message", (data) => {
+        addMessage(data);
+    });
+
+    // Enviar mensagem ao backend
+    function sendMessage() {
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value;
+
+        if (message.trim() === "") return;
+
+        socketio.emit("message", {
+            room: "{{ room }}",
+            username: "{{ username }}",
+            message: message
+        });
+
+        messageInput.value = "";
+    }
+
+    // Ao sair ou atualizar a página — avisar backend e fechar conexão
+    window.addEventListener("beforeunload", () => {
+        socketio.emit("leave", {
+            room: "{{ room }}",
+            username: "{{ username }}"
+        });
+        socketio.disconnect();
+    });
 </script>
 
 {% endblock %}
