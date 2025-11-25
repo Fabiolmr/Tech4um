@@ -1,3 +1,4 @@
+from flask import request
 from flask_socketio import join_room, leave_room, send, emit, SocketIO
 from flask_login import current_user
 from application.extensions import rooms
@@ -22,10 +23,34 @@ def register_socketio_handlers(socketio: SocketIO):
         message = data["message"]
         username = current_user.username
 
+        #----------- LÓGICA PARA MENSAGEM PRIVADA----------#
+        #OBS.: O usuário digita: "@nome_exato mensagem"
+        #       onde nome_exato = nome da pessoa igual a que tá salva e mensagem é a mensagem a ser mandada no privado
+        if message.startswith("@"):
+            partes = message.split(" ", 1)
+
+            if len(partes) > 1:
+                target_username = partes[0][1:]
+                msg_text = partes[1]
+
+                target_user = next((u for u in rooms[room].participantes if u['username'] == target_username), None)
+
+                if target_user and 'sid' in target_user:
+
+                    private_msg = f"[Privado de {username}]: {msg_text}"
+                    emit("message", private_msg, to=target_user['sid'])
+
+                    emit("message", f"[Privado para {target_username}]: {msg_text}", to=request.sid)
+
+                    return
+            else:
+                emit("message", "Usuário não encontrado ou offline.", to=request.sid)
+                return
+            
+        #----------- LÓGICA PARA MENSAGEM PÚBLICA ----------#
+
         msg_content = f"{username}: {message}"
-
         rooms[room].messages.append(msg_content)
-
         send(msg_content, room=room)
         print(f"{username} disse: {msg_content}")
 
@@ -39,10 +64,15 @@ def register_socketio_handlers(socketio: SocketIO):
             return
         
         if room in rooms:
-            user_data = {"id": current_user.id, "username": current_user.username}
+            user_data = {
+                "id": current_user.id,
+                "username": current_user.username,
+                "sid": request.sid
+            }
 
-            if not any(u['id'] == user_data['id'] for u in rooms[room].participantes):
-                rooms[room].participantes.append(user_data)
+            #if not any(u['id'] == user_data['id'] for u in rooms[room].participantes):
+            rooms[room].participantes = [u for u in rooms[room].participantes if u['id'] != current_user.id]
+            rooms[room].participantes.append(user_data)
 
             join_room(room)
             send(f"{username} entrou na sala.", room=room)
