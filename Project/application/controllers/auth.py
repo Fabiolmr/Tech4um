@@ -1,17 +1,30 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from application.models.user import User
 from application import db
+import re
+
+def is_strong_password(password):
+    if len(password) < 8:
+        return False
+    # Pelo menos uma letra maiúscula
+    if not re.search(r"[A-Z]", password):
+        return False
+    # Pelo menos uma letra minúscula
+    if not re.search(r"[a-z]", password):
+        return False
+    # Pelo menos um dígito
+    if not re.search(r"\d", password):
+        return False
+    # Opcional: Adicionar verificação para caractere especial (e.g., r"[!@#$%^&*()]")
+    
+    return True
 
 auth_bp = Blueprint('auth', __name__)
 
-
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    # → Usuário logado não deve ir para /main.home
-    # → Deve ir para a área interna (dashboard)
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
 
@@ -22,6 +35,11 @@ def register():
 
         if password != confirm_password:
             flash("As senhas não coincidem!", "danger")
+            return redirect(url_for("auth.register"))
+        
+        # 2. 🔑 ADICIONE A VERIFICAÇÃO DE FORÇA DA SENHA AQUI
+        if not is_strong_password(password):
+            flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas e números.", "danger")
             return redirect(url_for("auth.register"))
         
         existing_user = User.query.filter_by(username=username).first()
