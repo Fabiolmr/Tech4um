@@ -48,7 +48,7 @@ def create_app():
     oauth_authorized.connect(google_logged_in, sender=google_bp)
 
     # 3. Registrar os seus próprios blueprints
-    app.register_blueprint(main_bp)   # "/" → home.html
+    app.register_blueprint(main_bp)   # "/" home.html
     app.register_blueprint(auth_bp)   # "/login", "/register"
     app.register_blueprint(chat_bp)   # "/chat"
 

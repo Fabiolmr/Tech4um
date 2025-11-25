@@ -33,7 +33,7 @@ def home():
         if code in rooms: # se código está na lista de fóruns
             return redirect(url_for("chat.access_forum", forum_id=code))
         
-    return render_template("home.html", rooms=rooms.values()) # rooms=rooms.values() persiste a lista de fóruns
+    return render_template("home.html", rooms=rooms.values()) # persiste a lista de fóruns
 
 
 

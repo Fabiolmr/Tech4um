@@ -33,7 +33,7 @@ def register_socketio_handlers(socketio: SocketIO):
     @socketio.on("join")
     def handle_join(data):
         room = data["room"]
-        username = current_user.username  # agora pega do login real
+        username = current_user.username
 
         if not room or not username:
             return

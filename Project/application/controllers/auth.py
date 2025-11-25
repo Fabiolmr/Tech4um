@@ -24,6 +24,7 @@ def is_strong_password(password):
     # Opcional: Adicionar verificação para caractere especial (e.g., r"[!@#$%^&*()]")
     
     return True
+
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -40,7 +41,7 @@ def register():
             flash("As senhas não coincidem!", "danger")
             return redirect(url_for("auth.register"))
         
-        # 2. 🔑 ADICIONE A VERIFICAÇÃO DE FORÇA DA SENHA AQUI
+        # VERIFICAÇÃO DE FORÇA DA SENHA
         if not is_strong_password(password):
             flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas e números.", "danger")
             return redirect(url_for("auth.register"))
