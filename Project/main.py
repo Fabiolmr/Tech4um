@@ -1,6 +1,5 @@
 #executar este arquivo para teste local
 #Obs: o login com o google não está 100% implementado
-#mais
 
 from application import create_app, socketio
 

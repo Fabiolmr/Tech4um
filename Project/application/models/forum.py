@@ -5,10 +5,13 @@ class Forum:
         self.name = name
         self.description = description
         self.participantes = [] #ARMAZENA PARTICIPANTES
+        self.messages = []
+
 
     def add_participant(self, user):
         if not any(p.id == user.id for p in self.participantes):
                 self.participantes.append(user)
+        
 
 def get_all_forums():
     # Dados simulados para a Homepage

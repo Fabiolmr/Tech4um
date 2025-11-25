@@ -1,12 +1,10 @@
 from flask import Flask
 from flask_socketio import SocketIO
+from flask_dance.contrib.google import google, make_google_blueprint
+from flask_dance.consumer import oauth_authorized
 
 from .extensions import db, login_manager, socketio
 from config import Config
-
-from flask_dance.contrib.google import make_google_blueprint
-from flask_dance.consumer import oauth_authorized
-from flask_dance.contrib.google import google 
 
 
 def create_app():

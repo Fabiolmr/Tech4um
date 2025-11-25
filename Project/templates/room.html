@@ -16,7 +16,11 @@
 <div class="message-box">
     <h2>Chat Room: {{ room }} </h2>
 
-    <div class="messages" id="messages"></div>
+    <div class="messages" id="messages">
+        {% for msg in messages %}
+            <div>{{ msg }}</div>
+        {% endfor %}
+    </div>
 
     <div class="inputs">
         <input 
@@ -25,12 +29,12 @@
             id="message"
         />
         <button type="button" id="send-btn" onclick="sendMessage()">
-            Send
+            Enviar
         </button>
     </div>
 </div>
 
-<script>
+<script type="text/javascript">
     // Conectar ao backend Socket.IO
     const socketio = io();
 

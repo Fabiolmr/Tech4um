@@ -3,6 +3,9 @@ from flask_login import login_required, current_user
 
 from application.extensions import rooms, generate_unique_code
 from application.models.forum import Forum
+from application.websockets.handlers import register_socketio_handlers
+
+
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -20,35 +23,8 @@ def access_forum(forum_id):
     session["room"] = forum_id
     session["name"] = current_user.username
 
-    return render_template("room.html", room=forum_id, name=current_user.username, forum=forum)
-
-
-@chat_bp.route("/", methods=["GET", "POST"])
-def home():
-    if request.method == "POST":
-        create_name = request.form.get("create_name")
-        create_desc = request.form.get("create-desc")
-
-        #------------ sequencia para criação de forum --------------------
-        if create_name:
-            #VERIFICA SE USUÁRIO JÁ TÁ LOGADO
-            if not current_user.is_authenticated:
-                flash("Você precisa estar logado para criar uma sala.", "danger")
-                return redirect(url_for("auth.login"))
-
-            new_id = generate_unique_code(4)
-            # NOVO FORUM
-            new_forum = Forum(new_id, create_name, create_desc)
-            rooms[new_id] = new_forum
-            return redirect(url_for("chat.access_forum", forum_id=new_id))
-
-        #------------- sequencia para entrar em forum -----------------
-        code = request.form.get("entrar")
-        if code in rooms: # se código está na lista de fóruns
-            return redirect(url_for("chat.access_forum", forum_id=code))
-        
-    return render_template("home.html", rooms=rooms.values()) # rooms=rooms.values() persiste a lista de fóruns
-
+    return redirect(url_for("chat.room"))
+    #return render_template("room.html", room=forum_id, name=current_user.username, forum=forum)
 
 @chat_bp.route("/room")
 @login_required
@@ -57,7 +33,7 @@ def room():
     name = session.get("name")
     
     if room is None or name is None or room not in rooms:
-        return redirect(url_for("home"))
+        return redirect(url_for("main.home"))
 
-    return render_template("room.html", room=room, name=name)
+    return render_template("room.html", room=room, username=name, messages=rooms[room].messages)
 

@@ -46,6 +46,6 @@ def google_logged_in(blueprint, token):
         login_user(new_user)
         flash(f"Conta criada com Google! Bem-vindo(a), {name}.", category="success")
 
-    return redirect(url_for("chat.home")) # Usamos chat.home agora
+    return redirect(url_for("chat.home"))
 
 

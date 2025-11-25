@@ -43,7 +43,6 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # CORREÇÃO!
     # → Usuário logado deve ir para a página interna (dashboard)
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
