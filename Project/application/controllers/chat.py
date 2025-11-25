@@ -18,7 +18,7 @@ def access_forum(forum_id):
     if not forum:
         return (redirect(url_for("chat.home")))
     
-    forum.add_participant(current_user)
+    #forum.add_participant(current_user)
 
     session["room"] = forum_id
     session["name"] = current_user.username
@@ -35,5 +35,5 @@ def room():
     if room is None or name is None or room not in rooms:
         return redirect(url_for("main.home"))
 
-    return render_template("room.html", room=room, username=name, messages=rooms[room].messages)
+    return render_template("room.html", room=room, username=name, messages=rooms[room].messages, participantes=rooms[room].participantes)
 
