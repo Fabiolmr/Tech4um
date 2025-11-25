@@ -61,3 +61,18 @@ def register_socketio_handlers(socketio: SocketIO):
             send(f"{username} saiu da sala.", room=room)
             emit("update_participants", {"users": get_participantes_list(room)}, room=room)
             print(f"{username} saiu da sala {room}")
+
+
+    @socketio.on("disconnect")
+    def handle_disconnect():
+        if current_user.is_authenticated:
+
+            for room_id, forum in rooms.items():  
+                if any(u['id'] == current_user.id for u in forum.participantes):     
+                    forum.participantes = [u for u in forum.participantes if u['id'] != current_user.id]  
+                    leave_room(room_id)
+                    
+                    send(f"{current_user.username} saiu da sala.", room=room_id)
+                    emit("update_participants", {"users": get_participantes_list(room_id)}, room=room_id)
+                    print(f"{current_user.username} desconectou (aba fechada) da sala {room_id}")
+                    break
