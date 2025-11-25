@@ -6,6 +6,10 @@ from application import db
 import re
 
 def is_strong_password(password):
+    """
+    Verifica se a senha atende aos critérios de força.
+    Pelo menos 8 caracteres, uma letra maiúscula, uma minúscula e um dígito.
+    """
     if len(password) < 8:
         return False
     # Pelo menos uma letra maiúscula
@@ -20,13 +24,12 @@ def is_strong_password(password):
     # Opcional: Adicionar verificação para caractere especial (e.g., r"[!@#$%^&*()]")
     
     return True
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.home'))
 
     if request.method == "POST":
         username = request.form.get("username")
@@ -61,7 +64,6 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    # → Usuário logado deve ir para a página interna (dashboard)
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     
@@ -74,7 +76,6 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash("Login bem-sucedido!", "success")
-            # após login -> usuário sempre vai pro dashboard (não pro chat)
             return redirect(url_for("main.home"))
 
         flash("Nome de usuário ou senha inválidos.", "danger")
