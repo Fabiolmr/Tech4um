@@ -6,7 +6,6 @@ from application.models.forum import Forum
 from application.websockets.handlers import register_socketio_handlers
 
 
-
 chat_bp = Blueprint('chat', __name__)
 
 @chat_bp.route("/forum/<forum_id>")

@@ -8,9 +8,9 @@ login_manager = LoginManager()
 socketio = SocketIO()
 
 # variaveis globais para teste
+rooms = {}
 users = {}
 online_users = set()
-rooms = {}
 
 # Função para criar código de fórum
 from string import ascii_uppercase
