@@ -1,55 +1,65 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 
 {% block content %}
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-                <ul>
-                {% for category, message in messages %}
-                    <li class="alert alert-{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-    {% endwith %}
-
-    {% if current_user.is_authenticated %} <!-- SE O USUÁRIO JÁ FOR AUTENTICADO -->
-        <form method="post" class="buttons">
-            <h3>Cadastre fórum</h3>
-            <div>               <!-- CAMPOS DE ENTRADA PARA CADASTRO DE FORUM -->
-                <label>Nome:</label>
-                    <input type="text" id="create_name" name="create_name" placeholder="Pick a name!" />
-                <label>descrição:</label>
-                    <input type="text" id="create-desc" name="create-desc" placeholder="description" />
-
-            </div>              <!-- FIM CAMPO -->
-            <button type="submit" name="create" class="create-btn">Create a Room</button>
-        </form>
-
-        {% else %} <!-- SE NÃO -->
-            <!-- ESTILIZAÇÃO RÁPIDA -->
-        <div style="text-align: center; margin: 20px; padding: 20px; background-color: #f0f0f0; border-radius: 8px;">
-                <h3>Quer criar sua própria sala?</h3>
-                <p>Você precisa estar logado para criar uma nova sala de chat.</p>
-                <a href="{{ url_for('auth.login') }}" style="font-weight: bold;">Fazer Login</a> ou 
-                <a href="{{ url_for('auth.register') }}">Criar Conta</a>
-            </div>
-    {% endif %} <!-- FIM IF -->
-
-    <hr>
-        <!-- -------- LISTAGEM DE SALAS CADASTRADAS -------------- -->
+<!-- Topo / canto superior direito -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>MinhaHome</h2>
     <div>
-        {% for room in rooms %}
-        <form method="post">
-            <ul>
-                <li>id = {{ room.id }}</li>
-                <li>nome = {{ room.name }}</li>
-                <li>descrição = {{ room.description }}</li>
-            </ul>
-            <button type="submit" name="entrar" value="{{ room.id }}">Entrar</button>
-        </form>
+        {% if current_user.is_authenticated %}
+            Olá, {{ current_user.username }} | <a href="{{ url_for('auth.logout') }}">Sair</a>
         {% else %}
-            <p>Nenhuma sala criada</p>
-        {% endfor %}
+            <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+        {% endif %}
     </div>
+</div>
+
+<!-- Mensagens de flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="margin-bottom: 20px;">
+            {% for category, message in messages %}
+                <div style="padding: 10px; border: 1px solid #ccc; margin-bottom: 5px; border-radius: 5px; background-color: #f9f9f9;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Formulário para criar fórum, apenas se estiver logado -->
+{% if current_user.is_authenticated %}
+    <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+        <form method="post">
+            <h3>Cadastrar Novo Fórum</h3>
+            <div style="margin-bottom: 10px;">
+                <label>Nome:</label>
+                <input type="text" name="create_name" placeholder="Nome do fórum">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label>Descrição:</label>
+                <input type="text" name="create-desc" placeholder="Descrição do fórum">
+            </div>
+            <button type="submit" name="create">Criar Fórum</button>
+        </form>
+    </div>
+{% endif %}
+
+<hr>
+
+<!-- Listagem dos fóruns em cards (simulando feed do Reddit) -->
+<div style="display: flex; flex-wrap: wrap; gap: 15px;">
+    {% for room in rooms %}
+        <div style="border: 1px solid #ccc; border-radius: 8px; padding: 15px; width: 250px; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <h4>{{ room.name }}</h4>
+            <p>{{ room.description }}</p>
+            <form method="post">
+                <button type="submit" name="entrar" value="{{ room.id }}">Entrar</button>
+            </form>
+        </div>
+    {% else %}
+        <p>Nenhum fórum criado ainda.</p>
+    {% endfor %}
+</div>
 
 {% endblock %}

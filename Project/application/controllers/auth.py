@@ -92,4 +92,4 @@ def login():
 def logout():
     logout_user()
     flash("Você foi desconectado.", "info")
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("main.home"))
