@@ -2,99 +2,141 @@
 
 {% block content %}
 
-<!-- BOTÃO DE LOGOUT FIXO NO TOPO DIREITO -->
-{% if current_user.is_authenticated %}
-<div style="position: fixed; top: 10px; right: 10px; z-index: 1000;">
-    <a href="{{ url_for('auth.logout') }}"
-       style="padding: 5px 10px; background-color: #ff4d4d; color: white; text-decoration: none; border-radius: 4px;">
-        Logout
-    </a>
-</div>
-{% endif %}
+<!-- HEADER SIMPLES (apenas logo à esquerda) -->
+<header class="header">
+    <div class="logo">TECH4UM</div>
+    <!-- nenhuma search bar, nada mais -->
+</header>
 
-<!-- CONTEÚDO DO CHAT -->
-<div class="message-box">
-    <h2>Chat Room: {{ room }} </h2>
+<!-- SIDEBAR PADRÃO -->
+<div class="sidebar">
 
-    <div class="messages" id="messages">
-        {% for msg in messages %}
-            <div>{{ msg }}</div>
-        {% endfor %}
+    <!-- Perfil -->
+    <div class="user-info">
+        <p>@{{ username }}</p>
+        <button onclick="window.location.href='/logout'">Sair</button>
     </div>
 
-    <div class="inputs">
+    <!-- Menu -->
+    <div class="sidebar-section">
+        <ul>
+            <li onclick="window.location.href='/feed'">
+                <img src="/static/icons/list.svg" class="sideicon" alt="">
+                Feed
+            </li>
+
+            <li onclick="window.location.href='/forums'">
+                <img src="/static/icons/forum.svg" class="sideicon" alt="">
+                Fóruns
+            </li>
+
+            <li onclick="window.location.href='/settings'">
+                <img src="/static/icons/settings.svg" class="sideicon" alt="">
+                Configurações
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+
+<div class="chat-wrapper">
+
+    <!-- ÁREA DO CHAT -->
+    <div class="chat-area">
+
+        <div class="chat-header">
+            <h2>CHAT - {{ room }}</h2>
+        </div>
+
+        <!-- MENSAGENS -->
+        <div class="messages" id="messages">
+            {% for msg in messages %}
+        <div>{{ msg }}</div> {% endfor %}
+        </div>
+
+        <!-- INPUT -->
+        <div class="inputs">
         <input 
-            type="text"
-            placeholder="Message"
-            id="message"
-        />
-        <button type="button" id="send-btn" onclick="sendMessage()">
-            Enviar
-        </button>
+        type="text"
+        placeholder="Message"
+        id="message" />
+    <button type="button" id="send-btn" onclick="sendMessage()"> Enviar
+    </button>
+</div>
+
     </div>
-</div>
 
-<div class="header-chat">
-    <a href="{{ url_for('main.home') }}" class="btn-voltar">← Voltar para Salas</a>
-    <h2>Chat Room: {{ room }}</h2>
-</div>
-
-<!-- PARTICIPANTES DA SALA ATUAL -->
-<div class="participantes">
-    <h3>Participantes da Sala</h3>
-    <ul id="participants-list">
-        {% for user in participantes %}
-            <li>{{ user.username }}</li>
-        {% endfor %}
-    </ul>
-</div>
-
-<!-- LISTA LATERAL: TODOS OS USUÁRIOS -->
-<div class="sidebar-users">
+    <!-- PARTICIPANTES -->
+    <div class="sidebar-users">
     <h3>Usuários (Online / Offline)</h3>
-    <div id="users-list"></div> <!-- ← LISTA DE TODOS OS USUÁRIOS -->
+    <div id="users-list"></div> </div>
+
 </div>
 
-<style>
-    .user-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
-    }
 
-    .user-status {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-
-    .online {
-        background-color: #00cc44;
-    }
-
-    .offline {
-        background-color: #cc0000;
-    }
-</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
 <script type="text/javascript">
-
-    const socketio = io();
-
-    // Entrar na sala
-    socketio.emit("join", {
-        room: "{{ room }}",
-        username: "{{ username }}"
+    // Garante que o Socket.IO está carregado ao voltar de cache/histórico
+    window.addEventListener( "pageshow", function ( event ) {
+      var historyTraversal = event.persisted || 
+                             ( typeof window.performance != "undefined" && 
+                                  window.performance.navigation.type === 2 );
+      if ( historyTraversal ) {
+        window.location.reload();
+      }
     });
 
-    // Função que adiciona mensagens no chat
+    const socketio = io();
+    const currentUsername = "{{ username }}"; // Variável para o seu nome de usuário
+
+    // Entrar na sala
+    socketio.on('connect', () => {
+        console.log("Conectado! Enviando join...");
+        socketio.emit("join", {
+            room: "{{ room }}",
+            username: currentUsername
+        });
+        
+        // Solicita lista completa de usuários ao entrar na página
+        socketio.emit("get_users", { room: "{{ room }}" });
+    });
+
+    socketio.on("error_redirect", (data) => {
+        alert("A sala foi encerrada ou reiniciada. Você será redirecionado.");
+        window.location.href = data.url;
+    });
+
+    // Função que adiciona mensagens no chat, adaptada para o novo estilo
     function addMessage(text) {
-        const messages = document.getElementById("messages");
+        const messagesContainer = document.getElementById("messages");
+        if (!messagesContainer) return; // Segurança
+
         const div = document.createElement("div");
+        
+        // Verifica se a mensagem contém o seu username para estilização
+        // Seu backend envia mensagens como "USERNAME: Mensagem"
+        if (text.startsWith(currentUsername + ":")) {
+            // Estilo para a minha própria mensagem (pode ser "msg-me" ou similar no seu CSS)
+            div.className = "msg-me"; 
+        } else if (text.includes("entrou na sala") || text.includes("saiu da sala")) {
+            // Estilo para mensagens do sistema
+            div.className = "msg-system";
+        } else {
+            // Estilo para mensagens de outros usuários
+            div.className = "msg-other"; 
+        }
+
+        // Se o seu CSS usa <p> dentro da div, use:
+        // div.innerHTML = `<p class="msg-text">${text}</p>`;
+        // Senão, use o simples (que é o que o seu script antigo fazia):
         div.innerText = text;
-        messages.appendChild(div);
+        
+        messagesContainer.appendChild(div);
+        
+        // Rolar para baixo automaticamente
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Recebe mensagens normais
@@ -102,21 +144,11 @@
         addMessage(data);
     });
 
-    // Atualiza lista de PARTICIPANTES DA SALA
-    socketio.on("update_participants", (data) => {
-        const container = document.getElementById("participants-list");
-        container.innerHTML = "";
-        
-        data.users.forEach(user => {
-            const li = document.createElement("li");
-            li.textContent = user.username;
-            container.appendChild(li);
-        });
-    });
-
     // Recebe lista de TODOS os usuários do backend
     socketio.on("users_list", (users) => {
         const container = document.getElementById("users-list");
+        if (!container) return;
+        
         container.innerHTML = "";
 
         users.forEach(user => {
@@ -132,20 +164,17 @@
                 status.classList.add("offline");
             }
 
-            const username = document.createElement("span");
-            username.textContent = user.username;
+            const usernameElement = document.createElement("span");
+            usernameElement.textContent = user.username;
 
             div.appendChild(status);
-            div.appendChild(username);
+            div.appendChild(usernameElement);
 
             container.appendChild(div);
         });
     });
 
-    // Solicita lista completa de usuários ao abrir a página
-    socketio.emit("get_users", { room: "{{ room }}" });
-
-    // Enviar mensagem
+    // Enviar mensagem (esta função é chamada pelo onclick="sendMessage()" do botão)
     function sendMessage() {
         const input = document.getElementById("message");
         const text = input.value;
@@ -154,7 +183,7 @@
 
         socketio.emit("message", {
             room: "{{ room }}",
-            username: "{{ username }}",
+            username: currentUsername,
             message: text
         });
 
@@ -165,12 +194,9 @@
     window.addEventListener("beforeunload", () => {
         socketio.emit("leave", {
             room: "{{ room }}",
-            username: "{{ username }}"
+            username: currentUsername
         });
-        // ❌ REMOVIDO: socketio.disconnect();
     });
-
-
 </script>
 
 {% endblock %}

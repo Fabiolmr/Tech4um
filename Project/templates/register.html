@@ -4,15 +4,6 @@
     <div class="register-container">
         <h2>Cadastro</h2>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for category, message in messages %}
-                        <li class="alert alert-{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
             <!-- CAMPO PARA CADASTRO DE USUÁRIO -->
         <form method="POST">
             <div class="form-group"> <!-- NOME -->

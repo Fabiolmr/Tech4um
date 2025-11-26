@@ -1,54 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="login-container">
-        <h2>Login</h2>
+   <div class="login-title">TECH4UM</div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul>
-                    {% for category, message in messages %}
-                        <li class="alert alert-{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+<div class="login-container">
 
-        <form method="POST">
-            
-            <div class="form-group">
-                <label for="username">Nome de usuário</label>
-                <input type="text" id="username" name="username" required>
-            </div>
+    <h2>Entrar na sua conta</h2>
 
-            <div class="form-group">
-                <label for="password">Senha</label>
+    <form method="POST">
 
-                <div class="password-wrapper">
-                    <input type="password" id="password" name="password" required>
-                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
-                </div>
-            </div>
-            
-            <div>
-                <a href="{{ google_login_url }}">
-                    Logar com google
-                </a>
-
-
-            <button type="submit">Entrar</button>
-        </form>
-
-        <div class="message">
-            <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a></p>
+        <div class="form-group">
+            <label for="username">Email</label>
+            <input type="text" id="username" name="username" placeholder="Seu email..." required>
         </div>
 
-    </div>
+        <div class="form-group">
+            <label for="password">Senha</label>
 
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById("password");
-            passwordInput.type = passwordInput.type === "password" ? "text" : "password";
-        }
-    </script>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="Sua senha..." required>
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+        </div>
+
+        <button type="submit">Entrar</button>
+    </form>
+
+    <div class="message">
+        <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a></p>
+    </div>
+</div>
+
 {% endblock %}

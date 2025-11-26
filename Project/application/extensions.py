@@ -10,6 +10,8 @@ socketio = SocketIO()
 # Variável global para armazenar salas criadas dinamicamente
 rooms = {}
 
+online_users = set()
+
 # Função para criar código de fórum
 from string import ascii_uppercase
 import random

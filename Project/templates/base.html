@@ -5,13 +5,24 @@
     <title>Tech4um</title>
 
     <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"/>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" 
     integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
     crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="content"> {% block content %} {% endblock %}</div>
+    <div class="content"> {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages" style="text-align: center; margin-bottom: 20px;">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}" style="color: #ff4500;">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %} {% endblock %}</div>
          
 </body>
 </html>
