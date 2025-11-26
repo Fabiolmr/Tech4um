@@ -37,3 +37,24 @@ def room():
 
     return render_template("room.html", room=room, username=name, messages=rooms[room].messages, participantes=rooms[room].participantes)
 
+@chat_bp.route("/logout")
+@login_required
+def logout():
+    user_id = current_user.id
+    
+    # Marcar o usuário como offline em TODAS as salas
+    for room_id, forum in rooms.items():
+        for u in forum.participantes:
+            if u["id"] == user_id:
+                u["online"] = False
+                u["sid"] = None
+
+        # divulgar atualização
+        socketio.emit("update_users", {
+            "users": [u for u in forum.participantes]
+        }, room=room_id)
+
+    logout_user()
+    return redirect(url_for("auth.login"))
+
+

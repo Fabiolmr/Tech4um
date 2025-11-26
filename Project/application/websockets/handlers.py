@@ -10,8 +10,15 @@ def register_socketio_handlers(socketio: SocketIO):
 
     def get_participantes_list(room_id):
         if room_id in rooms:
-            return [{"username": u['username']} for u in rooms[room_id].participantes]
+            return [
+                {
+                    "username": u['username'],
+                    "online": u.get("online", False)
+                }
+                for u in rooms[room_id].participantes
+            ]
         return []
+
 
     @socketio.on("message")
     def handle_message(data):
@@ -64,20 +71,37 @@ def register_socketio_handlers(socketio: SocketIO):
             return
         
         if room in rooms:
-            user_data = {
-                "id": current_user.id,
-                "username": current_user.username,
-                "sid": request.sid
-            }
 
-            #if not any(u['id'] == user_data['id'] for u in rooms[room].participantes):
-            rooms[room].participantes = [u for u in rooms[room].participantes if u['id'] != current_user.id]
-            rooms[room].participantes.append(user_data)
+            # BUSCA SE O USUÁRIO JÁ EXISTE NA LISTA GLOBAL
+            usuario_existente = next((u for u in rooms[room].participantes if u['id'] == current_user.id), None)
+
+            if usuario_existente:
+                # Apenas atualiza o estado dele
+                usuario_existente["sid"] = request.sid
+                usuario_existente["online"] = True
+                usuario_existente["in_room"] = True
+            else:
+                # Criar novo usuário global
+                user_data = {
+                    "id": current_user.id,
+                    "username": current_user.username,
+                    "sid": request.sid,
+                    "online": True,
+                    "in_room": True      # AGORA ESTÁ NA SALA
+                }
+                rooms[room].participantes.append(user_data)
 
             join_room(room)
+
             send(f"{username} entrou na sala.", room=room)
-            emit("update_participants", {"users": get_participantes_list(room)}, room=room)
+
+            # Envia somente quem está na sala
+            emit("update_participants", {
+                "users": [u for u in rooms[room].participantes if u["in_room"]]
+            }, room=room)
+
             print(f"{username} entrou {room}")
+
 
     
     @socketio.on("leave")
@@ -86,23 +110,54 @@ def register_socketio_handlers(socketio: SocketIO):
         username = current_user.username
 
         if room in rooms:
-            rooms[room].participantes = [u for u in rooms[room].participantes if u['id'] != current_user.id]
+            for u in rooms[room].participantes:
+                if u["id"] == current_user.id:
+                    u["in_room"] = False      # SAI DA SALA MAS CONTINUA ONLINE
+                    break
+
             leave_room(room)
             send(f"{username} saiu da sala.", room=room)
-            emit("update_participants", {"users": get_participantes_list(room)}, room=room)
+
+            # Atualiza só quem está na sala
+            emit("update_participants", {
+                "users": [u for u in rooms[room].participantes if u["in_room"]]
+            }, room=room)
+
             print(f"{username} saiu da sala {room}")
+
 
 
     @socketio.on("disconnect")
     def handle_disconnect():
         if current_user.is_authenticated:
 
-            for room_id, forum in rooms.items():  
-                if any(u['id'] == current_user.id for u in forum.participantes):     
-                    forum.participantes = [u for u in forum.participantes if u['id'] != current_user.id]  
-                    leave_room(room_id)
-                    
-                    send(f"{current_user.username} saiu da sala.", room=room_id)
-                    emit("update_participants", {"users": get_participantes_list(room_id)}, room=room_id)
-                    print(f"{current_user.username} desconectou (aba fechada) da sala {room_id}")
-                    break
+            for room_id, forum in rooms.items():
+
+                for u in forum.participantes:
+                    if u["id"] == current_user.id:
+
+                        u["online"] = False    # FICA OFFLINE
+                        u["sid"] = None
+                        u["in_room"] = False   # NÃO ESTÁ EM NENHUMA SALA
+                        break
+
+                leave_room(room_id)
+
+                send(f"{current_user.username} saiu da sala.", room=room_id)
+
+                emit("update_participants", {
+                    "users": [u for u in forum.participantes if u["in_room"]]
+                }, room=room_id)
+
+                print(f"{current_user.username} desconectou da sala {room_id}")
+                break
+
+
+
+
+    @socketio.on("get_users")
+    def get_users(data):
+        room = data["room"]
+        emit("users_list", rooms[room].participantes, to=request.sid)
+
+           
