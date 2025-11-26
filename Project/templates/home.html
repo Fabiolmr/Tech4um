@@ -10,6 +10,7 @@
             Olá, {{ current_user.username }} | <a href="{{ url_for('auth.logout') }}">Sair</a>
         {% else %}
             <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+            <a href="{{ url_for('auth.register') }}" class="btn">Register</a>
         {% endif %}
     </div>
 </div>
