@@ -1,10 +1,9 @@
 from flask import Flask
-from flask_socketio import SocketIO
 from flask_dance.contrib.google import google, make_google_blueprint
 from flask_dance.consumer import oauth_authorized
-
-from .extensions import db, login_manager, socketio
 from config import Config
+
+from application.extensions import login_manager, socketio
 
 
 def create_app():
@@ -18,18 +17,12 @@ def create_app():
 
     # Inicialização das extensões
     socketio.init_app(app)
-    db.init_app(app)
 
     # Login Manager
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    from .models.user import load_user, google_logged_in
-
-    @login_manager.user_loader
-    def user_loader(user_id):
-        return load_user(user_id)
-
+    from .models.user import google_logged_in
 
     # 1. Blueprints normais
     from .controllers.main import main_bp      # Home / Página inicial

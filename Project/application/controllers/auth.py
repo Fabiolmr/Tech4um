@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.user import User
-from application import db
+from application.extensions import users
 import re
 
 def is_strong_password(password):
@@ -33,9 +33,11 @@ def register():
         return redirect(url_for('main.home'))
 
     if request.method == "POST":
+        email = request.form.get("email")
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
+        
 
         if password != confirm_password:
             flash("As senhas não coincidem!", "danger")
@@ -46,16 +48,19 @@ def register():
             flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas e números.", "danger")
             return redirect(url_for("auth.register"))
         
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash("Nome de usuário já existe.", "danger")
+        if any(u.email == email for u in users.values()):
+            flash("E-mail já cadastrado.", "danger")
             return redirect(url_for("auth.register"))
         
-        hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
-        new_user = User(username=username, password=hashed_password)
+        if any(u.username == username for u in users.values()):
+            flash("Nome de usuário já existe.", "danger")
+            return redirect(url_for("auth.register"))
 
-        db.session.add(new_user)
-        db.session.commit()
+        hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
+        new_id = str(len(users) + 1)
+        new_user = User(id=new_id, email=email, username=username, password=hashed_password)
+
+        users[new_id] = new_user
 
         flash("Conta criada com sucesso!", "success")
         return redirect(url_for("auth.login"))
@@ -69,11 +74,12 @@ def login():
         return redirect(url_for('main.home'))
     
     if request.method == "POST":
-        username = request.form.get("username")
+        identificador = request.form.get("username")
         password = request.form.get("password")
 
-        user = User.query.filter_by(username=username).first()
+        user = next((u for u in users.values() if u.username == identificador or u.email == identificador), None)
         
+
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash("Login bem-sucedido!", "success")

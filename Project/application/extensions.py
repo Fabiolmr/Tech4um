@@ -7,10 +7,10 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 socketio = SocketIO()
 
-# Variável global para armazenar salas criadas dinamicamente
-rooms = {}
-
+# variaveis globais para teste
+users = {}
 online_users = set()
+rooms = {}
 
 # Função para criar código de fórum
 from string import ascii_uppercase

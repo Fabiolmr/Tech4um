@@ -1,20 +1,22 @@
-from application.extensions import db, login_manager
+from application.extensions import login_manager, users
 from flask_login import UserMixin
 from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash
 from flask_dance.contrib.google import google
 
 #-----------CLASSE USUÁRIO-------------
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False) # Armazena o hash
+class User(UserMixin):
+    def __init__(self, id, email, username, password):
+        self.id = str(id)
+        self.email = email
+        self.username = username
+        self.password = password
 
 
 # Loader para o Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id)) #RETORNA USUÁRIO
+    return users.get(user_id) #RETORNA USUÁRIO
 
 
 # Função par caso o login google dê certo
@@ -34,18 +36,18 @@ def google_logged_in(blueprint, token):
     email = google_user_info["email"]
     name = google_user_info["name"]
 
-    user = User.query.filter_by(username=email).first()
+    user = next((u for u in users.values() if u.email == email), None)
 
-    if user:
-        login_user(user)
-        flash(f"Login bem-sucedido com Google! Bem-vindo(a), {name}.", category="success")
-    else:
-        new_user = User(username=email, password=generate_password_hash("NO_PASSWORD_NEEDED_OAUTH"))
-        db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user)
+    if not user:
+        new_id = str(len(users) + 1)
+        new_user = User(id=new_id, email=email, username=name, password=generate_password_hash("OAUTH_LOGIN"))
+        users[new_id] = new_user
+        user = new_user
         flash(f"Conta criada com Google! Bem-vindo(a), {name}.", category="success")
-
+    else:
+        flash(f"Login bem-sucedido com Google! Bem-vindo(a), {name}.", category="success")
+    
+    login_user(user)
     return redirect(url_for("chat.home"))
 
 
