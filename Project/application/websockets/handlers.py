@@ -112,15 +112,17 @@ def register_socketio_handlers(socketio: SocketIO):
         if room in rooms:
             for u in rooms[room].participantes:
                 if u["id"] == current_user.id:
-                    u["in_room"] = False      # SAI DA SALA MAS CONTINUA ONLINE
+                    u["in_room"] = False
+                    u["online"] = True      
+                    u["soft_disconnect"] = False   
                     break
 
             leave_room(room)
             send(f"{username} saiu da sala.", room=room)
 
-            # Atualiza só quem está na sala
             emit("update_participants", {
                 "users": [u for u in rooms[room].participantes if u["in_room"]]
+    
             }, room=room)
 
             print(f"{username} saiu da sala {room}")
@@ -132,28 +134,32 @@ def register_socketio_handlers(socketio: SocketIO):
         if current_user.is_authenticated:
 
             for room_id, forum in rooms.items():
-
                 for u in forum.participantes:
+                    
                     if u["id"] == current_user.id:
 
-                        u["online"] = False    # FICA OFFLINE
-                        u["sid"] = None
-                        u["in_room"] = False   # NÃO ESTÁ EM NENHUMA SALA
+                        # 🔥 FIX — se for só saída de sala, ignora desconexão
+                        if u.get("soft_disconnect"):
+                            u["soft_disconnect"] = False
+                            return
+
+                        # 🔥 Se o SID bate, aí sim é desconexão real
+                        if u["sid"] == request.sid:
+                            u["online"] = False
+                            u["sid"] = None
+                            u["in_room"] = False
+
                         break
 
                 leave_room(room_id)
 
-                send(f"{current_user.username} saiu da sala.", room=room_id)
-
                 emit("update_participants", {
-                    "users": [u for u in forum.participantes if u["in_room"]]
+                    "users":   [u for u in forum.participantes if u["in_room"]],
+                    "online":  [u for u in forum.participantes if u["online"]],
+                    "offline": [u for u in forum.participantes if not u["online"]],
                 }, room=room_id)
 
-                print(f"{current_user.username} desconectou da sala {room_id}")
                 break
-
-
-
 
     @socketio.on("get_users")
     def get_users(data):
