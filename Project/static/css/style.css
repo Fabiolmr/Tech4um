@@ -543,3 +543,43 @@ input:-webkit-autofill:active {
     border: none !important;
 }
 
+
+/* BARRA @ DE AUTOCOMPLETE (SUGESTÕES)  */
+.suggestions-box {
+    position: absolute;
+    bottom: 60px; /* Fica logo acima do input */
+    left: 20px;
+    background: #272729;
+    border: 1px solid #343536;
+    border-radius: 8px;
+    width: 200px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none; /* Escondido por padrão */
+    box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+}
+
+.suggestions-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestions-box li {
+    padding: 10px;
+    color: #d7dadc;
+    cursor: pointer;
+    border-bottom: 1px solid #343536;
+    transition: background 0.2s;
+}
+
+.suggestions-box li:last-child {
+    border-bottom: none;
+}
+
+.suggestions-box li:hover,
+.suggestions-box li.selected {
+    background: #ff4500; /* Cor destaque */
+    color: white;
+}

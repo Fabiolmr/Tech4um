@@ -61,6 +61,11 @@
             {% endfor %}
         </div>
 
+        <!-- BARRA DE AUTOCOMPLETE-->
+        <div id="suggestions" class="suggestions-box">
+            <ul id="suggestions-list"></ul>
+        </div>
+
         <form method="POST" action="/send/{{ room }}" class="chat-input">
             <input type="text" name="message" placeholder="Digite sua mensagem..." autocomplete="off">
             <button type="submit">Enviar</button>
@@ -129,11 +134,11 @@
 
             socket.emit('message', {room: room, message: msg});
             messageInput.value = '';
+            hideSuggestions();
         }
     });
 
     socket.on('message', function(data) {
-
         const msgDiv = document.createElement('div');
         const isMe = (data.user === currentUser);
 
@@ -158,13 +163,143 @@
 
     function toggleParticipants() {
         const panel = document.getElementById('participantsPanel');
-        if (panel.classList.contains('open')) {
-            panel.classList.remove('open');
+        //if (panel.classList.contains('open')) {
+        //    panel.classList.remove('open');
+        //} else {
+        //    panel.classList.add('open');
+        //}
+        panel.classList.toggle('open');
+    }
+
+    //-------------lógica do autocomplete-------------
+    //o loop for tá seguindo a sintaxe do falsk do python, ele deve avisar que tá marcando de vermelho, mas funciona
+    let participants = [
+        {% for p in participantes %}
+            { username: "{{ p.username }}" },
+        {% endfor %}
+    ];
+
+    socket.on('users_list', (data) => {
+        participants = data;
+    });
+
+    const suggestionsBox = document.getElementById('suggestions');
+    const suggestionsList = document.getElementById('suggestions-list');
+    let currentFocus = -1;
+
+    messageInput.addEventListener('input', function() {
+        const text = this.value;
+        const cursorPos = this.selectionStart;
+        const textUpToCursor = text.substring(0, cursorPos);
+
+        const match = textUpToCursor.match(/@([\w]*)$/);
+
+        if (match) {
+            const query = match[1].toLowerCase();
+            showSuggestions(query);
         } else {
-            panel.classList.add('open');
+            hideSuggestions();
+        }
+    });
+
+
+    function showSuggestions(query) {
+        suggestionsList.innerHTML = "";
+        currentFocus = -1;
+
+        // Filtra usuários (remove o próprio usuário da lista)
+        const matches = participants.filter(u => 
+            u.username.toLowerCase().startsWith(query) && 
+            u.username !== currentUser
+        );
+
+        if (matches.length === 0) {
+            hideSuggestions();
+            return;
+        }
+
+        matches.forEach(u => {
+            const li = document.createElement("li");
+            li.innerHTML = `<strong>@${u.username}</strong>`;
+            
+            // Ao clicar no nome
+            li.addEventListener("click", function() {
+                selectUser(u.username);
+            });
+
+            suggestionsList.appendChild(li);
+        });
+
+        suggestionsBox.style.display = "block";
+    }
+
+    function hideSuggestions() {
+        if(suggestionsBox) suggestionsBox.style.display = "none";
+        currentFocus = -1;
+    }
+    
+    function selectUser(username) {
+        const text = messageInput.value;
+        const cursorPos = messageInput.selectionStart;
+        const textUpToCursor = text.substring(0, cursorPos);
+        
+        const atSymbolIndex = textUpToCursor.lastIndexOf("@");
+        
+        const newText = text.substring(0, atSymbolIndex) + 
+                        "@" + username + " " + 
+                        text.substring(cursorPos);
+        
+        messageInput.value = newText;
+        hideSuggestions();
+        messageInput.focus();
+    }
+
+    // Navegação por teclado (Setas e Enter)
+    messageInput.addEventListener("keydown", function(e) {
+        if (suggestionsBox.style.display === "block") {
+            const items = suggestionsList.getElementsByTagName("li");
+            
+            if (e.key === "ArrowDown") {
+                currentFocus++;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === "ArrowUp") {
+                currentFocus--;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === "Enter") {
+                if (currentFocus > -1 && items[currentFocus]) {
+                    e.preventDefault();
+                    items[currentFocus].click();
+                }
+            } else if (e.key === "Escape") {
+                hideSuggestions();
+            }
+        }
+    });
+    
+    function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        
+        items[currentFocus].classList.add("active");
+        items[currentFocus].scrollIntoView({ block: "nearest" });
+    }
+
+    function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove("active");
         }
     }
 
+    // Fecha se clicar fora
+    document.addEventListener("click", function(e) {
+        if (e.target !== messageInput && e.target !== suggestionsBox) {
+            hideSuggestions();
+        }
+    });
 </script>
 
 {% endblock %}
