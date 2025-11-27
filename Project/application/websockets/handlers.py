@@ -12,13 +12,29 @@ def register_socketio_handlers(socketio: SocketIO):
 
     def get_participantes_list(room_id):
         if room_id in rooms:
-            return [
-                {
-                    "username": u['username'],
-                    "online": u.get("online", False)
-                }
-                for u in rooms[room_id].participantes
-            ]
+            forum = rooms[room_id]
+            lista_exibicao = []
+
+            for member_name in forum.members:
+                is_online = any(u['username'] == member_name and u.get('online') for u in forum.participantes)
+                
+                lista_exibicao.append({
+                    "username": member_name,
+                    "online": is_online,
+                    "is_member": True
+                })
+
+            members_set = set(forum.members)
+            for p in forum.participantes:
+                if p['username'] not in members_set and p.get('online'):
+                    lista_exibicao.append({
+                        "username": p['username'],
+                        "online": True,
+                        "is_member": False # Visitante
+                    })
+
+            return lista_exibicao
+            
         return []
 
     def broadcast_users_list():
@@ -131,6 +147,9 @@ def register_socketio_handlers(socketio: SocketIO):
     
     @socketio.on("leave")
     def handle_leave(data):
+        if not current_user.is_authenticated:
+            return
+
         room = data.get("room")
         username = current_user.username
 
@@ -156,6 +175,9 @@ def register_socketio_handlers(socketio: SocketIO):
 
     @socketio.on("message")
     def handle_message(data):
+        if not current_user.is_authenticated:
+            return
+        
         room = data["room"]
         if room not in rooms:
             return

@@ -92,15 +92,29 @@
 
                 {% for room in rooms %}
                 <div class="forum-card">
-                    <form method="POST">
                         <h4>{{ room.name }}</h4>
                         <p>{{ room.description }}</p>
-
+                    <form method="POST">
                         <button type="submit" class="btn" 
                                 name="entrar" value="{{ room.id }}">
-                            Entrar
+                            Entrar no Chat
                         </button>
                     </form>
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.username in room.members %}
+                        <span class="badge-member" style="color: #4CAF50; font-weight: bold; margin-left: 10px;">
+                            Membro
+                        </span>
+                        {% else %}
+
+                        <form method="POST" action="{{ url_for('main.join_member', forum_id=room.id) }}" style="display:inline; margin-left: 10px;">
+                            <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
+                                Seja Membro
+                            </button>
+                        </form>
+                    
+                    {% endif %}
+                {% endif %}
                 </div>
                 {% endfor %}
 
@@ -138,11 +152,18 @@
         card.classList.add("forum-card");
 
         card.innerHTML = `
-            <form method="POST">
-                <h4>${data.name}</h4>
-                <p>${data.description}</p>
+            <h4>${data.name}</h4>
+            <p>${data.description}</p>
+            
+            <form method="POST" action="/" style="display:inline;">
                 <button type="submit" class="btn" name="entrar" value="${data.id}">
                     Entrar
+                </button>
+            </form>
+
+            <form method="POST" action="/join_member/${data.id}" style="display:inline; margin-left: 10px;">
+                <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
+                    Seja Membro
                 </button>
             </form>
         `;
