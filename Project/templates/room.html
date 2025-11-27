@@ -88,7 +88,33 @@
     const room = "{{ room }}";
     const currentUser = "{{ username }}";
 
-    socket.emit('join', {room: room});
+    function enterRoom() {
+        console.log("Tentando entrar na sala:", room);
+        socket.emit('join', {room: room});
+    }
+
+    socket.on('connect', () => {
+        enterRoom();
+    });
+
+    window.addEventListener("pageshow", (event) => {
+        // Se a página veio do cache (event.persisted) ou navegação tipo 'back_forward'
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            console.log("Voltou pelo navegador. Reconectando...");
+            
+            if (!socket.connected) {
+                socket.connect(); // Força reconexão se estiver desconectado
+            } else {
+                enterRoom(); // Se já estiver conectado, apenas reenvia o join
+            }
+        }
+    });
+
+    window.addEventListener("beforeunload", () => {
+        socket.emit('leave', {room: room});
+    });
+
+    //socket.emit('join', {room: room});
 
     const chatForm = document.querySelector('.chat-input');
     const messageInput = chatForm.querySelector('input[name="message"]');

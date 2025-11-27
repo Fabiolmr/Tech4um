@@ -47,16 +47,29 @@ def register_socketio_handlers(socketio: SocketIO):
     def handle_disconnect():
         if current_user.is_authenticated:
             # Remove ID do usuário ao desconectar (fechar aba ou logout)
-            online_users.discard(current_user.id)
+            #online_users.discard(current_user.id)
             print(f"User {current_user.username} disconnected (Global)")
             
             # (Opcional) Remove da lista interna da sala para não ficar 'fantasma' no chat
             for room_id, forum in rooms.items():
                 for u in forum.participantes:
                     if u['id'] == current_user.id:
-                        u['in_room'] = False
-                        u['online'] = False
-                        u['sid'] = None
+
+                        if u.get('sid') == request.sid:
+                            if u.get('in_room'):
+                                system_msg = {
+                                    "user": "Sistema",
+                                    "text": f"{current_user.username} saiu da sala."
+                                }
+
+                                forum.messages.append(system_msg)
+                                send(system_msg, room=room_id)    
+                                u['in_room'] = False
+                                u['online'] = False
+                                u['sid'] = None
+
+                                emit("users_list", get_participantes_list(room_id), room=room_id)
+            online_users.discard(current_user.id)
 
             broadcast_users_list()
 
@@ -102,7 +115,11 @@ def register_socketio_handlers(socketio: SocketIO):
                 "user": "Sistema",
                 "text": f"{username} entrou na sala."
             }
+
+            rooms[room].messages.append(system_msg)
             send(system_msg, room=room)
+
+            emit("users_list", get_participantes_list(room), room=room)
 
             broadcast_users_list()
             print(f"{username} entrou {room}")
@@ -129,6 +146,7 @@ def register_socketio_handlers(socketio: SocketIO):
                 "text": f"{username} saiu da sala."
             }
 
+            rooms[room].messages.append(system_msg)
             send(system_msg, room=room)
          
             emit("users_list", rooms[room].participantes, room=room)
@@ -141,7 +159,7 @@ def register_socketio_handlers(socketio: SocketIO):
         if room not in rooms:
             return
 
-        message = data["message"]
+        message = data.get("message")
         username = current_user.username
 
         #----------- LÓGICA PARA MENSAGEM PRIVADA----------#
@@ -157,10 +175,17 @@ def register_socketio_handlers(socketio: SocketIO):
                 target_user_in_room = next((u for u in rooms[room].participantes if u['username'] == target_username), None)
 
                 if target_user_in_room and target_user_in_room.get('sid'):
-                     emit("message", f"[Privado de {username}]: {msg_text}", to=target_user_in_room['sid'])
-                     emit("message", f"[Privado para {target_username}]: {msg_text}", to=request.sid)
+                     emit("message", {
+                         "user": username,
+                         "text": f"[Privado]: {msg_text}"}, to=target_user_in_room['sid'])
+                     emit("message", {
+                         "user": username,
+                         "text": f"[Privado para {target_username}]: {msg_text}"}, to=request.sid)
                      return
-            emit("message", "Usuário não encontrado ou offline.", to=request.sid)
+                
+            emit("message", {
+                "user": "Sistema",
+                "text": "Usuário não encontrado ou offline."}, to=request.sid)
             return
             
         #----------- LÓGICA PARA MENSAGEM PÚBLICA ----------#
