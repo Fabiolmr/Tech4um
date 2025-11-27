@@ -21,9 +21,18 @@ body {
     max-width: 1400px; 
 }
 
+/* GRADIENTE GENÉRICO E HOVER */
+.btn-gradiente {
+    background: linear-gradient(90deg, #ff3c00, #ff5500) !important;
+    transition: filter 0.2s;
+}
+
+.btn-gradiente:hover {
+    filter: brightness(1.15) !important;
+}
+
 /*HEADER*/
 header {
-    font-family: 'Syncopate';
     position: fixed;
     top: 0;
     left: 0;
@@ -31,20 +40,24 @@ header {
     height: 60px;
     background-color: #1a1a1b;
     display: flex;
-    align-items: left;
-    padding: 0px;
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 0;
     z-index: 1000;
     border-bottom: 1px solid #343536;
 }
 
 header .logo {
+    font-family: 'Syncopate';
     color: #ff4500;
     font-size: 22px;
     font-weight: bold;
-    margin-left: -50px;
+    margin-left: 20px;
+    text-decoration: none;
 }
+
 .header-login-btn {
-    background-color: linear-gradient(to right, #ff4500, #ff8c00);
+    @extend .btn-gradiente; 
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
@@ -53,18 +66,24 @@ header .logo {
     font-weight: bold;
 }
 
-.header-login-btn:hover {
-    filter: brightness(1.15);
+.logout-btn {
+
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .header-left {
     display: flex;
     align-items: center;
-
 }
 
+
 .topbar {
-    flex: 1;                      
+    flex: 1;
     display: flex;
     justify-content: center;
 }
@@ -82,14 +101,9 @@ header .logo {
 }
 
 .login-btn {
-    position: absolute;
-    right: 80px;
-    top: 50%;
-    transform: translateY(-50%);
     padding: 8px 16px;
-    background: #ff4500;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     color: white;
     cursor: pointer;
     font-weight: bold;
@@ -102,131 +116,227 @@ header .logo {
     width: 300px;
 }
 
-/*SIDEBAR*/
-.sidebar {
+/* ================= ESTRUTURA HOME LAYOUT ================= */
+
+.home-layout {
+    display: flex;
+    width: 100%;
+    margin-top: 60px;
+}
+
+/* SIDEBAR FIXA (ESQUERDA) */
+.left-sidebar {
     position: fixed;
-    top: 60px; /* abaixo do header */
+    top: 60px; 
     left: 0;
     width: 230px;
     height: calc(100vh - 60px);
     background: #1a1a1b;
     border-right: 1px solid #343536;
     padding: 25px 20px;
-    display: flex;
-    flex-direction: column;
     box-sizing: border-box;
     z-index: 999;
-}
-
-.sidebar h2 {
-    color: #ff4500;
-    font-family: 'Syncopate';
-    font-size: 20px;
-    margin-bottom: 20px;
-}
-
-.sidebar-section h3 {
-    color: #818384;
-    text-transform: uppercase;
-    font-size: 12px;
-    margin-bottom: 10px;
-}
-
-.sidebar-section ul {
-    list-style: none;
-    text-align: center;
-    margin-left: -30px;
-}
-
-.sidebar-section li {
     display: flex;
-    padding: 5px;
-    gap: 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #d7dadc;
-    transition: background 0.2s;
-    text-align: center;
-}
-
-.sidebar-section li:hover {
-    background: #272729;
-}
-
-.sideicon {
-    width: 20px;
-    vertical-align: middle;
-}
-
-/*USER BOX*/
-.user-info {
-    background: #272729;
-    padding: 15px;
-    margin-left: -5px;
-    border-radius: 10px;
-    text-align: center;
-}
-
-.user-info p {
-    margin-bottom: 10px;
-    margin-left: -5px;
-    color: #fff;
-}
-
-.user-info button {
-    padding: 8px 15px;
-    background: linear-gradient(to right, #ff4500, #ff8c00);;
-    border: none;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-right: 20px;
-}
-
-.user-info button:hover {
-    filter: brightness(1.15);
-}
-
-/*FEED*/
-.feed {
-    margin-left: 400px;
-    padding: 80px 20px 20px;
-    width: 1000PX;
-    overflow-y: auto;
-}
-
-/*CARDS*/
-.forums-list{
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    gap: 20px; 
+}
+
+/* USER BOX e BOTÃO CRIAR FÓRUM (AJUSTE) */
+.user-box {
     text-align: center;
+    padding: 0; 
+    padding-bottom: 20px;
+    border-bottom: 1px solid #343536; 
+    margin-bottom: 0; 
+}
+
+.user-box .user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.user-box .username {
+    margin: 5px 0 15px 0;
+    color: #ff4500;
+    font-weight: 600;
+}
+
+.user-box .toggle-create-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    border: none;
+    margin-bottom: 15px;
+}
+
+/* CORREÇÃO: ABA DE CRIAR FÓRUM (AJUSTE DE TAMANHO) */
+.user-box .create-box {
+    padding: 10px;
+    background: #1a1a1b;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.user-box .create-box.hidden {
+    display: none;
+}
+
+.user-box .create-box label {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #d7dadc;
+}
+
+.user-box .create-box input[type="text"] {
+    /* CORREÇÃO: Garante 100% da largura, permitindo que o texto apareça */
+    width: 95%;
+    /* 95% para acomodar padding */
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #343536;
+    background: #272729; 
+    color: white;
+}
+
+.user-box .create-box button.btn-gradiente {
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* NOVO: ESTILO DO MENU NA SIDEBAR */
+.sidebar-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+}
+
+.sidebar-menu li {
+    margin-bottom: 8px;
+}
+
+.sidebar-menu .sidebar-link {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #d7dadc;
+    border-radius: 6px;
+    transition: background 0.2s;
+    font-weight: 500;
+}
+
+.sidebar-menu .sidebar-link:hover {
+    background: #272729;
+}
+
+.sidebar-menu .sidebar-link.active {
+    background: #ff4500;
+    color: white;
+}
+.sidebar-menu .sidebar-link.active:hover {
+    filter: brightness(1.1);
+}
+
+
+/*FEED (CENTRALIZADO)*/
+.feed {
+    margin-left: 270px; 
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza o conteúdo (título e lista) no espaço livre */
+}
+
+.section-title {
+    color: #ff4500;
+    margin-top: 0;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #343536;
+    padding-bottom: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    max-width: 750px; 
+    width: 100%;
+    text-align: center;
+}
+
+
+.forum-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 750px; 
+    width: 100%; 
+    margin: 0;
 }
 
 .forum-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background: #1a1a1b;
     border: 1px solid #343536;
     border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    width: 80%;
+    padding: 15px;
+    width: 100%; 
+    box-sizing: border-box;
+    transition: transform 0.2s;
+}
+
+.forum-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.forum-card form {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
+    width: 100%;
+}
+
+.forum-card .card-info {
+    flex-grow: 1;
+    flex-shrink: 1;
+    text-align: left;
+    min-width: 0;
+    padding-right: 15px;
+}
+
+.forum-card h4 {
+    color: #ff4500;
+    font-size: 1.2em;
+    margin: 0 0 5px 0;
+}
+
+.forum-card p {
+    color: #d7dadc;
+    font-size: 0.9em;
+    margin: 0;
 }
 
 .forum-card h3 {
     color: #d7dadc;
     font-size: 18px;
 }
-
-.forum-card p {
-    color: #818384;
-    font-size: 14px;
+.right-sidebar {
+    display: none;
 }
-
 .forum-card button {
     margin-top: 15px;
     background: linear-gradient(to right, #ff4500, #ff8c00);
@@ -237,11 +347,45 @@ header .logo {
     color: white;
     cursor: pointer;
 }
+    
+.forum-card .enter-btn {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    width: 100px;
+    min-width: 100px;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
+    color: white;
+    border: none;
+    cursor: pointer;}
 
-.forum-card button:hover {
+.forum-card .enter-btn:hover {
     filter: brightness(1.15);
 }
 
+.card-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+}
+.btn-secondary {
+    padding: 12px 20px;
+    border-radius: 20px;
+    font-weight: 600;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
+    border: 1px solid #ff4500;
+    cursor: pointer;
+    font-size: 1em;
+    width: 100px;
+    min-width: 100px;
+    text-align: center;
+}
+
+.btn-secondary:hover {
+    filter: brightness(1.15);
+    color: white;
+}
 /*LOGIN PAGE*/
 .login-title {
     text-align: center;
@@ -354,7 +498,8 @@ button[type="submit"]:hover {
     margin-top: 15px; 
     border-radius: 25px;
     border: 1px solid #7a7a7a; /* Borda cinza sutil */
-    background: #ffffff; /* Fundo branco do Google */
+    background: #ffffff;
+    /* Fundo branco do Google */
     color: #000000; /* Texto preto */
     font-size: 15px;
     font-weight: 600;
@@ -362,31 +507,40 @@ button[type="submit"]:hover {
     transition: 0.2s;
     display: flex;
     align-items: center;
-    justify-content: center; /* Centraliza o ícone e o texto */
+    justify-content: center;
+    /* Centraliza o ícone e o texto */
 }
 
 .google-login-btn svg {
-    margin-right: 10px; /* Espaço entre o ícone e o texto */
+    margin-right: 10px;
+    /* Espaço entre o ícone e o texto */
 }
 
 .google-login-btn:hover {
-    background: #f0f0f0; /* Um leve cinza no hover */
+    background: #f0f0f0;
+    /* Um leve cinza no hover */
 }
 /* ================= CHAT ================= */
 .chat-wrapper {
     display: flex;
-    margin-left: 150px; /* largura da sidebar */
-    margin-top: 60px;   /* altura do header */
+    margin-left: 150px;
+    /* largura da sidebar */
+    margin-top: 60px;
+    /* altura do header */
     height: calc(100vh - 60px);
-    width: calc(100% - 250px); /* ocupa toda a largura restante */
+    width: calc(100% - 250px);
+    /* ocupa toda a largura restante */
     padding: 10px;
     box-sizing: border-box;
-    gap: 15px; /* espaço entre chat e painel de participantes */
+    gap: 15px;
+    /* espaço entre chat e painel de participantes */
 }
 
 .chat-area {
-    flex: 1; /* ocupa todo espaço possível */
-    min-width: 600px; /* largura mínima desejada */
+    flex: 1;
+    /* ocupa todo espaço possível */
+    min-width: 600px;
+    /* largura mínima desejada */
     max-width: 900px; /* largura máxima, opcional */
     display: flex;
     flex-direction: column;
@@ -421,8 +575,10 @@ button[type="submit"]:hover {
     padding: 10px 15px;
     border-radius: 15px;
     display: flex;
-    flex-direction: column; /* NOME em cima, texto abaixo */
-    align-items: flex-start; /* Tudo à esquerda */
+    flex-direction: column;
+    /* NOME em cima, texto abaixo */
+    align-items: flex-start;
+    /* Tudo à esquerda */
     margin-bottom: 8px;
     word-wrap: break-word;
 }
@@ -437,7 +593,8 @@ button[type="submit"]:hover {
 .msg-other {
     background: #272729;
     color: #d7dadc;
-    align-self: flex-start; /* Balão de outros à esquerda */
+    align-self: flex-start;
+    /* Balão de outros à esquerda */
     border-bottom-left-radius: 0;
 }
 
@@ -446,14 +603,17 @@ button[type="submit"]:hover {
     font-weight: bold;
     color: #818384;
     display: block; /* força linha própria */
-    margin-bottom: 4px; /* espaço entre nome e mensagem */
-    white-space: nowrap; /* Nome não quebra */
+    margin-bottom: 4px;
+    /* espaço entre nome e mensagem */
+    white-space: nowrap;
+    /* Nome não quebra */
 }
 
 .msg-text {
     width: 100%;
     word-break: break-word;
-    text-align: left; /* garante que o texto fique à esquerda */
+    text-align: left;
+    /* garante que o texto fique à esquerda */
     display: block;
     margin: 4px 0;
 }
@@ -463,7 +623,8 @@ button[type="submit"]:hover {
     font-size: 0.75rem;
     opacity: 0.7;
     margin-top: 4px;
-    align-self: flex-end; /* Hora sempre no canto direito do balão */
+    align-self: flex-end;
+    /* Hora sempre no canto direito do balão */
 }
 
 .chat-input {
@@ -478,7 +639,6 @@ button[type="submit"]:hover {
     outline: none;
     background: #1a1a1a;
     color: #fff;
-
 }
 
 .chat-input button {
@@ -523,7 +683,8 @@ button[type="submit"]:hover {
 .participants-panel {
     position: fixed;
     top: 60px;
-    right: -300px; /* fora da tela inicialmente */
+    right: -300px;
+    /* fora da tela inicialmente */
     width: 250px;
     height: calc(100vh - 60px);
     background: #1a1a1b;
@@ -571,7 +732,8 @@ button[type="submit"]:hover {
 .flash-container {
     width: 100%;
     max-width: 400px; /* Mantém a mensagem dentro do card */
-    margin: 10px auto; /* Centraliza horizontalmente */
+    margin: 10px auto;
+    /* Centraliza horizontalmente */
     padding: 0;
     box-sizing: border-box;
 }
@@ -582,7 +744,8 @@ button[type="submit"]:hover {
     border-radius: 8px;
     text-align: center;
     font-size: 14px;
-    word-wrap: break-word; /* Evita que mensagens longas quebrem o layout */
+    word-wrap: break-word;
+    /* Evita que mensagens longas quebrem o layout */
 }
 
 .flash-message.success {
@@ -624,7 +787,8 @@ input:-webkit-autofill:active {
     max-height: 150px;
     overflow-y: auto;
     z-index: 998;
-    display: none; /* Escondido por padrão */
+    display: none;
+    /* Escondido por padrão */
     box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
     padding: 15px;
     box-sizing: border-box;
@@ -667,19 +831,22 @@ input:-webkit-autofill:active {
 
 /* Fundo/Trilha da barra de rolagem */
 ::-webkit-scrollbar-track {
-    background: #1a1a1b; /* Cor de fundo escura do chat/body */
+    background: #1a1a1b;
+    /* Cor de fundo escura do chat/body */
     border-radius: 10px;
 }
 
 /* O "polegar" que você arrasta (a parte móvel) */
 ::-webkit-scrollbar-thumb {
-    background: #343536; /* Cor escura, mas visível */
+    background: #343536;
+    /* Cor escura, mas visível */
     border-radius: 10px;
 }
 
 /* Cor do thumb ao passar o mouse */
 ::-webkit-scrollbar-thumb:hover {
-    background: #ff4500; /* Cor de destaque (laranja do TECH4UM) */
+    background: #ff4500;
+    /* Cor de destaque (laranja do TECH4UM) */
 }
 
 /* 2. Estilização específica para a Área de Mensagens */

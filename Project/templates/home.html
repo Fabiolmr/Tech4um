@@ -2,23 +2,30 @@
 
 {% block content %}
 
-<div class="home-container">
 
-    <!-- ================= HEADER SUPERIOR ================= -->
-    <header class="home-header">
-        <h2 class="logo">MinhaHome</h2>
-
-        <div class="header-actions">
-            {% if current_user.is_authenticated %}
-                <span class="user-welcome">Olá, {{ current_user.username }}</span>
-                <a href="{{ url_for('auth.logout') }}" class="btn small-btn">Sair</a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn small-btn">Login</a>
-                <a href="{{ url_for('auth.register') }}" class="btn small-btn">Register</a>
-            {% endif %}
+<!-- ================= HEADER SUPERIOR ================= -->
+<header>
+    <div class="header-left">
+        <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
+    </div>
+    
+    <div class="topbar">
         </div>
-    </header>
+        
+    <div class="header-right">
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth.logout') }}">
+            <button class="logout-btn btn-gradiente">Sair</button>
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}">
+            <button class="header-login-btn">Entrar</button>
+        </a>
+        {% endif %}
+    </div>
+</header>
 
+<div class="home-container">
 
     <!-- ================= FLASH MESSAGES ================= -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -48,8 +55,9 @@
 
                 <p class="username">@{{ current_user.username }}</p>
 
-                <button class="toggle-create-btn" onclick="toggleCreateForum()">Criar Fórum</button>
-
+                <button class="toggle-create-btn btn-gradiente" onclick="toggleCreateForum()">
+                    + Criar Fórum
+                </button>
                 <div id="create-forum-box" class="create-box hidden">
                     <form method="POST">
                         <label>Nome do Fórum</label>
@@ -58,10 +66,16 @@
                         <label>Descrição</label>
                         <input type="text" name="create-desc" placeholder="Descrição..." required>
 
-                        <button type="submit" class="btn">Criar</button>
+                        <button type="submit" class="btn btn-gradiente">Criar</button>
                     </form>
                 </div>
 
+            </div>
+
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="{{ url_for('main.home') }}" class="sidebar-link active">Fóruns</a></li>
+                </ul>
             </div>
 
             {% else %}
@@ -92,34 +106,33 @@
 
                 {% for room in rooms %}
                 <div class="forum-card">
-                        <h4>{{ room.name }}</h4>
-                        <p>{{ room.description }}</p>
-                    <form method="POST">
-                        <button type="submit" class="btn" 
-                                name="entrar" value="{{ room.id }}">
-                            Entrar no Chat
-                        </button>
-                    </form>
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.username in room.members %}
-                        <span class="badge-member" style="color: #4CAF50; font-weight: bold; margin-left: 10px;">
-                            Membro
-                        </span>
-                        {% else %}
-
-                        <form method="POST" action="{{ url_for('main.join_member', forum_id=room.id) }}" style="display:inline; margin-left: 10px;">
-                            <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
-                                Seja Membro
+                    <form method="POST" class="forum-form">
+                        <div class="card-info">
+                            <h4>{{ room.name }}</h4>
+                            <p>{{ room.description }}</p>
+                        </div>
+                        <div class="card-actions">
+                            {% if current_user.is_authenticated %}
+                                {% if current_user.username in room.members %}
+                                    <span style="color: #4CAF50; font-weight: bold; margin-right: 10px;">
+                                        ✓ Membro
+                                    </span>
+                                {% else %}
+                                    <button type="submit" formaction="{{ url_for('main.join_member', forum_id=room.id) }}" class="btn btn-secondary">
+                                        Ser Membro
+                                    </button>
+                                {% endif %}
+                            {% endif %}
+                            
+                            <button type="submit" class="btn btn-gradiente enter-btn" 
+                                    name="entrar" value="{{ room.id }}">
+                                Entrar
                             </button>
-                        </form>
-                    
-                    {% endif %}
-                {% endif %}
+                        </div>
+                    </form>
                 </div>
                 {% endfor %}
-
             </div>
-
         </main>
 
 

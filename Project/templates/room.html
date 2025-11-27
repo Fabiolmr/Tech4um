@@ -2,26 +2,31 @@
 
 {% block content %}
 
-<header class="header">
-    <div class="header-left">
-        <div class="logo">TECH4UM</div>
-    </div>
-    </header>
+<header>
+    <div class="header-left">
+        <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
+    </div>
+    <div class="topbar"></div>
+</header>
 
-<div class="sidebar">
-    <div class="user-info">
-        <p>@{{ username }}</p>
-        <button onclick="window.location.href='/logout'">Sair</button>
-    </div>
+<aside class="left-sidebar">
+    <div class="user-box">
+        <img src="{{ current_user.avatar or url_for('static', filename='img/default-user.png') }}" class="user-avatar">
+        
+        <p class="username">@{{ username }}</p>
+        
+        <a href="{{ url_for('auth.logout') }}">
+            <button class="logout-btn btn-gradiente" style="width:100%; margin-top:5px;">Sair</button>
+        </a>
+    </div>
 
-    <div class="sidebar-section">
-        <ul>
-            <li onclick="window.location.href='{{ url_for('main.home') }}'">Feed</li>
-            <li onclick="window.location.href='/forums'">Fóruns</li>
-            <li onclick="window.location.href='/settings'">Configurações</li>
-        </ul>
-    </div>
-</div>
+    <div class="sidebar-menu">
+        <ul>
+            <li><a href="{{ url_for('main.home') }}" class="sidebar-link">Feed</a></li>
+            <li><a href="#" class="sidebar-link active">Chat Atual</a></li>
+            </ul>
+    </div>
+</aside>
 
 <div class="chat-wrapper">
 
@@ -35,7 +40,7 @@
             {% for msg in messages %}
                 {% if msg.user == username %}
                     <div class="msg msg-me">
-                                                <span class="msg-user">@{{ msg.user }}</span> 
+                         <span class="msg-user">@{{ msg.user }}</span> 
                         <p class="msg-text">{{ msg.text }}</p>
                         <span class="msg-time">
                             {{ msg.time }}
@@ -43,7 +48,7 @@
                     </div>
                 {% else %}  
                     <div class="msg msg-other">
-                                                <span class="msg-user">@{{ msg.user }}</span>
+                     <span class="msg-user">@{{ msg.user }}</span>
                         <p class="msg-text">{{ msg.text }}</p>
                         <span class="msg-time">
                             {{ msg.time }}
@@ -53,7 +58,7 @@
             {% endfor %}
         </div>
 
-                <div id="suggestions" class="suggestions-box">
+         <div id="suggestions" class="suggestions-box">
             <ul id="suggestions-list"></ul>
         </div>
 
