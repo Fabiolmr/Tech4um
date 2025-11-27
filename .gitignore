@@ -1,0 +1,12 @@
+# Ignorar arquivos de ambiente 
+.env
+.flaskenv
+
+# Ignorar arquivos compilados do Python
+__pycache__/
+*.pyc
+
+# Ignorar banco de dados SQLite local
+*.db
+*.sqlite3
+/instance/
