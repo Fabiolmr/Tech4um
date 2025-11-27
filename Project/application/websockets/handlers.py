@@ -16,39 +16,43 @@ def register_socketio_handlers(socketio: SocketIO):
             lista_exibicao = []
 
             for member_name in forum.members:
-                is_online = any(u['username'] == member_name and u.get('online') for u in forum.participantes)
+                user_data = next((u for u in forum.participantes if u['username'] == member_name), None)
+                
+                is_active = (user_data is not None) and user_data.get('in_room', False)
                 
                 lista_exibicao.append({
                     "username": member_name,
-                    "online": is_online,
+                    "online": is_active,
                     "is_member": True
                 })
 
             members_set = set(forum.members)
             for p in forum.participantes:
-                if p['username'] not in members_set and p.get('online'):
+                if p['username'] not in members_set and p.get('in_room', False):
                     lista_exibicao.append({
                         "username": p['username'],
                         "online": True,
                         "is_member": False # Visitante
                     })
+            lista_exibicao.sort(key=lambda x: (not x['online'], x['username']))
 
             return lista_exibicao
             
         return []
 
-    def broadcast_users_list():
-        all_users = users.values()
-        users_data = []
-
-        for u in all_users:
-            is_online = u.id in online_users
-            users_data.append({
-                "username": u.username,
-                "online": is_online,
-                "id": u.id
-            })
-        socketio.emit("users_list", users_data)
+    #não é mais necessária
+    #def broadcast_users_list():
+    #    all_users = users.values()
+    #    users_data = []
+    #
+    #    for u in all_users:
+    #        is_online = u.id in online_users
+    #        users_data.append({
+    #            "username": u.username,
+    #            "online": is_online,
+    #            "id": u.id
+    #        })
+    #    socketio.emit("users_list", users_data)
 
     @socketio.on("connect")
     def handle_connect():
@@ -57,7 +61,8 @@ def register_socketio_handlers(socketio: SocketIO):
             online_users.add(current_user.id)
             print(f"User {current_user.username} connected (Global)")
             # Atualiza a lista para todo mundo
-            broadcast_users_list()
+            
+            #broadcast_users_list()
 
     
     @socketio.on("disconnect")
@@ -88,12 +93,7 @@ def register_socketio_handlers(socketio: SocketIO):
                                 emit("users_list", get_participantes_list(room_id), room=room_id)
             online_users.discard(current_user.id)
 
-            broadcast_users_list()
-
-    @socketio.on("get_users")
-    def get_users(data):
-        # Quando alguém entra na sala e pede a lista, envia a lista global
-        broadcast_users_list()
+            #broadcast_users_list()
 
     @socketio.on("join")
     def handle_join(data):
@@ -114,6 +114,7 @@ def register_socketio_handlers(socketio: SocketIO):
                 # Apenas atualiza o estado dele
                 usuario_existente["sid"] = request.sid
                 usuario_existente["in_room"] = True
+                usuario_existente["username"] = username
             else:
                 # Criar novo usuário global
                 user_data = {
@@ -138,7 +139,7 @@ def register_socketio_handlers(socketio: SocketIO):
 
             emit("users_list", get_participantes_list(room), room=room)
 
-            broadcast_users_list()
+            #broadcast_users_list()
             print(f"{username} entrou {room}")
 
         else:
@@ -169,7 +170,7 @@ def register_socketio_handlers(socketio: SocketIO):
             rooms[room].messages.append(system_msg)
             send(system_msg, room=room)
          
-            emit("users_list", rooms[room].participantes, room=room)
+            emit("users_list", get_participantes_list(room), room=room)
             print(f"{username} saiu da sala {room}")
 
 

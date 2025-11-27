@@ -173,6 +173,36 @@
 
     socket.on('users_list', (data) => {
         participants = data;
+
+        const listDiv = document.querySelector('.participants-list');
+        listDiv.innerHTML = '';
+
+        data.forEach(u => {
+            const p = document.createElement('p');
+
+            let statusColor = u.online ? '#4CAF50' : '#666'; // Verde ou Cinza
+            let statusText = u.online ? 'Online' : 'Offline';
+            let memberBadge = u.is_member ? '<span style="font-size:10px; border:1px solid #444; padding:2px 4px; border-radius:4px; margin-left:5px;">Membro</span>' : '';
+
+            p.innerHTML = `
+                <span style="
+                    display:inline-block; 
+                    width:8px; 
+                    height:8px; 
+                    border-radius:50%; 
+                    background-color:${statusColor}; 
+                    margin-right:8px;">
+                </span>
+                @${u.username} 
+                ${memberBadge}
+            `;        
+            
+            if (!u.online) {
+                p.style.opacity = '0.6';
+            }
+
+            listDiv.appendChild(p);
+        });
     });
 
     const suggestionsBox = document.getElementById('suggestions');
