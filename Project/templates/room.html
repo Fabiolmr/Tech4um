@@ -3,313 +3,296 @@
 {% block content %}
 
 <header class="header">
-    <div class="header-left">
-        <div class="logo">TECH4UM</div>
-        <button class="participants-toggle" onclick="toggleParticipants()">
-            <!-- Ícone de pessoas -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
-                <path d="M16 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-8 0c2.21 0 4-1.79 4-4S10.21 6 8 6 4 7.79 4 10s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h12v-2c0-2.66-5.33-4-8-4zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2.01 1.97 3.45v1.5h8v-2c0-2.66-5.33-4-8-4z"/>
-            </svg>
-        </button>
-    </div>
-</header>
+    <div class="header-left">
+        <div class="logo">TECH4UM</div>
+    </div>
+    </header>
 
-<!-- SIDEBAR PADRÃO -->
 <div class="sidebar">
-    <div class="user-info">
-        <p>@{{ username }}</p>
-        <button onclick="window.location.href='/logout'">Sair</button>
-    </div>
+    <div class="user-info">
+        <p>@{{ username }}</p>
+        <button onclick="window.location.href='/logout'">Sair</button>
+    </div>
 
-    <div class="sidebar-section">
-        <ul><!--Aqui pode trocar li por a pq assim o navegador entende que é um link e permite clicar com o botão direito e "abrir em uma nova guia"-->
-            <li onclick="window.location.href='{{ url_for('main.home') }}'">
-                <img src="/static/icons/list.svg" class="sideicon" alt=""> Feed
-            </li>
-            <li onclick="window.location.href='/forums'">
-                <img src="/static/icons/forum.svg" class="sideicon" alt=""> Fóruns
-            </li>
-            <li onclick="window.location.href='/settings'">
-                <img src="/static/icons/settings.svg" class="sideicon" alt=""> Configurações
-            </li>
-        </ul>
-    </div>
+    <div class="sidebar-section">
+        <ul>
+            <li onclick="window.location.href='{{ url_for('main.home') }}'">Feed</li>
+            <li onclick="window.location.href='/forums'">Fóruns</li>
+            <li onclick="window.location.href='/settings'">Configurações</li>
+        </ul>
+    </div>
 </div>
 
-<!-- ÁREA DO CHAT -->
 <div class="chat-wrapper">
 
-    <div class="chat-area">
+    <div class="chat-area">
 
-        <div class="chat-header">
-            <h2>CHAT - {{ room }}</h2>
-        </div>
+        <div class="chat-header">
+            <h2>CHAT - {{ room }}</h2>
+        </div>
 
-        <div class="chat-messages" id="messages">
-            {% for msg in messages %}
-                {% if msg.user == username %}
-                    <div class="msg msg-me">
-                        <p class="msg-text">{{ msg.text }}</p>
-                        <span class="msg-user">@{{ msg.user }}</span>
-                        <span class="msg-time" style="font-size: 0.75rem; opacity: 0.7; float: right; margin-top: 5px;">
-                            {{ msg.time }}
-                        </span>
-                    </div>
-                {% else %}
-                    <div class="msg msg-other">
-                        <span class="msg-user">@{{ msg.user }}</span>
-                        <p class="msg-text">{{ msg.text }}</p>
-                        <span class="msg-time" style="font-size: 0.75rem; opacity: 0.7; float: right; margin-top: 5px;">
-                            {{ msg.time }}
-                        </span>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+        <div class="chat-messages" id="messages">
+            {% for msg in messages %}
+                {% if msg.user == username %}
+                    <div class="msg msg-me">
+                                                <span class="msg-user">@{{ msg.user }}</span> 
+                        <p class="msg-text">{{ msg.text }}</p>
+                        <span class="msg-time">
+                            {{ msg.time }}
+                        </span>
+                    </div>
+                {% else %}  
+                    <div class="msg msg-other">
+                                                <span class="msg-user">@{{ msg.user }}</span>
+                        <p class="msg-text">{{ msg.text }}</p>
+                        <span class="msg-time">
+                            {{ msg.time }}
+                        </span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
 
-        <!-- BARRA DE AUTOCOMPLETE-->
-        <div id="suggestions" class="suggestions-box">
-            <ul id="suggestions-list"></ul>
-        </div>
+                <div id="suggestions" class="suggestions-box">
+            <ul id="suggestions-list"></ul>
+        </div>
 
-        <form method="POST" action="/send/{{ room }}" class="chat-input">
-            <input type="text" name="message" placeholder="Digite sua mensagem..." autocomplete="off">
-            <button type="submit">Enviar</button>
-        </form>
+                <form class="chat-input">
+            <input type="text" name="message" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button type="submit">Enviar</button>
+        </form>
 
-    </div>
+    </div>
+
+    <button class="participants-toggle" onclick="toggleParticipants()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" viewBox="0 0 24 24">
+            <path d="M16 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-8 0c2.21 0 4-1.79 4-4S10.21 6 8 6 4 7.79 4 10s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h12v-2c0-2.66-5.33-4-8-4zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2.01 1.97 3.45v1.5h8v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+    </button>
 
 </div>
 
-<!-- PANEL DESLIZANTE PARTICIPANTES -->
 <div class="participants-panel" id="participantsPanel">
-    <div class="participants-header">
-        <h3>PARTICIPANTES</h3>
-        <button onclick="toggleParticipants()" class="close-btn">&times;</button>
-    </div>
-    <div class="participants-list">
-        {% for p in participantes %}
-            <p>@{{ p.username }}</p>
-        {% endfor %}
-    </div>
+    <div class="participants-header">
+        <h3>PARTICIPANTES</h3>
+        <button onclick="toggleParticipants()" class="close-btn">&times;</button>
+    </div>
+    <div class="participants-list">
+        {% for p in participantes %}
+            <p>@{{ p.username }}</p>
+        {% endfor %}
+    </div>
 </div>
 
 <script>
-    const socket = io();
-    const room = "{{ room }}";
-    const currentUser = "{{ username }}";
+    const socket = io();
+    const room = "{{ room }}";
+    const currentUser = "{{ username }}";
 
-    function enterRoom() {
-        console.log("Tentando entrar na sala:", room);
-        socket.emit('join', {room: room});
-    }
+    function enterRoom() {
+        console.log("Tentando entrar na sala:", room);
+        socket.emit('join', {room: room});
+    }
 
-    socket.on('connect', () => {
-        enterRoom();
-    });
+    socket.on('connect', () => {
+        enterRoom();
+    });
 
-    window.addEventListener("pageshow", (event) => {
-        // Se a página veio do cache (event.persisted) ou navegação tipo 'back_forward'
-        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-            console.log("Voltou pelo navegador. Reconectando...");
-            
-            if (!socket.connected) {
-                socket.connect(); // Força reconexão se estiver desconectado
-            } else {
-                enterRoom(); // Se já estiver conectado, apenas reenvia o join
-            }
-        }
-    });
+    window.addEventListener("pageshow", (event) => {
+        // Se a página veio do cache (event.persisted) ou navegação tipo 'back_forward'
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+            console.log("Voltou pelo navegador. Reconectando...");
+            
+            if (!socket.connected) {
+                socket.connect(); // Força reconexão se estiver desconectado
+            } else {
+                enterRoom(); // Se já estiver conectado, apenas reenvia o join
+            }
+        }
+    });
 
-    window.addEventListener("beforeunload", () => {
-        socket.emit('leave', {room: room});
-    });
+    window.addEventListener("beforeunload", () => {
+        socket.emit('leave', {room: room});
+    });
 
-    //socket.emit('join', {room: room});
+    //socket.emit('join', {room: room});
 
-    const chatForm = document.querySelector('.chat-input');
-    const messageInput = chatForm.querySelector('input[name="message"]');
-    const messagesDiv = document.getElementById('messages');
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    const chatForm = document.querySelector('.chat-input');
+    const messageInput = chatForm.querySelector('input[name="message"]');
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-    chatForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-        const msg = messageInput.value;
-        if(msg.trim()){
+        const msg = messageInput.value;
+        if(msg.trim()){
 
-            socket.emit('message', {room: room, message: msg});
-            messageInput.value = '';
-            hideSuggestions();
-        }
-    });
+            socket.emit('message', {room: room, message: msg});
+            messageInput.value = '';
+            hideSuggestions();
+        }
+    });
 
-    socket.on('message', function(data) {
-        const msgDiv = document.createElement('div');
-        const isMe = (data.user === currentUser);
+    socket.on('message', function(data) {
+        const msgDiv = document.createElement('div');
+        const isMe = (data.user === currentUser);
 
-        msgDiv.classList.add('msg')
-        msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
+        msgDiv.classList.add('msg')
+        msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
 
-        const time = data.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const time = data.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-        if(isMe) {
-            msgDiv.innerHTML= `
-                <p class="msg-text">${data.text}</p>
-                <span class="msg-time" style="font-size: 0.75rem; opacity: 0.7; float: right; margin-top: 5px;">${time}</span>
-                <span class="msg-user">@${data.user}</span>
-            `;
-        } else {
-            msgDiv.innerHTML = `
-                <span class="msg-user">@${data.user}</span>
-                <span class="msg-time" style="font-size: 0.75rem; opacity: 0.7; float: right; margin-top: 5px;">${time}</span>
-                <p class="msg-text">${data.text}</p>
-            `;
-        }
+        // LÓGICA DE EXIBIÇÃO CORRIGIDA (Usuário -> Texto -> Hora)
+        msgDiv.innerHTML= `
+            <span class="msg-user">@${data.user}</span>
+            <p class="msg-text">${data.text}</p>
+            <span class="msg-time">${time}</span>
+        `;
 
-        messagesDiv.appendChild(msgDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
 
-    function toggleParticipants() {
-        const panel = document.getElementById('participantsPanel');
-        //if (panel.classList.contains('open')) {
-        //    panel.classList.remove('open');
-        //} else {
-        //    panel.classList.add('open');
-        //}
-        panel.classList.toggle('open');
-    }
+    function toggleParticipants() {
+        const panel = document.getElementById('participantsPanel');
+        //if (panel.classList.contains('open')) {
+        //    panel.classList.remove('open');
+        //} else {
+        //    panel.classList.add('open');
+        //}
+        panel.classList.toggle('open');
+    }
 
-    //-------------lógica do autocomplete-------------
-    //o loop for tá seguindo a sintaxe do falsk do python, ele deve avisar que tá marcando de vermelho, mas funciona 
-    let participants = [
-        {% for p in participantes %}
-            { username: "{{ p.username }}" },
-        {% endfor %}
-    ];
+    //-------------lógica do autocomplete-------------
+    //o loop for tá seguindo a sintaxe do falsk do python, ele deve avisar que tá marcando de vermelho, mas funciona 
+    let participants = [
+        {% for p in participantes %}
+            { username: "{{ p.username }}" },
+        {% endfor %}
+    ];
 
-    socket.on('users_list', (data) => {
-        participants = data;
-    });
+    socket.on('users_list', (data) => {
+        participants = data;
+    });
 
-    const suggestionsBox = document.getElementById('suggestions');
-    const suggestionsList = document.getElementById('suggestions-list');
-    let currentFocus = -1;
+    const suggestionsBox = document.getElementById('suggestions');
+    const suggestionsList = document.getElementById('suggestions-list');
+    let currentFocus = -1;
 
-    messageInput.addEventListener('input', function() {
-        const text = this.value;
-        const cursorPos = this.selectionStart;
-        const textUpToCursor = text.substring(0, cursorPos);
+    messageInput.addEventListener('input', function() {
+        const text = this.value;
+        const cursorPos = this.selectionStart;
+        const textUpToCursor = text.substring(0, cursorPos);
 
-        const match = textUpToCursor.match(/@([\w]*)$/);
+        const match = textUpToCursor.match(/@([\w]*)$/);
 
-        if (match) {
-            const query = match[1].toLowerCase();
-            showSuggestions(query);
-        } else {
-            hideSuggestions();
-        }
-    });
+        if (match) {
+            const query = match[1].toLowerCase();
+            showSuggestions(query);
+        } else {
+            hideSuggestions();
+        }
+    });
 
 
-    function showSuggestions(query) {
-        suggestionsList.innerHTML = "";
-        currentFocus = -1;
+    function showSuggestions(query) {
+        suggestionsList.innerHTML = "";
+        currentFocus = -1;
 
-        // Filtra usuários (remove o próprio usuário da lista)
-        const matches = participants.filter(u => 
-            u.username.toLowerCase().startsWith(query) && 
-            u.username !== currentUser
-        );
+        // Filtra usuários (remove o próprio usuário da lista)
+        const matches = participants.filter(u => 
+            u.username.toLowerCase().startsWith(query) && 
+            u.username !== currentUser
+        );
 
-        if (matches.length === 0) {
-            hideSuggestions();
-            return;
-        }
+        if (matches.length === 0) {
+            hideSuggestions();
+            return;
+        }
 
-        matches.forEach(u => {
-            const li = document.createElement("li");
-            li.innerHTML = `<strong>@${u.username}</strong>`;
-            
-            // Ao clicar no nome
-            li.addEventListener("click", function() {
-                selectUser(u.username);
-            });
+        matches.forEach(u => {
+            const li = document.createElement("li");
+            li.innerHTML = `<strong>@${u.username}</strong>`;
+            
+            // Ao clicar no nome
+            li.addEventListener("click", function() {
+                selectUser(u.username);
+            });
 
-            suggestionsList.appendChild(li);
-        });
+            suggestionsList.appendChild(li);
+        });
 
-        suggestionsBox.style.display = "block";
-    }
+        suggestionsBox.style.display = "block";
+    }
 
-    function hideSuggestions() {
-        if(suggestionsBox) suggestionsBox.style.display = "none";
-        currentFocus = -1;
-    }
-    
-    function selectUser(username) {
-        const text = messageInput.value;
-        const cursorPos = messageInput.selectionStart;
-        const textUpToCursor = text.substring(0, cursorPos);
-        
-        const atSymbolIndex = textUpToCursor.lastIndexOf("@");
-        
-        const newText = text.substring(0, atSymbolIndex) + 
-                        "@" + username + " " + 
-                        text.substring(cursorPos);
-        
-        messageInput.value = newText;
-        hideSuggestions();
-        messageInput.focus();
-    }
+    function hideSuggestions() {
+        if(suggestionsBox) suggestionsBox.style.display = "none";
+        currentFocus = -1;
+    }
+    
+    function selectUser(username) {
+        const text = messageInput.value;
+        const cursorPos = messageInput.selectionStart;
+        const textUpToCursor = text.substring(0, cursorPos);
+        
+        const atSymbolIndex = textUpToCursor.lastIndexOf("@");
+        
+        const newText = text.substring(0, atSymbolIndex) + 
+                        "@" + username + " " + 
+                        text.substring(cursorPos);
+        
+        messageInput.value = newText;
+        hideSuggestions();
+        messageInput.focus();
+    }
 
-    // Navegação por teclado (Setas e Enter)
-    messageInput.addEventListener("keydown", function(e) {
-        if (suggestionsBox.style.display === "block") {
-            const items = suggestionsList.getElementsByTagName("li");
-            
-            if (e.key === "ArrowDown") {
-                currentFocus++;
-                addActive(items);
-                e.preventDefault();
-            } else if (e.key === "ArrowUp") {
-                currentFocus--;
-                addActive(items);
-                e.preventDefault();
-            } else if (e.key === "Enter") {
-                if (currentFocus > -1 && items[currentFocus]) {
-                    e.preventDefault();
-                    items[currentFocus].click();
-                }
-            } else if (e.key === "Escape") {
-                hideSuggestions();
-            }
-        }
-    });
-    
-    function addActive(items) {
-        if (!items) return false;
-        removeActive(items);
-        if (currentFocus >= items.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = items.length - 1;
-        
-        items[currentFocus].classList.add("active");
-        items[currentFocus].scrollIntoView({ block: "nearest" });
-    }
+    // Navegação por teclado (Setas e Enter)
+    messageInput.addEventListener("keydown", function(e) {
+        if (suggestionsBox.style.display === "block") {
+            const items = suggestionsList.getElementsByTagName("li");
+            
+            if (e.key === "ArrowDown") {
+                currentFocus++;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === "ArrowUp") {
+                currentFocus--;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === "Enter") {
+                if (currentFocus > -1 && items[currentFocus]) {
+                    e.preventDefault();
+                    items[currentFocus].click();
+                }
+            } else if (e.key === "Escape") {
+                hideSuggestions();
+            }
+        }
+    });
+    
+    function addActive(items) {
+        if (!items) return false;
+        removeActive(items);
+        if (currentFocus >= items.length) currentFocus = 0;
+        if (currentFocus < 0) currentFocus = items.length - 1;
+        
+        items[currentFocus].classList.add("active");
+        items[currentFocus].scrollIntoView({ block: "nearest" });
+    }
 
-    function removeActive(items) {
-        for (let i = 0; i < items.length; i++) {
-            items[i].classList.remove("active");
-        }
-    }
+    function removeActive(items) {
+        for (let i = 0; i < items.length; i++) {
+            items[i].classList.remove("active");
+        }
+    }
 
-    // Fecha se clicar fora
-    document.addEventListener("click", function(e) {
-        if (e.target !== messageInput && e.target !== suggestionsBox) {
-            hideSuggestions();
-        }
-    });
+    // Fecha se clicar fora
+    document.addEventListener("click", function(e) {
+        if (e.target !== messageInput && e.target !== suggestionsBox) {
+            hideSuggestions();
+        }
+    });
 </script>
 
 {% endblock %}

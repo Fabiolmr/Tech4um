@@ -31,9 +31,8 @@ header {
     height: 60px;
     background-color: #1a1a1b;
     display: flex;
-    align-items: center;
-    justify-content: space-between; /* logo à esquerda, botão à direita */
-    padding: 0 20px;
+    align-items: left;
+    padding: 0px;
     z-index: 1000;
     border-bottom: 1px solid #343536;
 }
@@ -42,9 +41,10 @@ header .logo {
     color: #ff4500;
     font-size: 22px;
     font-weight: bold;
+    margin-left: -50px;
 }
 .header-login-btn {
-    background-color: #ff4500;
+    background-color: linear-gradient(to right, #ff4500, #ff8c00);
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
@@ -54,13 +54,13 @@ header .logo {
 }
 
 .header-login-btn:hover {
-    background-color: #ff5414;
+    filter: brightness(1.15);
 }
 
 .header-left {
     display: flex;
     align-items: center;
-    gap: 10px; /* distância entre logo e botão */
+
 }
 
 .topbar {
@@ -114,8 +114,8 @@ header .logo {
     padding: 25px 20px;
     display: flex;
     flex-direction: column;
-    gap: 35px;
     box-sizing: border-box;
+    z-index: 999;
 }
 
 .sidebar h2 {
@@ -134,17 +134,19 @@ header .logo {
 
 .sidebar-section ul {
     list-style: none;
-    padding: 0;
+    text-align: center;
+    margin-left: -30px;
 }
 
 .sidebar-section li {
     display: flex;
-    align-items: center;
+    padding: 5px;
     gap: 12px;
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
     color: #d7dadc;
     transition: background 0.2s;
+    text-align: center;
 }
 
 .sidebar-section li:hover {
@@ -153,32 +155,36 @@ header .logo {
 
 .sideicon {
     width: 20px;
+    vertical-align: middle;
 }
 
 /*USER BOX*/
 .user-info {
     background: #272729;
     padding: 15px;
+    margin-left: -5px;
     border-radius: 10px;
     text-align: center;
 }
 
 .user-info p {
     margin-bottom: 10px;
+    margin-left: -5px;
     color: #fff;
 }
 
 .user-info button {
     padding: 8px 15px;
-    background: #ff4500;
+    background: linear-gradient(to right, #ff4500, #ff8c00);;
     border: none;
     color: white;
     border-radius: 6px;
     cursor: pointer;
+    margin-right: 20px;
 }
 
 .user-info button:hover {
-    background: #ff5a1f;
+    filter: brightness(1.15);
 }
 
 /*FEED*/
@@ -223,7 +229,7 @@ header .logo {
 
 .forum-card button {
     margin-top: 15px;
-    background: #ff4500;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
     border: none;
     padding: 10px;
     width: 30%;
@@ -233,7 +239,7 @@ header .logo {
 }
 
 .forum-card button:hover {
-    background: #ff541a;
+    filter: brightness(1.15);
 }
 
 /*LOGIN PAGE*/
@@ -339,6 +345,7 @@ button[type="submit"]:hover {
 .message a:hover {
     text-decoration: underline;
 }
+
 /* ================= CHAT ================= */
 .chat-wrapper {
     display: flex;
@@ -361,11 +368,12 @@ button[type="submit"]:hover {
     border: 1px solid #343536;
     border-radius: 10px;
     overflow: hidden;
+    position: relative;
 }
 
 
 .chat-header {
-    padding: 15px 20px;
+    padding: 0px 20px;
     background: #272729;
     border-bottom: 1px solid #343536;
     font-weight: bold;
@@ -381,33 +389,55 @@ button[type="submit"]:hover {
     gap: 12px;
 }
 
+/* ================= CHAT ================= */
 .msg {
     max-width: 70%;
     padding: 10px 15px;
     border-radius: 15px;
-    display: inline-block;
+    display: flex;
+    flex-direction: column; /* NOME em cima, texto abaixo */
+    align-items: flex-start; /* Tudo à esquerda */
+    margin-bottom: 8px;
     word-wrap: break-word;
 }
 
 .msg-me {
     background: #ff4500;
     color: white;
-    align-self: flex-end;
+    align-self: flex-end; /* Balão do usuário à direita */
     border-bottom-right-radius: 0;
 }
 
 .msg-other {
     background: #272729;
     color: #d7dadc;
-    align-self: flex-start;
+    align-self: flex-start; /* Balão de outros à esquerda */
     border-bottom-left-radius: 0;
 }
 
 .msg-user {
     font-size: 12px;
+    font-weight: bold;
     color: #818384;
+    display: block; /* força linha própria */
+    margin-bottom: 4px; /* espaço entre nome e mensagem */
+    white-space: nowrap; /* Nome não quebra */
+}
+
+.msg-text {
+    width: 100%;
+    word-break: break-word;
+    text-align: left; /* garante que o texto fique à esquerda */
     display: block;
-    margin-top: 5px;
+    margin: 4px 0;
+}
+
+.msg-time {
+    width: 100%;
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 4px;
+    align-self: flex-end; /* Hora sempre no canto direito do balão */
 }
 
 .chat-input {
@@ -422,38 +452,45 @@ button[type="submit"]:hover {
     outline: none;
     background: #1a1a1a;
     color: #fff;
+
 }
 
 .chat-input button {
-    padding: 0 20px;
-    background: #ff4500;
+    padding: 0 15px;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
     border: none;
     color: white;
     cursor: pointer;
     font-weight: bold;
+    max-width: 100px;
 }
 
+.chat-input button:hover {
+    filter: brightness(1.15);
+}
 /* BOTÃO HEADER PARTICIPANTES */
 .participants-toggle {
-    background: #ff4500;
-    border: none;
-    padding-left: 6px 8px;
+    background: linear-gradient(to right, #ff4500, #ff8c00);;
     border-radius: 8px;
+    border: none;
+    position: fixed;
+    top: 75px; 
+    right: 20px; 
+    z-index: 100;
     cursor: pointer;
     display: flex;
-    align-items: center;
+    width: 45px;
+    height: 45px;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    margin-left: 1300px;
+    align-items: center;
 }
 .participants-toggle:hover {
-    background: #ff5414;
+    filter: brightness(1.15);
 }
 
 .participants-toggle svg {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
     fill: white;
 }
 /* PAINEL DESLIZANTE PARTICIPANTES */
@@ -495,9 +532,14 @@ button[type="submit"]:hover {
 .participants-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     overflow-y: auto;
+    margin: 4px 0;
+    padding: 4px 0;
+    font-size: 14px;
 }
+
+
 
 /* ================= FLASH MESSAGES PARA LOGIN/REGISTER ================= */
 .flash-container {
@@ -547,17 +589,19 @@ input:-webkit-autofill:active {
 /* BARRA @ DE AUTOCOMPLETE (SUGESTÕES)  */
 .suggestions-box {
     position: absolute;
-    bottom: 60px; /* Fica logo acima do input */
-    left: 20px;
-    background: #272729;
+    bottom: 60px;
+    left: 0px;
+    background: #1a1a1b;
     border: 1px solid #343536;
     border-radius: 8px;
     width: 200px;
     max-height: 150px;
     overflow-y: auto;
-    z-index: 1000;
+    z-index: 998;
     display: none; /* Escondido por padrão */
     box-shadow: 0 -4px 10px rgba(0,0,0,0.5);
+    padding: 15px;
+    box-sizing: border-box;
 }
 
 .suggestions-box ul {
@@ -582,4 +626,42 @@ input:-webkit-autofill:active {
 .suggestions-box li.selected {
     background: #ff4500; /* Cor destaque */
     color: white;
+}
+
+/* ================= BARRA DE ROLAGEM (SCROLLBAR) ================= */
+
+/* 1. Para todos os elementos com rolagem, principalmente a página (body) */
+/* (Funciona em navegadores baseados em WebKit: Chrome, Edge, Safari) */
+
+/* Largura da barra de rolagem */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px; /* Importante para rolagem horizontal, se houver */
+}
+
+/* Fundo/Trilha da barra de rolagem */
+::-webkit-scrollbar-track {
+    background: #1a1a1b; /* Cor de fundo escura do chat/body */
+    border-radius: 10px;
+}
+
+/* O "polegar" que você arrasta (a parte móvel) */
+::-webkit-scrollbar-thumb {
+    background: #343536; /* Cor escura, mas visível */
+    border-radius: 10px;
+}
+
+/* Cor do thumb ao passar o mouse */
+::-webkit-scrollbar-thumb:hover {
+    background: #ff4500; /* Cor de destaque (laranja do TECH4UM) */
+}
+
+/* 2. Estilização específica para a Área de Mensagens */
+/* Garante que o scroll dentro de #messages tenha a mesma aparência */
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #343536;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #ff4500;
 }
