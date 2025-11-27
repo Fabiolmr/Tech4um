@@ -95,20 +95,23 @@
     }
 
     socket.on('connect', () => {
+        console.log("Socket conectado!");
         enterRoom();
     });
 
     if (socket.connected) {
-        console.log("Socket já estava conectado, entrando...");
         enterRoom();
     }
 
     window.addEventListener("pageshow", (event) => {
         // Se a página veio do cache (event.persisted) ou navegação tipo 'back_forward'
         if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-            if (!socket.connected) {
+            console.log("Página restaurada do cache. Verificando conexão...");
+        if (!socket.connected) {
+                console.log("Socket desconectado. Reconectando...");
                 socket.connect(); // Força reconexão se estiver desconectado
             } else {
+                console.log("Socket parece conectado. Reenviando join...");
                 enterRoom(); // Se já estiver conectado, apenas reenvia o join
             }
         }
