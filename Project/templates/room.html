@@ -22,8 +22,8 @@
     </div>
 
     <div class="sidebar-section">
-        <ul>
-            <li onclick="window.location.href='/feed'">
+        <ul><!--Aqui pode trocar li por a pq assim o navegador entende que é um link e permite clicar com o botão direito e "abrir em uma nova guia"-->
+            <li onclick="window.location.href='{{ url_for('main.home') }}'">
                 <img src="/static/icons/list.svg" class="sideicon" alt=""> Feed
             </li>
             <li onclick="window.location.href='/forums'">
