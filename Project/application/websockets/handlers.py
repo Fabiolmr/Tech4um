@@ -16,14 +16,14 @@ def register_socketio_handlers(socketio: SocketIO):
             lista_exibicao = []
 
             for member_name in forum.members:
-                user_data = next((u for u in forum.participantes if u['username'] == member_name), None)
-                
+                user_data = next((u for u in forum.participantes if u['username'] == member_name), None)  
                 is_active = (user_data is not None) and user_data.get('in_room', False)
                 
                 lista_exibicao.append({
                     "username": member_name,
                     "online": is_active,
-                    "is_member": True
+                    "is_member": True,
+                    "is_creator": (member_name == forum.creator)
                 })
 
             members_set = set(forum.members)
@@ -32,7 +32,8 @@ def register_socketio_handlers(socketio: SocketIO):
                     lista_exibicao.append({
                         "username": p['username'],
                         "online": True,
-                        "is_member": False # Visitante
+                        "is_member": False, # Visitante
+                        "is_creator": (p['username'] == forum.creator)
                     })
             lista_exibicao.sort(key=lambda x: (not x['online'], x['username']))
 

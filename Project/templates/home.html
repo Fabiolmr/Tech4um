@@ -142,6 +142,8 @@
 <script>
     const socket = io();
 
+    const currentUser = "{{ current_user.username if current_user.is_authenticated else '' }}";
+
     /* --- Atualiza lista de novos fóruns instantaneamente --- */
     socket.on("new_room", (data) => {
         const list = document.getElementById("rooms-list");
@@ -151,21 +153,31 @@
         const card = document.createElement("div");
         card.classList.add("forum-card");
 
+        let memberButtonHTML = '';
+
+        if (currentUser === data.creator) {
+            memberButtonHTML = `
+                <span class="badge-member" style="color: #4CAF50; font-weight: bold; margin-left: 10px;">
+                    ✓ Membro
+                </span>`;
+        } else {
+            memberButtonHTML = `
+                <form method="POST" action="/join_member/${data.id}" style="display:inline; margin-left: 10px;">
+                    <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
+                        Seja Membro
+                    </button>
+                </form>`;
+        }
+
         card.innerHTML = `
             <h4>${data.name}</h4>
             <p>${data.description}</p>
-            
             <form method="POST" action="/" style="display:inline;">
                 <button type="submit" class="btn" name="entrar" value="${data.id}">
-                    Entrar
+                    Entrar no Chat
                 </button>
             </form>
-
-            <form method="POST" action="/join_member/${data.id}" style="display:inline; margin-left: 10px;">
-                <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
-                    Seja Membro
-                </button>
-            </form>
+            ${memberButtonHTML}
         `;
 
         list.appendChild(card);

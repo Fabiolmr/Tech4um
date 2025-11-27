@@ -47,13 +47,14 @@ def home():
             new_id = generate_unique_code(4)
 
             # Novo fórum
-            new_forum = Forum(new_id, create_name, create_desc)
+            new_forum = Forum(new_id, create_name, create_desc, current_user.username)
             rooms[new_id] = new_forum
 
             socketio.emit("new_room", {
                 "id": new_id,
                 "name": create_name,
-                "description": create_desc
+                "description": create_desc,
+                "creator": current_user.username
             })
 
             return redirect(url_for("chat.access_forum", forum_id=new_id))
