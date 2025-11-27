@@ -3,6 +3,7 @@ from flask_socketio import join_room, leave_room, send, emit, SocketIO
 from flask_login import current_user
 from application.extensions import rooms, users, online_users
 from application.models.user import User
+from datetime import datetime
 
 # Inicialize o socketio com suporte às sessões
 socketio = SocketIO(manage_session=True)
@@ -161,6 +162,7 @@ def register_socketio_handlers(socketio: SocketIO):
 
         message = data.get("message")
         username = current_user.username
+        current_time = datetime.now().strftime("%H:%M")
 
         #----------- LÓGICA PARA MENSAGEM PRIVADA----------#
         #OBS.: O usuário digita: "@nome_exato mensagem"
@@ -192,7 +194,8 @@ def register_socketio_handlers(socketio: SocketIO):
 
         msg_data = {
             "user": username,
-            "text": message
+            "text": message,
+            "time": current_time
         }
         rooms[room].messages.append(msg_data)
         emit("message", msg_data, room=room)

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from application.extensions import rooms, generate_unique_code
 from application.models.forum import Forum
 from application.websockets.handlers import register_socketio_handlers
-
+from datetime import datetime
 
 
 chat_bp = Blueprint('chat', __name__)
@@ -52,7 +52,8 @@ def send_message(room):
     # Salva a mensagem no objeto da sala
     rooms[room].messages.append({
         "user": current_user.username,
-        "text": message
+        "text": message,
+        "time": datetime.now().strftime("%H:%M")
     })
 
     # Redireciona de volta ao chat
