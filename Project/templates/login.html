@@ -14,14 +14,15 @@
             <input type="text" id="username" name="username" placeholder="Seu email..." required>
         </div>
 
-        <div class="form-group">
-            <label for="password">Senha</label>
-
-            <div class="password-wrapper">
-                <input type="password" id="password" name="password" placeholder="Sua senha..." required>
-                <span class="toggle-password" onclick="togglePassword()">👁️</span>
-            </div>
+    <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="password-wrapper">
+            <input type="password" id="password" name="password" placeholder="Sua senha..." required>
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
         </div>
+    </div>
+
+    
 
         <button type="submit">Entrar</button>
     </form>
@@ -30,5 +31,19 @@
         <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a></p>
     </div>
 </div>
+    <script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = document.querySelector('.toggle-password');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = '👁️';
+        } else {
+            input.type = 'password';
+            icon.textContent = '🔒';
+        }
+    }
+    </script>
 
 {% endblock %}
