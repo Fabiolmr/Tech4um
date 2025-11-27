@@ -1,7 +1,7 @@
 from flask import request
 from flask_socketio import join_room, leave_room, send, emit, SocketIO
 from flask_login import current_user
-from application.extensions import rooms, online_users
+from application.extensions import rooms, users, online_users
 from application.models.user import User
 
 # Inicialize o socketio com suporte às sessões
@@ -21,7 +21,7 @@ def register_socketio_handlers(socketio: SocketIO):
         return []
 
     def broadcast_users_list():
-        all_users = User.query.all()
+        all_users = users.values()
         users_data = []
 
         for u in all_users:
@@ -96,7 +96,13 @@ def register_socketio_handlers(socketio: SocketIO):
                 rooms[room].participantes.append(user_data)
 
             join_room(room)
-            send(f"{username} entrou na sala.", room=room)
+            #send(f"{username} entrou na sala.", room=room)
+
+            system_msg = {
+                "user": "Sistema",
+                "text": f"{username} entrou na sala."
+            }
+            send(system_msg, room=room)
 
             broadcast_users_list()
             print(f"{username} entrou {room}")
@@ -117,9 +123,14 @@ def register_socketio_handlers(socketio: SocketIO):
                     break
 
             leave_room(room)
-            send(f"{username} saiu da sala.", room=room)
 
-            
+            system_msg = {
+                "user": "Sistema",
+                "text": f"{username} saiu da sala."
+            }
+
+            send(system_msg, room=room)
+         
             emit("users_list", rooms[room].participantes, room=room)
             print(f"{username} saiu da sala {room}")
 
@@ -154,8 +165,11 @@ def register_socketio_handlers(socketio: SocketIO):
             
         #----------- LÓGICA PARA MENSAGEM PÚBLICA ----------#
 
-        msg_content = f"{username}: {message}"
-        rooms[room].messages.append(msg_content)
-        send(msg_content, room=room)
-        print(f"{username} disse: {msg_content}")
+        msg_data = {
+            "user": username,
+            "text": message
+        }
+        rooms[room].messages.append(msg_data)
+        emit("message", msg_data, room=room)
+        print(f"{username} disse: {message}")
 

@@ -84,8 +84,51 @@
 </div>
 
 <script>
+    const socket = io();
+    const room = "{{ room }}";
+    const currentUser = "{{ username }}";
+
+    socket.emit('join', {room: room});
+
+    const chatForm = document.querySelector('.chat-input');
+    const messageInput = chatForm.querySelector('input[name="message"]');
     const messagesDiv = document.getElementById('messages');
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const msg = messageInput.value;
+        if(msg.trim()){
+
+            socket.emit('message', {room: room, message: msg});
+            messageInput.value = '';
+        }
+    });
+
+    socket.on('message', function(data) {
+
+        const msgDiv = document.createElement('div');
+        const isMe = (data.user === currentUser);
+
+        msgDiv.classList.add('msg')
+        msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
+
+        if(isMe) {
+            msgDiv.innerHTML= `
+                <p class="msg-text">${data.text}</p>
+                <span class="msg-user">@${data.user}</span>
+            `;
+        } else {
+            msgDiv.innerHTML = `
+                <span class="msg-user">@${data.user}</span>
+                <p class="msg-text">${data.text}</p>
+            `;
+        }
+
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
 
     function toggleParticipants() {
         const panel = document.getElementById('participantsPanel');
@@ -95,6 +138,7 @@
             panel.classList.add('open');
         }
     }
+
 </script>
 
 {% endblock %}
