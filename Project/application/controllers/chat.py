@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
-from flask_login import login_required, current_user, logout_user
+from flask_login import login_required, current_user
 
-from application.extensions import rooms, generate_unique_code, socketio
+from application.extensions import rooms, generate_unique_code
 from application.models.forum import Forum
 from application.websockets.handlers import register_socketio_handlers
+
 
 
 chat_bp = Blueprint('chat', __name__)
@@ -36,24 +37,23 @@ def room():
 
     return render_template("room.html", room=room, username=name, messages=rooms[room].messages, participantes=rooms[room].participantes)
 
-@chat_bp.route("/logout")
+@chat_bp.route("/send/<room>", methods=["POST"])
 @login_required
-def logout():
-    user_id = current_user.id
-    
-    # Marcar o usuário como offline em TODAS as salas
-    for room_id, forum in rooms.items():
-        for u in forum.participantes:
-            if u["id"] == user_id:
-                u["online"] = False
-                u["sid"] = None
+def send_message(room):
 
-        # divulgar atualização
-        socketio.emit("update_users", {
-            "users": [u for u in forum.participantes]
-        }, room=room_id)
+    if room not in rooms:
+        return redirect(url_for("main.home"))
 
-    logout_user()
-    return redirect(url_for("auth.login"))
+    message = request.form.get("message")
 
+    if message.strip() == "":
+        return redirect(url_for("chat.room"))
 
+    # Salva a mensagem no objeto da sala
+    rooms[room].messages.append({
+        "user": current_user.username,
+        "text": message
+    })
+
+    # Redireciona de volta ao chat
+    return redirect(url_for("chat.room"))

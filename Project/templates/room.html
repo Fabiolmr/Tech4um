@@ -2,201 +2,99 @@
 
 {% block content %}
 
-<!-- HEADER SIMPLES (apenas logo à esquerda) -->
 <header class="header">
-    <div class="logo">TECH4UM</div>
-    <!-- nenhuma search bar, nada mais -->
+    <div class="header-left">
+        <div class="logo">TECH4UM</div>
+        <button class="participants-toggle" onclick="toggleParticipants()">
+            <!-- Ícone de pessoas -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                <path d="M16 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-8 0c2.21 0 4-1.79 4-4S10.21 6 8 6 4 7.79 4 10s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h12v-2c0-2.66-5.33-4-8-4zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2.01 1.97 3.45v1.5h8v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </button>
+    </div>
 </header>
 
 <!-- SIDEBAR PADRÃO -->
 <div class="sidebar">
-
-    <!-- Perfil -->
     <div class="user-info">
         <p>@{{ username }}</p>
         <button onclick="window.location.href='/logout'">Sair</button>
     </div>
 
-    <!-- Menu -->
     <div class="sidebar-section">
         <ul>
             <li onclick="window.location.href='/feed'">
-                <img src="/static/icons/list.svg" class="sideicon" alt="">
-                Feed
+                <img src="/static/icons/list.svg" class="sideicon" alt=""> Feed
             </li>
-
             <li onclick="window.location.href='/forums'">
-                <img src="/static/icons/forum.svg" class="sideicon" alt="">
-                Fóruns
+                <img src="/static/icons/forum.svg" class="sideicon" alt=""> Fóruns
             </li>
-
             <li onclick="window.location.href='/settings'">
-                <img src="/static/icons/settings.svg" class="sideicon" alt="">
-                Configurações
+                <img src="/static/icons/settings.svg" class="sideicon" alt=""> Configurações
             </li>
         </ul>
     </div>
-
 </div>
 
-
+<!-- ÁREA DO CHAT -->
 <div class="chat-wrapper">
 
-    <!-- ÁREA DO CHAT -->
     <div class="chat-area">
 
         <div class="chat-header">
             <h2>CHAT - {{ room }}</h2>
         </div>
 
-        <!-- MENSAGENS -->
-        <div class="messages" id="messages">
+        <div class="chat-messages" id="messages">
             {% for msg in messages %}
-        <div>{{ msg }}</div> {% endfor %}
+                {% if msg.user == username %}
+                    <div class="msg msg-me">
+                        <p class="msg-text">{{ msg.text }}</p>
+                        <span class="msg-user">@{{ msg.user }}</span>
+                    </div>
+                {% else %}
+                    <div class="msg msg-other">
+                        <span class="msg-user">@{{ msg.user }}</span>
+                        <p class="msg-text">{{ msg.text }}</p>
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
 
-        <!-- INPUT -->
-        <div class="inputs">
-        <input 
-        type="text"
-        placeholder="Message"
-        id="message" />
-    <button type="button" id="send-btn" onclick="sendMessage()"> Enviar
-    </button>
-</div>
+        <form method="POST" action="/send/{{ room }}" class="chat-input">
+            <input type="text" name="message" placeholder="Digite sua mensagem..." autocomplete="off">
+            <button type="submit">Enviar</button>
+        </form>
 
     </div>
 
-    <!-- PARTICIPANTES -->
-    <div class="sidebar-users">
-    <h3>Usuários (Online / Offline)</h3>
-    <div id="users-list"></div> </div>
-
 </div>
 
+<!-- PANEL DESLIZANTE PARTICIPANTES -->
+<div class="participants-panel" id="participantsPanel">
+    <div class="participants-header">
+        <h3>PARTICIPANTES</h3>
+        <button onclick="toggleParticipants()" class="close-btn">&times;</button>
+    </div>
+    <div class="participants-list">
+        {% for p in participantes %}
+            <p>@{{ p.username }}</p>
+        {% endfor %}
+    </div>
+</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-<script type="text/javascript">
-    // Garante que o Socket.IO está carregado ao voltar de cache/histórico
-    window.addEventListener( "pageshow", function ( event ) {
-      var historyTraversal = event.persisted || 
-                             ( typeof window.performance != "undefined" && 
-                                  window.performance.navigation.type === 2 );
-      if ( historyTraversal ) {
-        window.location.reload();
-      }
-    });
-
-    const socketio = io();
-    const currentUsername = "{{ username }}"; // Variável para o seu nome de usuário
-
-    // Entrar na sala
-    socketio.on('connect', () => {
-        console.log("Conectado! Enviando join...");
-        socketio.emit("join", {
-            room: "{{ room }}",
-            username: currentUsername
-        });
-        
-        // Solicita lista completa de usuários ao entrar na página
-        socketio.emit("get_users", { room: "{{ room }}" });
-    });
-
-    socketio.on("error_redirect", (data) => {
-        alert("A sala foi encerrada ou reiniciada. Você será redirecionado.");
-        window.location.href = data.url;
-    });
-
-    // Função que adiciona mensagens no chat, adaptada para o novo estilo
-    function addMessage(text) {
-        const messagesContainer = document.getElementById("messages");
-        if (!messagesContainer) return; // Segurança
-
-        const div = document.createElement("div");
-        
-        // Verifica se a mensagem contém o seu username para estilização
-        // Seu backend envia mensagens como "USERNAME: Mensagem"
-        if (text.startsWith(currentUsername + ":")) {
-            // Estilo para a minha própria mensagem (pode ser "msg-me" ou similar no seu CSS)
-            div.className = "msg-me"; 
-        } else if (text.includes("entrou na sala") || text.includes("saiu da sala")) {
-            // Estilo para mensagens do sistema
-            div.className = "msg-system";
+    function toggleParticipants() {
+        const panel = document.getElementById('participantsPanel');
+        if (panel.classList.contains('open')) {
+            panel.classList.remove('open');
         } else {
-            // Estilo para mensagens de outros usuários
-            div.className = "msg-other"; 
+            panel.classList.add('open');
         }
-
-        // Se o seu CSS usa <p> dentro da div, use:
-        // div.innerHTML = `<p class="msg-text">${text}</p>`;
-        // Senão, use o simples (que é o que o seu script antigo fazia):
-        div.innerText = text;
-        
-        messagesContainer.appendChild(div);
-        
-        // Rolar para baixo automaticamente
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-
-    // Recebe mensagens normais
-    socketio.on("message", (data) => {
-        addMessage(data);
-    });
-
-    // Recebe lista de TODOS os usuários do backend
-    socketio.on("users_list", (users) => {
-        const container = document.getElementById("users-list");
-        if (!container) return;
-        
-        container.innerHTML = "";
-
-        users.forEach(user => {
-            const div = document.createElement("div");
-            div.classList.add("user-item");
-
-            const status = document.createElement("span");
-            status.classList.add("user-status");
-
-            if (user.online === true) {
-                status.classList.add("online");
-            } else {
-                status.classList.add("offline");
-            }
-
-            const usernameElement = document.createElement("span");
-            usernameElement.textContent = user.username;
-
-            div.appendChild(status);
-            div.appendChild(usernameElement);
-
-            container.appendChild(div);
-        });
-    });
-
-    // Enviar mensagem (esta função é chamada pelo onclick="sendMessage()" do botão)
-    function sendMessage() {
-        const input = document.getElementById("message");
-        const text = input.value;
-
-        if (text.trim() === "") return;
-
-        socketio.emit("message", {
-            room: "{{ room }}",
-            username: currentUsername,
-            message: text
-        });
-
-        input.value = "";
-    }
-
-    // Ao fechar página
-    window.addEventListener("beforeunload", () => {
-        socketio.emit("leave", {
-            room: "{{ room }}",
-            username: currentUsername
-        });
-    });
 </script>
 
 {% endblock %}

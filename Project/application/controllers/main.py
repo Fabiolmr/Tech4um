@@ -5,41 +5,62 @@ from application.models.forum import Forum
 
 main_bp = Blueprint('main', __name__)
 
-#AQUI TEMOS A ROTA HOME
+# ==========================
+#   PARTE: USUÁRIOS ONLINE
+# ==========================
+
+online_users = set()
+
+@socketio.on("connect")
+def handle_connect():
+    if current_user.is_authenticated:
+        online_users.add(current_user.username)
+
+    socketio.emit("online_users", list(online_users))
 
 
-# HOME PÚBLICA
+@socketio.on("disconnect")
+def handle_disconnect():
+    if current_user.is_authenticated:
+        online_users.discard(current_user.username)
+
+    socketio.emit("online_users", list(online_users))
+
+
+# ==========================
+#   ROTA HOME
+# ==========================
+
 @main_bp.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
         create_name = request.form.get("create_name")
         create_desc = request.form.get("create-desc")
 
-        #------------ sequencia para criação de forum --------------------
+        # ------------ Criar novo fórum ------------
         if create_name:
-            #VERIFICA SE USUÁRIO JÁ TÁ LOGADO
+            # Verifica login
             if not current_user.is_authenticated:
                 flash("Você precisa estar logado para criar uma sala.", "danger")
                 return redirect(url_for("auth.login"))
 
             new_id = generate_unique_code(4)
-            # NOVO FORUM
+
+            # Novo fórum
             new_forum = Forum(new_id, create_name, create_desc)
             rooms[new_id] = new_forum
-            
+
             socketio.emit("new_room", {
-                "id": new_id, 
-                "name": create_name, 
+                "id": new_id,
+                "name": create_name,
                 "description": create_desc
             })
+
             return redirect(url_for("chat.access_forum", forum_id=new_id))
 
-        #------------- sequencia para entrar em forum -----------------
+        # ------------- Entrar em fórum existente -------------
         code = request.form.get("entrar")
-        if code in rooms: # se código está na lista de fóruns
+        if code in rooms:
             return redirect(url_for("chat.access_forum", forum_id=code))
-        
-    return render_template("home.html", rooms=rooms.values()) # persiste a lista de fóruns
 
-
-
+    return render_template("home.html", rooms=rooms.values())
