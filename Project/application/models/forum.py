@@ -4,11 +4,21 @@ class Forum:
         self.id = id
         self.name = name
         self.description = description
-        self.participantes = [] #ARMAZENA PARTICIPANTES
+        self.participantes = [] #ARMAZENA PARTICIPANTES QUE ESTÃO ONLINE
+        self.members = []   #ARMAZENA TODOS OS PARTICIPANTES DO FÓRUM
         self.messages = []
 
 
     def add_participant(self, user):
         if not any(p.id == user.id for p in self.participantes):
-                self.participantes.append(user)
+                pass
         
+    
+    def add_member(self, username):
+        if username not in self.members:
+            self.members.append(username)
+
+
+    def remove_member(self, username):
+        if username in self.members:
+            self.members.remove(username)

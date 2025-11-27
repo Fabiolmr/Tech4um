@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import current_user
+from flask_login import current_user, login_required
 from application.extensions import rooms, generate_unique_code, socketio
 from application.models.forum import Forum
 
@@ -64,3 +64,28 @@ def home():
             return redirect(url_for("chat.access_forum", forum_id=code))
 
     return render_template("home.html", rooms=rooms.values())
+
+
+# ==========================
+#   ROTA MEMBROS    
+# ==========================
+
+@main_bp.route("/join_member/<forum_id>", methods=["POST"])
+@login_required
+def join_member(forum_id):
+    if forum_id in rooms:
+        rooms[forum_id].add_member(current_user.username)
+        flash(f"Agora você é membro do fórum {rooms[forum_id].name}!", "success")
+    else:
+        flash("Fórum não encontrado.", "danger")
+    
+    return redirect(url_for("main.home"))
+
+@main_bp.route("/leave_member/<forum_id>", methods=["POST"])
+@login_required
+def leave_member(forum_id):
+    if forum_id in rooms:
+        rooms[forum_id].remove_member(current_user.username)
+        flash(f"Você saiu do fórum {rooms[forum_id].name}.", "info")
+    
+    return redirect(url_for("main.home"))
