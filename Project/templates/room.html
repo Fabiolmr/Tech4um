@@ -103,24 +103,40 @@
         enterRoom();
     }
 
-    window.addEventListener("pageshow", (event) => {
-        // Se a página veio do cache (event.persisted) ou navegação tipo 'back_forward'
-        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-            console.log("Página restaurada do cache. Verificando conexão...");
+    function connectAndJoin() {
         if (!socket.connected) {
-                console.log("Socket desconectado. Reconectando...");
-                socket.connect(); // Força reconexão se estiver desconectado
-            } else {
-                console.log("Socket parece conectado. Reenviando join...");
-                enterRoom(); // Se já estiver conectado, apenas reenvia o join
-            }
-        }
-    });
+            socket.connect();
+        } else {
+            // Se já estiver conectado, força o evento de entrada
+            enterRoom();
+        }
+    }
 
-    window.addEventListener("beforeunload", () => {
-        socket.emit('leave', {room: room});
-    });
+    window.addEventListener("pageshow", (event) => {
+        console.log("Voltou ao cache:", event.persisted);
+        
+        if (socket.connected) {
+            console.log("Socket parecia conectado, mas vamos reiniciar para garantir.");
+            socket.disconnect();
+        }
 
+        socket.connect();
+    });
+
+    window.addEventListener("pagehide", () => {
+        console.log("Saindo da página...");
+        if (socket.connected) {
+            socket.emit('leave', {room: room});
+            socket.disconnect(); 
+        }
+    });
+
+    window.addEventListener("beforeunload", () => {
+        if (socket.connected) {
+            socket.emit('leave', {room: room});
+            socket.disconnect();
+        }
+    });
 
     const chatForm = document.querySelector('.chat-input');
     const messageInput = chatForm.querySelector('input[name="message"]');
