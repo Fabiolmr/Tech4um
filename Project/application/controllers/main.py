@@ -3,6 +3,8 @@ from flask_login import current_user, login_required
 from application.extensions import rooms, generate_unique_code, socketio
 from application.models.forum import Forum
 
+from application.websockets.handlers import get_participantes_list
+
 main_bp = Blueprint('main', __name__)
 
 # ==========================
@@ -77,6 +79,7 @@ def join_member(forum_id):
     if forum_id in rooms:
         rooms[forum_id].add_member(current_user.username)
         flash(f"Agora você é membro do fórum {rooms[forum_id].name}!", "success")
+        socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
     else:
         flash("Fórum não encontrado.", "danger")
     
@@ -88,5 +91,6 @@ def leave_member(forum_id):
     if forum_id in rooms:
         rooms[forum_id].remove_member(current_user.username)
         flash(f"Você saiu do fórum {rooms[forum_id].name}.", "info")
-    
+        socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+        
     return redirect(url_for("main.home"))

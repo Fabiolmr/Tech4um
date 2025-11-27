@@ -6,11 +6,9 @@ from application.models.user import User
 from datetime import datetime
 
 # Inicialize o socketio com suporte às sessões
-socketio = SocketIO(manage_session=True)
+#socketio = SocketIO(manage_session=True)
 
-def register_socketio_handlers(socketio: SocketIO):
-
-    def get_participantes_list(room_id):
+def get_participantes_list(room_id):
         if room_id in rooms:
             forum = rooms[room_id]
             lista_exibicao = []
@@ -41,19 +39,7 @@ def register_socketio_handlers(socketio: SocketIO):
             
         return []
 
-    #não é mais necessária
-    #def broadcast_users_list():
-    #    all_users = users.values()
-    #    users_data = []
-    #
-    #    for u in all_users:
-    #        is_online = u.id in online_users
-    #        users_data.append({
-    #            "username": u.username,
-    #            "online": is_online,
-    #            "id": u.id
-    #        })
-    #    socketio.emit("users_list", users_data)
+def register_socketio_handlers(socketio: SocketIO):
 
     @socketio.on("connect")
     def handle_connect():
@@ -109,26 +95,20 @@ def register_socketio_handlers(socketio: SocketIO):
         
         if room in rooms:
             # BUSCA SE O USUÁRIO JÁ EXISTE NA LISTA GLOBAL
-            usuario_existente = next((u for u in rooms[room].participantes if u['id'] == current_user.id), None)
+            rooms[room].participantes = [u for u in rooms[room].participantes if u['id'] != current_user.id]
 
-            if usuario_existente:
-                # Apenas atualiza o estado dele
-                usuario_existente["sid"] = request.sid
-                usuario_existente["in_room"] = True
-                usuario_existente["username"] = username
-            else:
                 # Criar novo usuário global
-                user_data = {
-                    "id": current_user.id,
-                    "username": current_user.username,
-                    "sid": request.sid,
-                    "online": True,
-                    "in_room": True      # AGORA ESTÁ NA SALA
-                }
-                rooms[room].participantes.append(user_data)
+            user_data = {
+            "id": current_user.id,
+            "username": username,
+            "sid": request.sid,
+            "online": True,
+            "in_room": True
+            }
+            rooms[room].participantes.append(user_data)
 
             join_room(room)
-            #send(f"{username} entrou na sala.", room=room)
+            
 
             system_msg = {
                 "user": "Sistema",
