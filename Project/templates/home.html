@@ -110,6 +110,9 @@
                         <div class="card-info">
                             <h4>{{ room.name }}</h4>
                             <p>{{ room.description }}</p>
+                            <p style="font-size: 0.8em; color: #818384; margin-top: 5px;">
+                                👥 {{ room.members|length }} membro(s)
+                            </p>
                         </div>
                         <div class="card-actions">
                             {% if current_user.is_authenticated %}
@@ -175,6 +178,7 @@
 
         const card = document.createElement("div");
         card.classList.add("forum-card");
+        card.id = `card-${data.id}`;
 
         let memberButtonHTML = '';
 
@@ -183,46 +187,59 @@
                 <span class="badge-member" style="color: #4CAF50; font-weight: bold; margin-left: 10px;">
                     ✓ Membro
                 </span>`;
-        } else {
-            memberButtonHTML = `
-                <form method="POST" action="/join_member/${data.id}" style="display:inline; margin-left: 10px;">
-                    <button type="submit" class="btn" style="background-color: #272729; border: 1px solid #ff4500;">
-                        Seja Membro
-                    </button>
-                </form>`;
+        } else if (currentUser) {
+            actionsHTML = `
+                <button type="submit" formaction="/join_member/${data.id}" class="btn btn-secondary">
+                    Ser Membro
+                </button>`;
         }
 
         card.innerHTML = `
-            <h4>${data.name}</h4>
-            <p>${data.description}</p>
-            <form method="POST" action="/" style="display:inline;">
-                <button type="submit" class="btn" name="entrar" value="${data.id}">
-                    Entrar no Chat
-                </button>
+            <form method="POST" class="forum-form">
+                <div class="card-info">
+                    <h4>${data.name}</h4>
+                    <p>${data.description}</p>
+                    <p class="member-count" id="count-${data.id}" style="font-size: 0.8em; color: #818384; margin-top: 5px;">
+                        👥 1 membro(s)
+                    </p>
+                </div>
+                <div class="card-actions">
+                    ${actionsHTML}
+                    <button type="submit" class="btn btn-gradiente enter-btn" name="entrar" value="${data.id}">
+                        Entrar
+                    </button>
+                </div>
             </form>
-            ${memberButtonHTML}
         `;
 
         list.appendChild(card);
     });
 
+    socket.on("update_member_count", (data) => {
+        const countEl = document.getElementById(`count-${data.forum_id}`);
+        if (countEl) {
+            countEl.innerHTML = `👥 ${data.count} membro(s)`;
+        }
+    });
+
     /* --- Atualiza lista de usuários online --- */
     socket.on("online_users", users => {
         const list = document.getElementById("online-list");
+        if(list){
         list.innerHTML = "";
-
         users.forEach(username => {
             let li = document.createElement("li");
             li.textContent = username;
             list.appendChild(li);
-        });
+            });
+        }
     });
 
     /* --- Abre/fecha box de criar fórum --- */
-    function toggleCreateForum() {
-        document.getElementById("create-forum-box").classList.toggle("hidden");
+   function toggleCreateForum() {
+        const box = document.getElementById("create-forum-box");
+        if(box) box.classList.toggle("hidden");
     }
-
 </script>
 
 {% endblock %}

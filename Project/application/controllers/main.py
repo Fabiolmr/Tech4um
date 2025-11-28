@@ -80,6 +80,11 @@ def join_member(forum_id):
         rooms[forum_id].add_member(current_user.username)
         flash(f"Agora você é membro do fórum {rooms[forum_id].name}!", "success")
         socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+
+        socketio.emit("update_member_count", {
+            "forum_id": forum_id,
+            "count": len(rooms[forum_id].members)
+        })
     else:
         flash("Fórum não encontrado.", "danger")
     
@@ -92,5 +97,10 @@ def leave_member(forum_id):
         rooms[forum_id].remove_member(current_user.username)
         flash(f"Você saiu do fórum {rooms[forum_id].name}.", "info")
         socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+
+        socketio.emit("update_member_count", {
+            "forum_id": forum_id,
+            "count": len(rooms[forum_id].members)
+        })
         
     return redirect(url_for("main.home"))
