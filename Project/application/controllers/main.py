@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
-from application.extensions import rooms, generate_unique_code, socketio
+from application.extensions import rooms, generate_unique_code, socketio, users
 from application.models.forum import Forum
 from application.models.user import User
 from application.websockets.handlers import get_participantes_list
@@ -130,7 +130,7 @@ def edit_profile():
             return redirect(url_for('main.edit_profile'))
 
         # 2. Verificar se o novo username/email já está em uso por OUTRO usuário (Lógica In-Memory)
-        for user_id, user_obj in User.items(): 
+        for user_id, user_obj in users.items(): 
             if user_id != current_user.id:
                 if user_obj.username == username:
                     flash("Nome de usuário já está em uso.", "danger")
@@ -152,17 +152,26 @@ def edit_profile():
             # Faz o hash e atualiza a senha no objeto current_user
             current_user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
 
+        old_username = current_user.username
+
         # 4. Atualizar username e email
         current_user.username = username
         current_user.email = email
-        
-        # 5. Salvar as alterações no seu 'users' dictionary/in-memory storage
-        # Isso garante que o objeto 'User' no dicionário global seja o objeto atualizado.
-        User[current_user.id] = current_user 
 
+        for room in rooms.values():
+            if old_username in room.members:
+                room.members.remove(old_username) # Remove o nome antigo
+                room.members.append(username)     # Adiciona o novo
+            
+            if room.creator == old_username:
+                room.creator = username
+
+            for p in room.participantes:
+                if p.get('id') == current_user.id:
+                    p['username'] = username
+        
         flash("Perfil atualizado com sucesso!", "success")
         
-        # 🎯 CORREÇÃO DE REDIRECIONAMENTO: Agora aponta para a rota 'main.perfil' sem parâmetros
         return redirect(url_for('main.perfil'))
 
     return render_template("edit_profile.html")
