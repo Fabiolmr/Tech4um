@@ -37,6 +37,7 @@
         </div>
 
         <div class="chat-messages" id="messages">
+            {# Mensagens antigas carregadas via Jinja2 #}
             {% for msg in messages %}
                 {% if msg.user == username %}
                     <div class="msg msg-me">
@@ -58,6 +59,7 @@
             {% endfor %}
         </div>
 
+        {# Onde as sugestões de autocomplete aparecerão #}
            <div id="suggestions" class="suggestions-box">
              <ul id="suggestions-list"></ul>
            </div>
@@ -89,6 +91,8 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
 <script>
     const socket = io();
     const room = "{{ room }}";
@@ -107,29 +111,17 @@
     if (socket.connected) {
         enterRoom();
     }
-
-    function connectAndJoin() {
-        if (!socket.connected) {
-            socket.connect();
-        } else {
-            // Se já estiver conectado, força o evento de entrada
-            enterRoom();
-        }
-    }
-
+    
+    // --- Lógica de Reconexão e Eventos de Página ---
+    
     window.addEventListener("pageshow", (event) => {
-        console.log("Voltou ao cache:", event.persisted);
-        
         if (socket.connected) {
-            console.log("Socket parecia conectado, mas vamos reiniciar para garantir.");
             socket.disconnect();
         }
-
         socket.connect();
     });
 
     window.addEventListener("pagehide", () => {
-        console.log("Saindo da página...");
         if (socket.connected) {
             socket.emit('leave', {room: room});
             socket.disconnect(); 
@@ -143,33 +135,42 @@
         }
     });
 
+    // --- DOM Elements e Envio de Mensagem ---
+
     const chatForm = document.querySelector('.chat-input');
     const messageInput = chatForm.querySelector('input[name="message"]');
     const messagesDiv = document.getElementById('messages');
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    
+    messagesDiv.scrollTop = messagesDiv.scrollHeight; 
 
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         const msg = messageInput.value;
         if(msg.trim()){
-
-            socket.emit('message', {room: room, message: msg});
+            socket.emit('message', {room: room, message: msg}); 
             messageInput.value = '';
-            hideSuggestions(); // A função precisa existir!
+            hideSuggestions(); 
         }
     });
+
+    // --- Recepção de Mensagens ---
 
     socket.on('message', function(data) {
         const msgDiv = document.createElement('div');
         const isMe = (data.user === currentUser);
 
         msgDiv.classList.add('msg')
-        msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
-
+        
+        // Verifica se a mensagem é privada (baseado no texto retornado do servidor)
+        if (data.text.includes("[Privado") || data.text.includes("Sistema")) {
+            msgDiv.classList.add('msg-system'); 
+        } else {
+            msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
+        }
+        
         const time = data.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-        // LÓGICA DE EXIBIÇÃO CORRIGIDA (Usuário -> Texto -> Hora)
         msgDiv.innerHTML= `
             <span class="msg-user">@${data.user}</span>
             <p class="msg-text">${data.text}</p>
@@ -180,33 +181,32 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 
+    // --- Lógica de Participantes ---
+
     function toggleParticipants() {
         const panel = document.getElementById('participantsPanel');
-        //if (panel.classList.contains('open')) {
-        //    panel.classList.remove('open');
-        //} else {
-        //    panel.classList.add('open');
-        //}
         panel.classList.toggle('open');
     }
 
-    // --- CORREÇÃO 1: REMOÇÃO DA BARRA INICIAL (SINTAXE) ---
-    // A barra '/' foi removida para permitir que o JavaScript seja executado.
+    // CORREÇÃO CRÍTICA: Inicializa o status 'online' como true.
     let participants = [
     {% for p in participantes %}
-        { username: "{{ p.username }}" }{% if not loop.last %},{% endif %}
+        // Se o servidor não enviar o status online no carregamento inicial, assumimos 'true'
+        // para que o autocomplete funcione até o primeiro 'users_list' chegar.
+        { username: "{{ p.username }}", online: true }{% if not loop.last %},{% endif %} 
     {% endfor %}
     ];
 
     socket.on('users_list', (data) => {
-        participants = data;
+        participants = data; // Sobrescreve a lista com dados precisos do servidor
         const listDiv = document.querySelector('.participants-list');
         listDiv.innerHTML = '';
 
         data.forEach(u => {
             const p = document.createElement('p');
-
-            let statusColor = u.online ? '#4CAF50' : '#666';
+            // Nota: Se 'u.online' for 'undefined', o JS assume 'false'. 
+            // Garanta que o Python envie 'u.online: true/false'.
+            let statusColor = u.online ? '#4CAF50' : '#666'; 
             let badgesHTML = '';
 
             if (u.is_creator)
@@ -227,19 +227,32 @@
         });
     });
 
+    // ===================================================
+    // --- Lógica de Autocomplete (Mensagens Privadas) ---
+    // ===================================================
+
     const suggestionsBox = document.getElementById('suggestions');
     const suggestionsList = document.getElementById('suggestions-list');
     let currentFocus = -1;
-    
-    // --- CORREÇÃO 2: ADICIONANDO FUNÇÕES FALTANTES PARA AUTOCOMPLETE ---
-    // Essas funções são necessárias para que o script não falhe e que a tela funcione corretamente.
 
+    // Preenche a caixa de texto com o nome selecionado
+    function selectSuggestion(selectedUsername) {
+        const text = messageInput.value;
+        const newText = text.replace(/@([\w]*)$/, `@${selectedUsername} `);
+        messageInput.value = newText;
+        messageInput.focus();
+        hideSuggestions();
+    }
+
+    // Mostra a caixa de sugestões
     function showSuggestions(query) {
         suggestionsList.innerHTML = '';
         currentFocus = -1;
 
+        // Filtra participantes que estão online e cujo nome começa com a query
         const filtered = participants.filter(p => 
-            p.username.toLowerCase().startsWith(query) && p.username !== currentUser
+            // Filtro agora funciona devido ao status 'online: true' padrão
+            p.online && p.username.toLowerCase().startsWith(query) && p.username !== currentUser
         );
 
         if (filtered.length > 0) {
@@ -247,12 +260,7 @@
                 const li = document.createElement('li');
                 li.innerHTML = `@${p.username}`;
                 li.addEventListener('click', () => {
-                    const text = messageInput.value;
-                    // Lógica para substituir a menção parcial pela menção completa
-                    const newText = text.replace(/@([\w]*)$/, `@${p.username} `);
-                    messageInput.value = newText;
-                    messageInput.focus();
-                    hideSuggestions();
+                    selectSuggestion(p.username);
                 });
                 suggestionsList.appendChild(li);
             });
@@ -262,20 +270,21 @@
         }
     }
 
+    // Esconde a caixa de sugestões
     function hideSuggestions() {
         suggestionsBox.style.display = 'none';
         suggestionsList.innerHTML = '';
         currentFocus = -1;
     }
-    // --- FIM DAS FUNÇÕES FALTANTES ---
 
-
+    // Listener para o evento de digitação (input)
     messageInput.addEventListener('input', function() {
         const text = this.value;
         const cursorPos = this.selectionStart;
         const textUpToCursor = text.substring(0, cursorPos);
 
-        const match = textUpToCursor.match(/@([\w]*)$/); // Adicionado $ para melhor precisão
+        // Verifica se há um padrão de menção (@palavra) no final da string antes do cursor
+        const match = textUpToCursor.match(/@([\w]*)$/);
 
         if (match) {
             const query = match[1].toLowerCase();

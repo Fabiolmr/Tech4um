@@ -3,18 +3,127 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-success text-white text-center">
-                    <h2 class="mb-0">⚙️ Editar Informações</h2>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* Estilos Customizados para a paleta Laranja e Preto */
+    :root {
+        --color-primary: #F97316; /* Tailwind Orange 500 */
+        --color-secondary: #EA580C; /* Tailwind Orange 600 */
+        --color-tertiary: #9A3412; /* Tailwind Orange 800 para texto escuro */
+        --color-danger: #DC2626; /* Tailwind Red 600 */
+        --color-background: #1F2937; /* Tailwind Gray 800 - Fundo mais escuro */
+        --color-card-bg: #374151; /* Tailwind Gray 700 - Fundo do card */
+        --color-text-light: #F3F4F6; /* Tailwind Gray 100 - Texto claro */
+        --color-border-dark: #4B5563; /* Tailwind Gray 600 - Bordas escuras */
+    }
+    
+    body {
+        background-color: var(--color-background); /* Aplica fundo escuro ao body */
+    }
+
+    .card-custom {
+        border-radius: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        background-color: var(--color-card-bg); /* Fundo do card escuro */
+        border-color: var(--color-border-dark); /* Borda do card escura */
+    }
+    
+    .card-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Sombra mais intensa no hover */
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    }
+    
+    .form-control-custom {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--color-border-dark); /* Bordas escuras para inputs */
+        border-radius: 0.5rem;
+        transition: border-color 0.2s;
+        background-color: #4B5563; /* Fundo dos inputs levemente mais claro que o card */
+        color: var(--color-text-light); /* Texto claro nos inputs */
+    }
+    
+    .form-control-custom:focus {
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3); /* Sombra de foco laranja */
+    }
+    
+    /* Placeholders mais claros */
+    .form-control-custom::placeholder {
+        color: #9CA3AF; /* Tailwind Gray 400 */
+    }
+
+    .btn-primary-custom {
+        background-color: var(--color-primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: var(--color-secondary);
+    }
+
+    .alert-success {
+        background-color: #FDBA74; /* Orange 300 */
+        color: var(--color-tertiary); /* Orange 800 */
+        border: 1px solid #FB923C; /* Orange 400 */
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .alert-danger {
+        background-color: #FECACA; /* Red 200 */
+        color: #B91C1C; /* Red 700 */
+        border: 1px solid #F87171; /* Red 400 */
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    /* Estilos para texto geral e títulos */
+    .text-primary-orange {
+        color: var(--color-primary);
+    }
+    .text-secondary-orange {
+        color: var(--color-secondary);
+    }
+    .text-tertiary-dark {
+        color: var(--color-tertiary);
+    }
+    .text-light-gray {
+        color: var(--color-text-light);
+    }
+    .text-muted-dark {
+        color: #9CA3AF; /* Tailwind Gray 400 */
+    }
+    .border-primary-orange-light {
+        border-color: #FED7AA; /* Orange 200 */
+    }
+    .border-muted-dark {
+        border-color: var(--color-border-dark);
+    }
+
+</style>
+
+<div class="min-h-screen bg-gray-800 py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col items-center justify-center">
+        <div class="w-full max-w-lg">
+            <div class="card-custom shadow-2xl border border-gray-600">
+                <div class="card-header bg-gradient-primary p-6 text-white text-center rounded-t-xl">
+                    <h2 class="text-3xl font-extrabold mb-0">⚙️ Editar Informações</h2>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body p-8">
                     
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
-                            <div class="flashes mb-3">
+                            <div class="flashes mb-4 space-y-3">
                             {% for category, message in messages %}
                                 <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
                             {% endfor %}
@@ -22,14 +131,14 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form method="POST" action="{{ url_for('main.edit_profile') }}">
-                        <h5 class="text-success mb-3">Informações Básicas</h5>
+                    <form method="POST" action="{{ url_for('main.edit_profile') }}" class="space-y-6">
+                        <h5 class="text-xl font-semibold text-primary-orange mb-4 border-b pb-2 border-primary-orange-light">Informações Básicas</h5>
                         
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Nome de Usuário</label>
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-light-gray mb-1">Nome de Usuário</label>
                             <input 
                                 type="text" 
-                                class="form-control" 
+                                class="form-control-custom" 
                                 id="username" 
                                 name="username" 
                                 value="{{ current_user.username }}" 
@@ -37,11 +146,11 @@
                             >
                         </div>
                         
-                        <div class="mb-4">
-                            <label for="email" class="form-label">E-mail</label>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-light-gray mb-1">E-mail</label>
                             <input 
                                 type="email" 
-                                class="form-control" 
+                                class="form-control-custom" 
                                 id="email" 
                                 name="email" 
                                 value="{{ current_user.email }}" 
@@ -49,51 +158,51 @@
                             >
                         </div>
 
-                        <hr>
+                        <hr class="border-muted-dark">
                         
-                        <h5 class="text-secondary mb-3 mt-4">Alterar Senha (Opcional)</h5>
-                        <p class="text-muted small">Preencha os campos abaixo APENAS se desejar trocar sua senha.</p>
+                        <h5 class="text-xl font-semibold text-gray-400 mb-4 pt-2 border-b pb-2 border-gray-600">Alterar Senha (Opcional)</h5>
+                        <p class="text-muted-dark text-xs mt-[-10px]">Preencha os campos abaixo **APENAS** se desejar trocar sua senha.</p>
                         
-                        <div class="mb-3">
-                            <label for="new_password" class="form-label">Nova Senha</label>
+                        <div>
+                            <label for="new_password" class="block text-sm font-medium text-light-gray mb-1">Nova Senha</label>
                             <input 
                                 type="password" 
-                                class="form-control" 
+                                class="form-control-custom" 
                                 id="new_password" 
                                 name="new_password" 
                                 placeholder="Deixe em branco para não alterar"
                             >
                         </div>
                         
-                        <div class="mb-4">
-                            <label for="confirm_new_password" class="form-label">Confirmar Nova Senha</label>
+                        <div>
+                            <label for="confirm_new_password" class="block text-sm font-medium text-light-gray mb-1">Confirmar Nova Senha</label>
                             <input 
                                 type="password" 
-                                class="form-control" 
+                                class="form-control-custom" 
                                 id="confirm_new_password" 
                                 name="confirm_new_password"
                             >
                         </div>
 
-                        <hr>
+                        <hr class="border-muted-dark">
 
-                        <h5 class="text-danger mb-3 mt-4">Confirmação de Segurança</h5>
-                        <p class="text-danger small">Para salvar as alterações, você deve confirmar sua senha atual.</p>
+                        <h5 class="text-xl font-semibold text-red-500 mb-4 pt-2 border-b pb-2 border-red-700">Confirmação de Segurança</h5>
+                        <p class="text-red-400 text-xs mt-[-10px]">Para salvar as alterações, você deve confirmar sua senha atual.</p>
 
-                        <div class="mb-4">
-                            <label for="current_password" class="form-label">Senha Atual</label>
+                        <div>
+                            <label for="current_password" class="block text-sm font-medium text-light-gray mb-1">Senha Atual</label>
                             <input 
                                 type="password" 
-                                class="form-control" 
+                                class="form-control-custom border-red-500 focus:border-red-600" 
                                 id="current_password" 
                                 name="current_password" 
                                 required
                             >
                         </div>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">💾 Salvar Alterações</button>
-                            <a href="{{ url_for('main.perfil') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                            <button type="submit" class="btn-primary-custom w-full font-bold shadow-lg hover:shadow-xl">💾 Salvar Alterações</button>
+                            <a href="{{ url_for('main.perfil') }}" class="w-full text-center py-3 px-4 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition duration-150">Cancelar</a>
                         </div>
                     </form>
                 </div>
@@ -102,3 +211,5 @@
     </div>
 </div>
 {% endblock %}
+
+http://googleusercontent.com/immersive_entry_chip/0

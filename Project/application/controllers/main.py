@@ -106,10 +106,10 @@ def leave_member(forum_id):
         
         
     return redirect(url_for("main.home"))
+
 @main_bp.route("/perfil")
 @login_required 
 def perfil():  # <--- REMOVA o 'username' DAQUI
-    """Exibe o perfil do usuário logado."""
     return render_template("perfil.html")
 
  
