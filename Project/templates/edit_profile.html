@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center">
+                    <h2 class="mb-0">⚙️ Editar Informações</h2>
+                </div>
+                <div class="card-body p-4">
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="flashes mb-3">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                            {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('main.edit_profile') }}">
+                        <h5 class="text-success mb-3">Informações Básicas</h5>
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nome de Usuário</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="username" 
+                                name="username" 
+                                value="{{ current_user.username }}" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                value="{{ current_user.email }}" 
+                                required
+                            >
+                        </div>
+
+                        <hr>
+                        
+                        <h5 class="text-secondary mb-3 mt-4">Alterar Senha (Opcional)</h5>
+                        <p class="text-muted small">Preencha os campos abaixo APENAS se desejar trocar sua senha.</p>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Nova Senha</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="new_password" 
+                                name="new_password" 
+                                placeholder="Deixe em branco para não alterar"
+                            >
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="confirm_new_password" class="form-label">Confirmar Nova Senha</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="confirm_new_password" 
+                                name="confirm_new_password"
+                            >
+                        </div>
+
+                        <hr>
+
+                        <h5 class="text-danger mb-3 mt-4">Confirmação de Segurança</h5>
+                        <p class="text-danger small">Para salvar as alterações, você deve confirmar sua senha atual.</p>
+
+                        <div class="mb-4">
+                            <label for="current_password" class="form-label">Senha Atual</label>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="current_password" 
+                                name="current_password" 
+                                required
+                            >
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">💾 Salvar Alterações</button>
+                            <a href="{{ url_for('main.perfil') }}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
