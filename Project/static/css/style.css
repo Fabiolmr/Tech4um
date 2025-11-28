@@ -15,23 +15,70 @@ body {
     min-height: 100vh;
 }
 
+/* Garante que padding não aumente a largura dos elementos */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 .layout {
     display: flex;
     width: 100%;
     max-width: 1400px; 
 }
 
+/* ================= BOTÕES E GRADIENTES ================= */
+
 /* GRADIENTE GENÉRICO E HOVER */
-.btn-gradiente {
+/*.btn-gradiente,
+.header-login-btn {
     background: linear-gradient(90deg, #ff3c00, #ff5500) !important;
     transition: filter 0.2s;
+}*/
+
+.btn-gradiente,
+.header-login-btn,
+.logout-btn,
+.login-btn,
+.toggle-create-btn,
+.perfil-btn,
+.enter-btn {
+    background: linear-gradient(90deg, #ff3c00, #ff5500) !important;
+    color: white !important;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: filter 0.2s, transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
 }
 
-.btn-gradiente:hover {
+
+/*.btn-gradiente:hover {
+    filter: brightness(1.15) !important;
+}*/
+
+.btn-gradiente:hover,
+.header-login-btn:hover,
+.logout-btn:hover,
+.login-btn:hover,
+.enter-btn:hover {
     filter: brightness(1.15) !important;
 }
 
-/*HEADER*/
+/* Estilos específicos de tamanho/padding para cada botão */
+.header-login-btn, .logout-btn {
+    padding: 8px 16px;
+}
+
+.login-btn {
+    padding: 10px 16px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* ================= HEADER ================= */
 header {
     position: fixed;
     top: 0;
@@ -56,17 +103,16 @@ header .logo {
     text-decoration: none;
 }
 
-.header-login-btn {
-    @extend .btn-gradiente; 
+/*.header-login-btn {
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
     color: white;
     cursor: pointer;
     font-weight: bold;
-}
+}*/
 
-.logout-btn {
+/*.logout-btn {
 
     padding: 8px 16px;
     border: none;
@@ -74,7 +120,7 @@ header .logo {
     color: white;
     cursor: pointer;
     font-weight: bold;
-}
+}*/
 
 .header-left {
     display: flex;
@@ -88,7 +134,11 @@ header .logo {
     justify-content: center;
 }
 
-.topbar input {
+.header-right {
+    margin-right: 20px;
+}
+
+/*.topbar input {
     width: 50%;
     max-width: 500px;
     padding: 10px;
@@ -98,8 +148,8 @@ header .logo {
     background-color: #272729;
     color: #fff;
     border: 1px solid #343536;
-}
-
+}*/
+/*
 .login-btn {
     padding: 8px 16px;
     border: none;
@@ -144,10 +194,10 @@ header .logo {
 /* USER BOX e BOTÃO CRIAR FÓRUM (AJUSTE) */
 .user-box {
     text-align: center;
-    padding: 0; 
     padding-bottom: 20px;
+    /*padding: 0; 
     border-bottom: 1px solid #343536; 
-    margin-bottom: 0; 
+    margin-bottom: 0; */
 }
 
 .user-box .user-avatar {
@@ -167,12 +217,12 @@ header .logo {
 .user-box .toggle-create-btn {
     width: 100%;
     padding: 10px;
-    border-radius: 8px;
+    margin-bottom: 15px;
+    /*border-radius: 8px;
     font-weight: bold;
     color: white;
     cursor: pointer;
-    border: none;
-    margin-bottom: 15px;
+    border: none;*/
 }
 
 /* CORREÇÃO: ABA DE CRIAR FÓRUM (AJUSTE DE TAMANHO) */
@@ -198,9 +248,10 @@ header .logo {
 
 .user-box .create-box input[type="text"] {
     /* CORREÇÃO: Garante 100% da largura, permitindo que o texto apareça */
-    width: 95%;
+    width: 100%;
     /* 95% para acomodar padding */
     padding: 8px;
+    margin-top: 5px;
     box-sizing: border-box;
     border-radius: 4px;
     border: 1px solid #343536;
@@ -208,12 +259,12 @@ header .logo {
     color: white;
 }
 
-.user-box .create-box button.btn-gradiente {
+.user-box .create-box button {
     margin-top: 15px;
     padding: 10px;
     width: 100%;
-    border-radius: 6px;
-    font-weight: 600;
+    /*border-radius: 6px;
+    font-weight: 600;*/
 }
 
 /* NOVO: ESTILO DO MENU NA SIDEBAR */
@@ -246,17 +297,17 @@ header .logo {
     background: #ff4500;
     color: white;
 }
-.sidebar-menu .sidebar-link.active:hover {
+/*.sidebar-menu .sidebar-link.active:hover {
     filter: brightness(1.1);
-}
+}*/
 
 
 /*FEED (CENTRALIZADO)*/
 .feed {
-    margin-left: 270px; 
-    padding: 20px;
-    width: 100%;
-    box-sizing: border-box;
+    margin-left: 230px; 
+    padding: 20px 40px;
+    width: calc(100% - 230px); /* Ocupa o restante da tela */
+    /*box-sizing: border-box;*/
     display: flex;
     flex-direction: column;
     align-items: center; /* Centraliza o conteúdo (título e lista) no espaço livre */
@@ -270,7 +321,7 @@ header .logo {
     padding-bottom: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    max-width: 750px; 
+    max-width: 900px; 
     width: 100%;
     text-align: center;
 }
@@ -280,9 +331,8 @@ header .logo {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    max-width: 750px; 
+    max-width: 900px; 
     width: 100%; 
-    margin: 0;
 }
 
 .forum-card {
@@ -292,7 +342,7 @@ header .logo {
     background: #1a1a1b;
     border: 1px solid #343536;
     border-radius: 10px;
-    padding: 15px;
+    padding: 20px;
     width: 100%; 
     box-sizing: border-box;
     transition: transform 0.2s;
@@ -311,11 +361,13 @@ header .logo {
 }
 
 .forum-card .card-info {
-    flex-grow: 1;
+    /*flex-grow: 1;
     flex-shrink: 1;
     text-align: left;
     min-width: 0;
-    padding-right: 15px;
+    padding-right: 15px;*/
+    flex: 1;
+    padding-right: 20px;
 }
 
 .forum-card h4 {
@@ -324,7 +376,7 @@ header .logo {
     margin: 0 0 5px 0;
 }
 
-.forum-card p {
+/*.forum-card p {
     color: #d7dadc;
     font-size: 0.9em;
     margin: 0;
@@ -362,42 +414,38 @@ header .logo {
 .forum-card .enter-btn:hover {
     filter: brightness(1.15);
 }
-
+*/
 .card-actions {
     display: flex;
     gap: 10px;
     align-items: center;
-    flex-shrink: 0;
+    /*flex-shrink: 0;*/
 }
+
 .btn-secondary {
     padding: 12px 20px;
     border-radius: 20px;
     font-weight: 600;
-    background: linear-gradient(to right, #ff4500, #ff8c00);
+    background: transparent;
+    /*background: linear-gradient(to right, #ff4500, #ff8c00);*/
     border: 1px solid #ff4500;
     cursor: pointer;
-    font-size: 1em;
-    width: 100px;
+    /*font-size: 1em;
+    width: 100px;*/
     min-width: 100px;
     text-align: center;
+    transition: 0.2s;
 }
 
 .btn-secondary:hover {
     filter: brightness(1.15);
     color: white;
 }
-/*LOGIN PAGE*/
-.login-title {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 800;
-    color: #ff3c00;
-    margin: 3px 0 30px 0;
-    font-family: 'Syncopate';
-}
+
+/* ================= FORMULÁRIOS E LOGIN ================= */
 
 .login-container {
-    max-width: 400px;
+    /*max-width: 400px;
     margin: 0 auto;  
     margin-top: 35px;         
     padding: 55px;
@@ -405,31 +453,66 @@ header .logo {
     border-radius: 14px;
     box-shadow: 0px 0px 40px rgba(0,0,0,0.45);
     text-align: center;
+    color: #fff;*/
+
+    max-width: 400px;
+    margin: 60px auto;         
+    padding: 40px;
+    background: #111111;
+    border-radius: 14px;
+    box-shadow: 0px 0px 40px rgba(0,0,0,0.45);
+    text-align: center;
     color: #fff;
 }
 
-.login-container h2 {
+/*.login-container h2 {
     font-size: 20px;
     margin-bottom: 25px;
+}*/
+
+.login-title {
+    /*text-align: center;
+    font-size: 32px;
+    font-weight: 800;
+    margin: 3px 0 30px 0;*/
+    font-family: 'Syncopate';
+    color: #ff3c00;
+    margin-bottom: 30px;
 }
+
 
 .form-group {
     margin-bottom: 18px;
     text-align: left;
 }
 
-.form-group label {
+/*.form-group label {
     font-size: 14px;
     color: #d3d3d3;
+}*/
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
 }
 
 .form-group input {
-    width: 92%;
+    /*width: 92%;
     padding: 12px;
     margin-top: 6px;
     background: #1a1a1a;
     border: none;
     outline: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;*/
+
+    width: 100%; /* Garante largura total */
+    padding: 12px;
+    padding-right: 45px; /* Espaço para o ícone não cobrir texto */
+    margin-top: 6px;
+    background: #1a1a1a;
+    border: 1px solid #333;
     border-radius: 8px;
     color: white;
     font-size: 14px;
@@ -444,15 +527,24 @@ header .logo {
 }
 
 .toggle-password {
-    position: absolute;
-    right: 12px;
+    /*position: absolute;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 1.2rem;
     color: #d7dadc;
-    opacity: 0.7;
+    opacity: 0.7;*/
+
+    position: absolute;
+    right: 15px;
+    top: 60%; /* Ajuste fino vertical */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #d7dadc;
+    z-index: 10;
 }
+
 
 .toggle-password:hover {
     opacity: 1;
@@ -491,6 +583,7 @@ button[type="submit"]:hover {
     text-decoration: underline;
 }
 
+
 /* NOVO BOTÃO LOGAR COM GOOGLE (VISUAL) */
 .google-login-btn {
     width: 100%;
@@ -522,38 +615,54 @@ button[type="submit"]:hover {
 }
 /* ================= CHAT ================= */
 .chat-wrapper {
-    display: flex;
+    /*display: flex;
     margin-left: 150px;
     /* largura da sidebar */
-    margin-top: 60px;
+    /*margin-top: 60px;
     /* altura do header */
-    height: calc(100vh - 60px);
+    /*height: calc(100vh - 60px);
     width: calc(100% - 250px);
     /* ocupa toda a largura restante */
-    padding: 10px;
+    /*padding: 10px;
     box-sizing: border-box;
     gap: 15px;
     /* espaço entre chat e painel de participantes */
+
+    display: flex;
+    margin-left: 230px; /* Igual à sidebar */
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    width: calc(100% - 230px);
+    padding: 15px;
+    gap: 15px;
 }
 
 .chat-area {
-    flex: 1;
+    /*flex: 1;
     /* ocupa todo espaço possível */
-    min-width: 600px;
+    /*min-width: 600px;
     /* largura mínima desejada */
-    max-width: 900px; /* largura máxima, opcional */
+    /*max-width: 900px; /* largura máxima, opcional */
+    /*display: flex;
+    flex-direction: column;
+    background: #1a1a1b;
+    border: 1px solid #343536;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;*/
+
+    flex: 1;
     display: flex;
     flex-direction: column;
     background: #1a1a1b;
     border: 1px solid #343536;
     border-radius: 10px;
     overflow: hidden;
-    position: relative;
 }
 
 
 .chat-header {
-    padding: 0px 20px;
+    padding: 15px;
     background: #272729;
     border-bottom: 1px solid #343536;
     font-weight: bold;
@@ -566,21 +675,70 @@ button[type="submit"]:hover {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 /* ================= CHAT ================= */
+
+.chat-input {
+    display: flex;
+    border-top: 1px solid #343536;
+    padding: 10px;
+    background: #272729;
+}
+
+.chat-input input {
+    /*flex: 1;
+    padding: 12px 15px;
+    border: none;
+    outline: none;
+    background: #1a1a1a;
+    color: #fff;*/
+
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: #1a1a1a;
+    color: white;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    /*padding: 0 15px;
+    background: linear-gradient(to right, #ff4500, #ff8c00);
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    max-width: 100px;*/
+    padding: 0 20px;
+    border-radius: 20px;
+}
+
+.chat-input button:hover {
+    filter: brightness(1.15);
+}
+
+/*MENSAGENS*/
 .msg {
-    max-width: 70%;
+   /* max-width: 70%;
     padding: 10px 15px;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     /* NOME em cima, texto abaixo */
-    align-items: flex-start;
+    /*align-items: flex-start;
     /* Tudo à esquerda */
-    margin-bottom: 8px;
-    word-wrap: break-word;
+    /*margin-bottom: 8px;
+    word-wrap: break-word;*/
+
+    max-width: 75%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+
 }
 
 .msg-me {
@@ -609,51 +767,30 @@ button[type="submit"]:hover {
     /* Nome não quebra */
 }
 
-.msg-text {
+/*.msg-text {
     width: 100%;
     word-break: break-word;
     text-align: left;
     /* garante que o texto fique à esquerda */
-    display: block;
+    /*display: block;
     margin: 4px 0;
-}
+}*/
 
 .msg-time {
-    width: 100%;
+    /*width: 100%;
     font-size: 0.75rem;
     opacity: 0.7;
     margin-top: 4px;
-    align-self: flex-end;
+    align-self: flex-end;*/
     /* Hora sempre no canto direito do balão */
-}
 
-.chat-input {
-    display: flex;
-    border-top: 1px solid #343536;
+    font-size: 0.7em;
+    align-self: flex-end;
+    opacity: 0.8;
 }
+/**/
 
-.chat-input input {
-    flex: 1;
-    padding: 12px 15px;
-    border: none;
-    outline: none;
-    background: #1a1a1a;
-    color: #fff;
-}
 
-.chat-input button {
-    padding: 0 15px;
-    background: linear-gradient(to right, #ff4500, #ff8c00);
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    max-width: 100px;
-}
-
-.chat-input button:hover {
-    filter: brightness(1.15);
-}
 /* BOTÃO HEADER PARTICIPANTES */
 .participants-toggle {
     background: linear-gradient(to right, #ff4500, #ff8c00);;
@@ -679,6 +816,7 @@ button[type="submit"]:hover {
     height: 30px;
     fill: white;
 }
+
 /* PAINEL DESLIZANTE PARTICIPANTES */
 .participants-panel {
     position: fixed;
@@ -694,18 +832,43 @@ button[type="submit"]:hover {
     display: flex;
     flex-direction: column;
     padding: 15px;
-    z-index: 1000;
+    z-index: 2000;
+
+    /*position: fixed;
+    top: 60px;
+    right: -260px;
+    width: 260px;
+    height: calc(100vh - 60px);
+    background: #1a1a1b;
+    border-left: 1px solid #343536;
+    transition: right 0.3s ease;
+    padding: 20px;
+    z-index: 1000;*/
 }
 
 .participants-panel.open {
     right: 0; /* quando aberto */
 }
 
+/**/
+/*.right-sidebar { display: none; }*/
+
+/* Correção de Scrollbar */
+/*::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1b; }
+::-webkit-scrollbar-thumb { background: #343536; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #ff4500; }*/
+
+/**/
+
+
+/**/
 .participants-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #343536;
 }
 
 .close-btn {
@@ -725,6 +888,29 @@ button[type="submit"]:hover {
     padding: 4px 0;
     font-size: 14px;
 }
+
+.participants-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #ff4500;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    font-size: 28px; /* Aumentei um pouco para ficar mais clicável */
+    color: #d7dadc;
+    cursor: pointer;
+    line-height: 1; /* Centraliza verticalmente o X */
+    padding: 0 5px;
+    flex-shrink: 0; /* Garante que o botão não seja espremido */
+}
+
+.close-btn:hover {
+    color: #ff4500; /* Fica laranja ao passar o mouse */
+}
+
+
 
 
 
