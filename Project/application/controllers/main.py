@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required
 from application.extensions import rooms, generate_unique_code, socketio
 from application.models.forum import Forum
-
+from application.models.user import User
 from application.websockets.handlers import get_participantes_list
 
 main_bp = Blueprint('main', __name__)
@@ -104,3 +104,60 @@ def leave_member(forum_id):
         })
         
     return redirect(url_for("main.home"))
+
+@main_bp.route("/perfil/<username>")
+def perfil(username):
+    
+    
+    user_data = {
+        'username': username,
+        'bio': f"Este é o perfil de {username}. Detalhes da bio viriam do DB.",
+        # Adicione outros dados (ex: foto, data de registro, etc.)
+    }
+
+    
+    return render_template("perfil.html", user=user_data) # Mude user_data para user se usar o modelo
+
+@main_bp.route("/edit_profile", methods=["GET", "POST"])
+@login_required 
+def edit_profile():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        current_password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+        confirm_new_password = request.form.get("confirm_new_password")
+
+        # 1. Verificar a senha atual
+        if not check_password_hash(current_user.password, current_password):
+            flash("Senha atual incorreta.", "danger")
+            return redirect(url_for('main.edit_profile'))
+
+        # 2. Verificar se o novo username/email já está em uso por OUTRO usuário
+        # ... (Lógica de verificação, garantindo que não seja o próprio current_user)
+
+        # 3. Processar a alteração de senha (se houver)
+        if new_password:
+            if new_password != confirm_new_password:
+                flash("A nova senha e a confirmação não coincidem.", "danger")
+                return redirect(url_for('main.edit_profile'))
+            
+            # Use a função is_strong_password que você definiu
+            # if not is_strong_password(new_password):
+            #     flash("A nova senha é muito fraca...", "danger")
+            #     return redirect(url_for('main.edit_profile'))
+            
+            # Se tudo estiver ok, faça o hash e atualize:
+            current_user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
+
+        # 4. Atualizar username e email
+        current_user.username = username
+        current_user.email = email
+        
+        # 5. Salvar as alterações no seu 'users' dictionary/database
+        # users[current_user.id] = current_user 
+
+        flash("Perfil atualizado com sucesso!", "success")
+        return redirect(url_for('main.profile'))
+
+    return render_template("edit_profile.html")

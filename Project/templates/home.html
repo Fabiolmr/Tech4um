@@ -58,6 +58,11 @@
                 <button class="toggle-create-btn btn-gradiente" onclick="toggleCreateForum()">
                     + Criar Fórum
                 </button>
+                <button class="perfil-btn btn-gradiente" 
+                        onclick="window.location.href = '{{ url_for('main.perfil', username=current_user.username) }}'">
+                    👤 Meu Perfil
+                </button>
+                
                 <div id="create-forum-box" class="create-box hidden">
                     <form method="POST">
                         <label>Nome do Fórum</label>
