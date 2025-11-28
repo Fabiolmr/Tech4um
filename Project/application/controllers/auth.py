@@ -5,6 +5,12 @@ from application.models.user import User
 from application.extensions import users
 import re
 
+
+def is_valid_email(email):
+    padrao = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+    return re.match(padrao, email) is not None
+
+
 def is_strong_password(password):
     """
     Verifica se a senha atende aos critérios de força.
@@ -37,7 +43,11 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
-        
+
+        # ✔ Verificação se o e-mail é válido
+        if not is_valid_email(email):
+            flash("E-mail inválido! Digite um endereço válido.", "danger")
+            return redirect(url_for("auth.register"))
 
         if password != confirm_password:
             flash("As senhas não coincidem!", "danger")
@@ -66,6 +76,7 @@ def register():
         return redirect(url_for("auth.login"))
 
     return render_template("register.html")
+
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
