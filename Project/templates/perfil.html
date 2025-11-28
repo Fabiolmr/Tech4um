@@ -7,9 +7,11 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-lg border-0">
+                
                 <div class="card-header bg-primary text-white text-center">
                     <h2 class="mb-0">👤 Perfil do Usuário</h2>
                 </div>
+                
                 <div class="card-body">
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
@@ -27,24 +29,24 @@
                             <hr>
 
                             <div class="row mb-3">
-                                <div class="col-sm-4 text-muted"><strong>ID de Usuário:</strong></div>
-                                <div class="col-sm-8">{{ current_user.id }}</div>
+                                <div class="col-5 text-muted"><strong>ID de Usuário:</strong></div>
+                                <div class="col-7">{{ current_user.id }}</div>
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-sm-4 text-muted"><strong>Nome de Usuário:</strong></div>
-                                <div class="col-sm-8">{{ current_user.username }}</div>
+                                <div class="col-5 text-muted"><strong>Nome de Usuário:</strong></div>
+                                <div class="col-7">{{ current_user.username }}</div>
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-sm-4 text-muted"><strong>E-mail:</strong></div>
-                                <div class="col-sm-8">{{ current_user.email }}</div>
+                                <div class="col-5 text-muted"><strong>E-mail:</strong></div>
+                                <div class="col-7">{{ current_user.email }}</div>
                             </div>
                             
                             {% if current_user.date_joined %}
                                 <div class="row mb-3">
-                                    <div class="col-sm-4 text-muted"><strong>Membro Desde:</strong></div>
-                                    <div class="col-sm-8">{{ current_user.date_joined.strftime('%d/%m/%Y') }}</div>
+                                    <div class="col-5 text-muted"><strong>Membro Desde:</strong></div>
+                                    <div class="col-7">{{ current_user.date_joined.strftime('%d/%m/%Y') }}</div>
                                 </div>
                             {% endif %}
                         </div>
@@ -52,9 +54,13 @@
                         <hr class="my-4">
 
                         <div class="profile-actions text-center">
-                            <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-secondary me-2">✏️ Editar Perfil</a>
+                            <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-secondary me-2">
+                                ✏️ Editar Perfil
+                            </a>
                             
-                            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">🚪 Sair da Conta</a>
+                            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+                                🚪 Sair da Conta
+                            </a>
                         </div>
                     {% else %}
                         <div class="alert alert-warning text-center" role="alert">
