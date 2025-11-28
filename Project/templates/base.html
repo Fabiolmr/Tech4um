@@ -5,26 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tech4um | {% block title %}{% endblock %}</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet" 
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
-          crossorigin="anonymous">
-
-    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"/>
+    {# O Tailwind CSS é carregado nas páginas filhas para evitar conflitos #}
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-            integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-            crossorigin="anonymous"></script>
+             crossorigin="anonymous"></script>
     
-    </head>
+    <style>
+        /* =======================================================
+           DEFINIÇÕES DE TEMA (Variáveis CSS)
+           =======================================================
+           Usamos CSS Variables para permitir a alternância de cores de tema.
+        */
+        :root {
+            /* MODO ESCURO (Padrão) */
+            --color-primary: #FF4500; 
+            --color-secondary: #E63E00;
+            --color-background: #1F2937;
+            --color-sidebar-bg: #111827;
+            --color-card-bg: #374151;
+            --color-text-main: #F3F4F6;
+            --color-border-dark: #4B5563;
+            --color-muted: #9CA3AF;
+            
+            /* Alertas */
+            --alert-success-bg: #d1fae5;
+            --alert-success-text: #065f46;
+            --alert-danger-bg: #fee2e2;
+            --alert-danger-text: #991b1b;
+            --alert-info-bg: #dbeafe;
+            --alert-info-text: #1e40af;
+        }
+
+        /* MODO CLARO (Inverte Cores) */
+        body.light-mode {
+            --color-primary: #E63E00;
+            --color-secondary: #FF4500;
+            --color-background: #F3F4F6;
+            --color-sidebar-bg: #FFFFFF;
+            --color-card-bg: #FFFFFF;
+            --color-text-main: #1F2937;
+            --color-border-dark: #D1D5DB;
+            --color-muted: #6B7280;
+            
+            /* Alertas do modo claro */
+            --alert-success-bg: #D1FAE5;
+            --alert-success-text: #065F46;
+            --alert-danger-bg: #FEE2E2;
+            --alert-danger-text: #991B1B;
+            --alert-info-bg: #DBEAFE;
+            --alert-info-text: #1E40AF;
+        }
+
+        /* =======================================================
+           ESTILOS BASE DA PÁGINA (Aplicam as variáveis)
+           =======================================================
+        */
+        body {
+            background-color: var(--color-background);
+            color: var(--color-text-main);
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        /* HEADER FIXO */
+        header {
+            background-color: var(--color-sidebar-bg);
+            border-bottom: 1px solid var(--color-border-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+            height: 60px;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 100;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        header .logo {
+            color: var(--color-primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .header-right {
+            display: flex; 
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Estilo base do Botão de Tema */
+        .btn-header {
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.2s, box-shadow 0.2s;
+        }
+        
+        /* Estilos de Flash Messages usando variáveis dinâmicas */
+        .flash-messages {
+             padding-top: 1rem;
+             padding-left: 1rem;
+             padding-right: 1rem;
+             max-width: 800px;
+             margin: 0 auto;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            margin-bottom: 10px;
+        }
+
+        .alert-success { background-color: var(--alert-success-bg); color: var(--alert-success-text); }
+        .alert-danger, .alert-error { background-color: var(--alert-danger-bg); color: var(--alert-danger-text); }
+        .alert-info { background-color: var(--alert-info-bg); color: var(--alert-info-text); }
+
+        .content {
+            padding-top: 70px; /* Garante que o conteúdo comece abaixo do header */
+        }
+
+    </style>
+
+</head>
 
 <body>
 
     <header>
-        <a href="/" class="logo">Tech4um</a>
+        <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
         
-        <div class="header-right" style="margin-right: 20px; display: flex; align-items: center;">
-            <button id="theme-toggle" class="btn logout-btn me-3" style="font-weight: normal; margin-right: 10px;">
+        <div class="header-right">
+            <button id="theme-toggle" class="btn-header" style="font-weight: normal;">
                 🌙 Tema Escuro 
             </button>
             
@@ -32,48 +151,26 @@
         </div>
     </header>
 
-    <div class="content" style="margin-top: 60px;">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages" style="text-align: center; margin-bottom: 20px;">
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    <div class="content">
+        {# FLASH MESSAGES #}
+        <div class="flash-messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
 
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
-            crossorigin="anonymous"></script>
-
-    <script>
-    function toggleCreateForum() {
-        const box = document.getElementById("create-forum-box");
-        if (box) box.classList.toggle("hidden");
-    }
-
-    // SOCKET.IO (para usuários online)
-    const socket = io();
-
-    socket.on("online_users", users => {
-        let list = document.getElementById("online-list");
-        if (!list) return; // só existe na home
-
-        list.innerHTML = "";
-        users.forEach(u => {
-            let li = document.createElement("li");
-            li.textContent = u;
-            list.appendChild(li);
-        });
-    });
-    </script>
-    
+    {# Script de Toggle de Tema #}
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggleButton = document.getElementById('theme-toggle');
@@ -83,11 +180,13 @@
         function applyTheme(theme) {
             if (theme === 'light') {
                 body.classList.add('light-mode');
-                if (toggleButton) toggleButton.innerHTML = '🌙 Tema Escuro';
+                // Altera o texto do botão para sugerir a AÇÃO de mudar para o tema ESCURO
+                if (toggleButton) toggleButton.innerHTML = '🌙 Tema Escuro'; 
             } else {
-                // Tema 'dark' é o seu design original (sem classe extra no body)
+                // Tema 'dark'
                 body.classList.remove('light-mode');
-                if (toggleButton) toggleButton.innerHTML = '☀️ Tema Claro';
+                // Altera o texto do botão para sugerir a AÇÃO de mudar para o tema CLARO
+                if (toggleButton) toggleButton.innerHTML = '☀️ Tema Claro'; 
             }
         }
 
@@ -98,14 +197,30 @@
         // 2. Listener do botão
         if (toggleButton) {
             toggleButton.addEventListener('click', () => {
-                const currentTheme = body.classList.contains('light-mode') ? 'light' : 'dark';
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                const isLight = body.classList.contains('light-mode');
+                const newTheme = isLight ? 'dark' : 'light';
                 
                 localStorage.setItem('theme', newTheme);
                 applyTheme(newTheme);
             });
         }
     });
+
+    // Função dummy para evitar erros de referência em páginas filhas (Home)
+    function toggleCreateForum() {
+         const box = document.getElementById("create-forum-box");
+         if (box) box.classList.toggle("hidden");
+    }
+    
+    // Para resolver erros de referência no Jinja2 (se houver)
+    function url_for(endpoint, params) {
+        // Implementação dummy ou substitua por uma função Flask real se necessário
+        let url = endpoint;
+        if (params) {
+            url += '?' + Object.keys(params).map(key => key + '=' + params[key]).join('&');
+        }
+        return url;
+    }
     </script>
 </body>
 </html>

@@ -1,85 +1,199 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script src="https://cdn.tailwindcss.com"></script>
 
+<style>
+    /* =======================================================
+    ESTILOS GLOBAIS (Laranja Vibrante / Dark Mode)
+    Copiei do seu template de login para consistência
+    =======================================================
+    */
+    :root {
+        --color-primary: #FF4500; /* Laranja Vibrante */
+        --color-secondary: #E63E00; /* Laranja um pouco mais escuro para hover */
+        --color-background: #1F2937; /* Tailwind Gray 800 - Fundo principal */
+        --color-card-bg: #374151; /* Tailwind Gray 700 - Fundo do card */
+        --color-text-light: #F3F4F6; /* Tailwind Gray 100 - Texto claro */
+        --color-border-dark: #4B5563; /* Tailwind Gray 600 - Bordas e divisores */
+        --color-input-bg: #4B5563;
+        --color-muted: #9CA3AF;
+        --color-link-hover: #FF7F50; /* Um laranja mais suave para links/hover */
+    }
 
-<!-- ================= HEADER SUPERIOR ================= -->
-<header>
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text-light);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* Botão Gradiente (Principal) */
+    .btn-gradiente {
+        background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: opacity 0.2s, box-shadow 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-gradiente:hover {
+        opacity: 0.9;
+        box-shadow: 0 4px 12px rgba(255, 69, 0, 0.4);
+    }
+    
+    /* Botão Secundário */
+    .btn-secondary {
+        background-color: var(--color-border-dark);
+        color: var(--color-text-light);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-secondary:hover {
+        background-color: #5d6874; /* Um pouco mais claro */
+    }
+
+    /* Card Padrão */
+    .app-card {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border-dark);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Input/Form de Criação de Fórum */
+    .create-box input[type="text"] {
+        background-color: var(--color-input-bg);
+        border: 1px solid var(--color-border-dark);
+        color: var(--color-text-light);
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        width: 100%;
+        margin-bottom: 0.75rem;
+        margin-top: 0.25rem;
+    }
+    .create-box label {
+        display: block;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Estilos do Link da Sidebar */
+    .sidebar-menu a {
+        display: block;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s, color 0.2s;
+        color: var(--color-text-light);
+        text-decoration: none;
+    }
+    .sidebar-menu a:hover {
+        background-color: var(--color-border-dark);
+        color: var(--color-primary);
+    }
+    .sidebar-menu .active {
+        background-color: var(--color-primary);
+        color: white;
+        font-weight: 600;
+    }
+    .sidebar-menu .active:hover {
+        background-color: var(--color-secondary);
+        color: white;
+    }
+
+    /* Ajuste para o logo no header */
+    .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--color-primary);
+        text-decoration: none;
+    }
+    .logo:hover {
+        color: var(--color-secondary);
+    }
+    
+    /* Ocultar box de criação de fórum */
+    .hidden {
+        display: none !important;
+    }
+
+</style>
+
+<header class="sticky top-0 z-10 p-4 border-b border-gray-700 flex justify-between items-center app-card rounded-none shadow-lg">
     <div class="header-left">
         <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
     </div>
     
-    <div class="topbar">
-        </div>
-        
     <div class="header-right">
         {% if current_user.is_authenticated %}
         <a href="{{ url_for('auth.logout') }}">
-            <button class="logout-btn btn-gradiente">Sair</button>
+            <button class="logout-btn btn-gradiente text-sm">Sair</button>
         </a>
         {% else %}
         <a href="{{ url_for('auth.login') }}">
-            <button class="header-login-btn btn-gradiente">Entrar</button>
+            <button class="header-login-btn btn-gradiente text-sm">Entrar</button>
         </a>
         {% endif %}
     </div>
 </header>
 
-<div class="home-container">
+<div class="home-container p-4">
+
+    <div class="home-layout grid grid-cols-1 md:grid-cols-12 gap-6 max-w-7xl mx-auto">
 
 
-
-
-    <!-- ================= LAYOUT PRINCIPAL ================= -->
-    <div class="home-layout">
-
-
-        <!-- ================= ESQUERDA: SIDEBAR ================= -->
-        <aside class="left-sidebar">
+        <aside class="left-sidebar md:col-span-3">
 
             {% if current_user.is_authenticated %}
-            <div class="user-box">
+            <div class="user-box p-4 mb-4 app-card text-center">
 
                 <img src="{{ current_user.avatar or url_for('static', filename='img/default-user.png') }}" 
-                     class="user-avatar">
+                     class="user-avatar w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 object-cover">
 
-                <p class="username">@{{ current_user.username }}</p>
+                <p class="username text-lg font-semibold mb-3">@{{ current_user.username }}</p>
 
-                <button class="toggle-create-btn btn-gradiente" onclick="toggleCreateForum()">
+                <button class="toggle-create-btn btn-gradiente w-full mb-2" onclick="toggleCreateForum()">
                     + Criar Fórum
                 </button>
-                <button class="perfil-btn btn-gradiente" 
+                <button class="perfil-btn btn-secondary w-full" 
                         onclick="window.location.href = '{{ url_for('main.perfil', username=current_user.username) }}'">
                     👤 Meu Perfil
                 </button>
                 
-                <div id="create-forum-box" class="create-box hidden">
+                <div id="create-forum-box" class="create-box p-4 mt-3 app-card hidden text-left">
                     <form method="POST">
-                        <label>Nome do Fórum</label>
-                        <input type="text" name="create_name" placeholder="Nome..." required>
+                        <label for="create_name">Nome do Fórum</label>
+                        <input type="text" id="create_name" name="create_name" placeholder="Nome..." required>
 
-                        <label>Descrição</label>
-                        <input type="text" name="create-desc" placeholder="Descrição..." required>
+                        <label for="create_desc">Descrição</label>
+                        <input type="text" id="create_desc" name="create-desc" placeholder="Descrição..." required>
 
-                        <button type="submit" class="btn btn-gradiente">Criar</button>
+                        <button type="submit" class="btn btn-gradiente w-full mt-2">Criar</button>
                     </form>
                 </div>
 
             </div>
 
-            <div class="sidebar-menu">
+            <div class="sidebar-menu p-2 app-card">
+                <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">Navegação</h4>
                 <ul>
                     <li><a href="{{ url_for('main.home') }}" class="sidebar-link active">Fóruns</a></li>
-                </ul>
+                    </ul>
             </div>
 
             {% else %}
 
-            <div class="user-box">
-                <p>Você não está logado.</p>
+            <div class="user-box p-4 app-card text-center">
+                <p class="mb-3">Você não está logado.</p>
                 <a href="{{ url_for('auth.login') }}">
-                    <button class="login-btn">Entrar</button>
+                    <button class="login-btn btn-gradiente w-full">Entrar</button>
                 </a>
+                <p class="text-sm text-gray-400 mt-2">ou <a href="{{ url_for('auth.register') }}" class="text-orange-400 hover:text-orange-300">Criar Conta</a></p>
             </div>
 
             {% endif %}
@@ -88,41 +202,43 @@
 
 
 
-        <!-- ================= CENTRO: FEED ================= -->
-        <main class="feed">
+        <main class="feed md:col-span-6">
 
-            <h3 class="section-title">Fóruns Disponíveis</h3>
+            <h3 class="section-title text-2xl font-bold mb-4 text-orange-400">Fóruns Disponíveis</h3>
 
-            <div class="forum-list" id="rooms-list">
+            <div class="forum-list space-y-4" id="rooms-list">
 
                 {% if rooms|length == 0 %}
-                    <p id="no-rooms-msg">Nenhum fórum criado ainda.</p>
+                    <p id="no-rooms-msg" class="p-4 app-card text-center text-gray-400">Nenhum fórum criado ainda.</p>
                 {% endif %}
 
                 {% for room in rooms %}
-                <div class="forum-card">
-                    <form method="POST" class="forum-form">
-                        <div class="card-info">
-                            <h4>{{ room.name }}</h4>
-                            <p>{{ room.description }}</p>
-                            <p id="count-{{ room.id }}" style="font-size: 0.8em; color: #818384; margin-top: 5px;">
+                <div class="forum-card app-card p-4">
+                    <form method="POST" class="forum-form flex justify-between items-center">
+                        <div class="card-info flex-grow">
+                            <h4 class="text-xl font-semibold text-orange-300">{{ room.name }}</h4>
+                            <p class="text-gray-400 mt-1 mb-2">{{ room.description }}</p>
+                            <p id="count-{{ room.id }}" class="text-xs text-gray-400">
                                 👥 {{ room.members|length }} membro(s)
                             </p>
                         </div>
-                        <div class="card-actions">
+                        
+                        <div class="card-actions flex flex-col space-y-2 ml-4 min-w-[120px]">
                             {% if current_user.is_authenticated %}
                                 {% if current_user.username in room.members %}
-                                    <span style="color: #4CAF50; font-weight: bold; margin-right: 10px;">
+                                    <span class="text-green-400 font-bold text-sm text-center">
                                         ✓ Membro
                                     </span>
                                 {% else %}
-                                    <button type="submit" formaction="{{ url_for('main.join_member', forum_id=room.id) }}" class="btn btn-secondary">
+                                    <button type="submit" 
+                                            formaction="{{ url_for('main.join_member', forum_id=room.id) }}" 
+                                            class="btn btn-secondary text-sm">
                                         Ser Membro
                                     </button>
                                 {% endif %}
                             {% endif %}
                             
-                            <button type="submit" class="btn btn-gradiente enter-btn" 
+                            <button type="submit" class="btn btn-gradiente enter-btn text-sm" 
                                     name="entrar" value="{{ room.id }}">
                                 Entrar
                             </button>
@@ -135,26 +251,24 @@
 
 
 
-        <!-- ================= DIREITA: ONLINE ================= -->
-        <aside class="right-sidebar">
-            <h3>Usuários Online</h3>
-            <ul id="online-list"></ul>
+        <aside class="right-sidebar md:col-span-3">
+            <div class="app-card p-4">
+                <h3 class="text-xl font-bold mb-4 text-orange-400">Usuários Online</h3>
+                <ul id="online-list" class="space-y-1 text-gray-300">
+                    <li>Conectando...</li>
+                </ul>
+            </div>
         </aside>
 
-    </div> <!-- home-layout -->
-
-</div> <!-- home-container -->
-
-
-
-<!-- ================= SOCKET.IO ================= -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    </div> </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 
 <script>
     const socket = io();
 
-    const currentUser = "{{ current_user.username if current_user.is_authenticated else '' }}";
+    // Use o valor 'None' (string) ou string vazia se não autenticado
+    const currentUser = "{{ current_user.username if current_user.is_authenticated else '' }}"; 
 
+    /* --- Garante que a página recarregue no "Back" do navegador --- */
     window.addEventListener("pageshow", function (event) {
         var historyTraversal = event.persisted || 
                                (typeof window.performance != "undefined" && 
@@ -165,51 +279,75 @@
         }
     });
 
-    /* --- Atualiza lista de novos fóruns instantaneamente --- */
+    /* --- Abre/fecha box de criar fórum --- */
+    function toggleCreateForum() {
+        const box = document.getElementById("create-forum-box");
+        // Verifica se o box existe antes de tentar manipular as classes
+        if(box) {
+            box.classList.toggle("hidden");
+        }
+    }
+    
+    // Deixa a função globalmente acessível
+    window.toggleCreateForum = toggleCreateForum; 
+
+
+    /* --- Atualiza lista de novos fóruns instantaneamente (via Socket.IO) --- */
     socket.on("new_room", (data) => {
         const list = document.getElementById("rooms-list");
         const noRooms = document.getElementById("no-rooms-msg");
         if (noRooms) noRooms.remove();
 
         const card = document.createElement("div");
-        card.classList.add("forum-card");
+        card.classList.add("forum-card", "app-card", "p-4"); // Adicionadas classes de estilo
         card.id = `card-${data.id}`;
 
-        let memberButtonHTML = '';
-
-        if (currentUser === data.creator) {
-            memberButtonHTML = `
-                <span class="badge-member" style="color: #4CAF50; font-weight: bold; margin-left: 10px;">
-                    ✓ Membro
-                </span>`;
-        } else if (currentUser) {
-            actionsHTML = `
-                <button type="submit" formaction="/join_member/${data.id}" class="btn btn-secondary">
-                    Ser Membro
-                </button>`;
+        let actionsHTML = '';
+        const memberCount = 1; // Novo fórum, 1 membro (o criador)
+        
+        // Lógica de autenticação e membro no novo card (usando classes Tailwind/CSS)
+        if (currentUser) {
+            if (currentUser === data.creator) {
+                 // Criador é sempre membro
+                actionsHTML = `
+                    <span class="text-green-400 font-bold text-sm text-center">
+                        ✓ Membro
+                    </span>`;
+            } else {
+                 // Não criador, mas logado: pode ser membro
+                actionsHTML = `
+                    <button type="submit" formaction="/join_member/${data.id}" class="btn btn-secondary text-sm">
+                        Ser Membro
+                    </button>`;
+            }
         }
+        
+        // Botão Entrar sempre presente se for um fórum
+        const enterButtonHTML = `
+            <button type="submit" class="btn btn-gradiente enter-btn text-sm" name="entrar" value="${data.id}">
+                Entrar
+            </button>`;
 
         card.innerHTML = `
-            <form method="POST" class="forum-form">
-                <div class="card-info">
-                    <h4>${data.name}</h4>
-                    <p>${data.description}</p>
-                    <p class="member-count" id="count-${data.id}" style="font-size: 0.8em; color: #818384; margin-top: 5px;">
-                        👥 1 membro(s)
+            <form method="POST" class="forum-form flex justify-between items-center">
+                <div class="card-info flex-grow">
+                    <h4 class="text-xl font-semibold text-orange-300">${data.name}</h4>
+                    <p class="text-gray-400 mt-1 mb-2">${data.description}</p>
+                    <p class="member-count text-xs text-gray-400" id="count-${data.id}">
+                        👥 ${memberCount} membro(s)
                     </p>
                 </div>
-                <div class="card-actions">
+                <div class="card-actions flex flex-col space-y-2 ml-4 min-w-[120px]">
                     ${actionsHTML}
-                    <button type="submit" class="btn btn-gradiente enter-btn" name="entrar" value="${data.id}">
-                        Entrar
-                    </button>
+                    ${enterButtonHTML}
                 </div>
             </form>
         `;
 
-        list.appendChild(card);
+        list.prepend(card); // Adiciona no topo para ver o novo fórum
     });
 
+    /* --- Atualiza a contagem de membros (via Socket.IO) --- */
     socket.on("update_member_count", (data) => {
         const countEl = document.getElementById(`count-${data.forum_id}`);
         if (countEl) {
@@ -217,24 +355,32 @@
         }
     });
 
-    /* --- Atualiza lista de usuários online --- */
+    /* --- Atualiza lista de usuários online (via Socket.IO) --- */
     socket.on("online_users", users => {
         const list = document.getElementById("online-list");
         if(list){
-        list.innerHTML = "";
-        users.forEach(username => {
-            let li = document.createElement("li");
-            li.textContent = username;
-            list.appendChild(li);
-            });
+            list.innerHTML = "";
+            if (users.length === 0) {
+                 let li = document.createElement("li");
+                 li.textContent = "Ninguém online agora.";
+                 li.classList.add("text-gray-500");
+                 list.appendChild(li);
+            } else {
+                users.forEach(username => {
+                    let li = document.createElement("li");
+                    li.textContent = username;
+                    // Opcional: destaque o usuário atual
+                    if (username === currentUser) {
+                        li.classList.add("font-bold", "text-orange-400");
+                        li.textContent += " (Você)";
+                    } else {
+                        li.classList.add("hover:text-orange-300", "cursor-pointer");
+                    }
+                    list.appendChild(li);
+                });
+            }
         }
     });
-
-    /* --- Abre/fecha box de criar fórum --- */
-   function toggleCreateForum() {
-        const box = document.getElementById("create-forum-box");
-        if(box) box.classList.toggle("hidden");
-    }
 </script>
 
 {% endblock %}
