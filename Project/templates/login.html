@@ -1,45 +1,255 @@
 {% extends 'base.html' %}
 
+{% block title %}Login{% endblock %}
+
 {% block content %}
-
-
-<div class="login-container">
-    <div class="flash-container">
-        </div>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* =======================================================
+    ESTILOS GLOBAIS (Laranja Vibrante / Dark Mode)
+    =======================================================
+    */
+    :root {
+        --color-primary: #FF4500; /* Laranja Vibrante: ff4500 */
+        --color-secondary: #E63E00; /* Laranja um pouco mais escuro para hover */
+        --color-background: #1F2937; /* Tailwind Gray 800 - Fundo principal */
+        --color-card-bg: #374151; /* Tailwind Gray 700 - Fundo do card */
+        --color-text-light: #F3F4F6; /* Tailwind Gray 100 - Texto claro */
+        --color-border-dark: #4B5563; /* Tailwind Gray 600 - Bordas e divisores */
+        --color-input-bg: #4B5563;
+        --color-muted: #9CA3AF;
+    }
     
-    <div class="login-title">TECH4UM</div>
+    body {
+        background-color: var(--color-background);
+        color: var(--color-text-light);
+        font-family: 'Inter', sans-serif;
+    }
 
-    <h2>Login na Plataforma</h2>
+    /* Estilos do Card Principal */
+    .card-auth {
+        border-radius: 1rem;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border-dark);
+        overflow: hidden;
+    }
 
-    <form method="POST">
-        <div class="form-group">
-            <label for="username">Nome de Usuário</label>
-            <input type="text" id="username" name="username" placeholder="Seu nome de usuário ou e-mail" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Senha</label>
-            <div class="password-wrapper">
-                <input type="password" id="password" name="password" placeholder="Sua senha" required>
-                <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    }
+    
+    /* Inputs e Labels */
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+        color: var(--color-text-light);
+    }
+    
+    .form-control-custom {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--color-border-dark);
+        border-radius: 0.5rem;
+        transition: border-color 0.2s;
+        background-color: var(--color-input-bg);
+        color: var(--color-text-light);
+    }
+    
+    .form-control-custom:focus {
+        border-color: var(--color-primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.3);
+    }
+    
+    .form-control-custom::placeholder {
+        color: var(--color-muted);
+    }
+
+    /* Password Toggle Wrapper */
+    .password-wrapper {
+        position: relative;
+    }
+    .password-wrapper input {
+        padding-right: 2.5rem;
+    }
+    .toggle-password {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: var(--color-muted);
+        transition: color 0.2s;
+    }
+    .toggle-password:hover {
+        color: var(--color-primary);
+    }
+
+    /* Botão Principal (Entrar) */
+    .btn-primary-custom {
+        background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 700;
+        transition: opacity 0.2s, box-shadow 0.2s;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-primary-custom:hover {
+        opacity: 0.9;
+        box-shadow: 0 5px 15px rgba(255, 69, 0, 0.5);
+    }
+
+    /* Botão Google */
+    .google-login-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        background-color: white;
+        color: #374151; /* Gray 700 */
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+        transition: background-color 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .google-login-btn:hover {
+        background-color: #F3F4F6; /* Gray 100 */
+    }
+    .google-login-btn svg {
+        margin-right: 0.5rem;
+    }
+
+    /* Link de Rodapé */
+    .message {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--color-muted);
+    }
+    .message a {
+        color: var(--color-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .message a:hover {
+        color: var(--color-secondary);
+        text-decoration: underline;
+    }
+
+    /* Divisor "Ou" (Opcional visual) */
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.5rem 0;
+        color: var(--color-muted);
+        font-size: 0.8rem;
+    }
+    .divider::before, .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--color-border-dark);
+    }
+    .divider:not(:empty)::before { margin-right: .5em; }
+    .divider:not(:empty)::after { margin-left: .5em; }
+
+</style>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-800 p-4">
+    <div class="w-full max-w-sm">
+        <div class="card-auth">
+            
+            <!-- HEADER DO CARD -->
+            <div class="card-header bg-gradient-primary p-6 text-white text-center rounded-t-xl">
+                <h1 class="text-3xl font-extrabold tracking-wide mb-1">TECH4UM</h1>
+                <p class="text-orange-100 text-sm opacity-90">Login na Plataforma</p>
+            </div>
+            
+            <div class="p-8">
+                
+                <!-- FLASH MESSAGES -->
+                <div class="flash-container mb-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="p-3 mb-2 rounded bg-red-200 text-red-800 border border-red-300 text-sm">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <!-- FORMULÁRIO -->
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="username">Nome de Usuário</label>
+                        <input type="text" id="username" name="username" class="form-control-custom" placeholder="Seu nome de usuário ou e-mail" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="form-control-custom" placeholder="Sua senha" required>
+                            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary-custom">Entrar</button>
+                </form>
+
+                <div class="divider">OU</div>
+
+                <!-- BOTÃO GOOGLE -->
+                <button type="button" class="google-login-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18px" height="18px">
+                        <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.159,7.963,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                        <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.159,7.963,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.339,6.306,14.691z"/>
+                        <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.97,13.409-5.192l-6.19-5.238C29.211,35.091,26.69,36,24,36c-5.22,0-9.641-3.328-11.264-7.982l-6.571,4.819C9.656,39.661,16.318,44,24,44z"/>
+                        <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    </svg>
+                    Entrar com Google
+                </button>
+                
+                <div class="message">
+                    Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a>
+                </div>
+
             </div>
         </div>
-        
-        <button type="submit" class="btn-gradiente">Entrar</button>
-    </form>
-
-    <button type="button" class="google-login-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18px" height="18px">
-            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.159,7.963,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
-            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.159,7.963,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.339,6.306,14.691z"/>
-            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.97,13.409-5.192l-6.19-5.238C29.211,35.091,26.69,36,24,36c-5.22,0-9.641-3.328-11.264-7.982l-6.571,4.819C9.656,39.661,16.318,44,24,44z"/>
-            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
-        </svg>
-        Entrar com Google
-    </button>
-    
-    <div class="message" style="margin-top: 20px;">
-        Não tem uma conta? <a href="{{ url_for('auth.register') }}">Crie uma conta</a>
     </div>
 </div>
+
+<script>
+    function togglePasswordVisibility() {
+        const input = document.getElementById('password');
+        const iconElement = document.querySelector('.toggle-password');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            iconElement.textContent = '🔒'; // Ícone de cadeado (senha visível, clique para esconder)
+        } else {
+            input.type = 'password';
+            iconElement.textContent = '👁️'; // Ícone de olho (senha oculta, clique para ver)
+        }
+    }
+</script>
 
 {% endblock %}

@@ -3,19 +3,109 @@
 {% block title %}Meu Perfil{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    /* Estilos Customizados para a paleta Laranja Vibrante e Preto (Dark Mode) */
+    :root {
+        --color-primary: #FF4500; /* Novo Laranja: ff4500 */
+        --color-secondary: #E63E00; /* Laranja um pouco mais escuro para hover */
+        --color-background: #1F2937; /* Tailwind Gray 800 - Fundo principal */
+        --color-card-bg: #374151; /* Tailwind Gray 700 - Fundo do card */
+        --color-text-light: #F3F4F6; /* Tailwind Gray 100 - Texto claro */
+        --color-border-dark: #4B5563; /* Tailwind Gray 600 - Bordas e divisores */
+    }
+    
+    .bg-main-dark {
+        background-color: var(--color-background);
+    }
+
+    .card-custom {
+        border-radius: 1rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border-dark);
+    }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+    }
+
+    .text-primary-orange {
+        color: var(--color-primary);
+    }
+    
+    .text-light-gray {
+        color: var(--color-text-light);
+    }
+
+    .text-muted-dark {
+        color: #9CA3AF; /* Tailwind Gray 400 */
+    }
+
+    .border-muted-dark {
+        border-color: var(--color-border-dark);
+    }
+    
+    /* Estilos para alertas */
+    .alert-success {
+        background-color: #FFC096; /* Baseado no novo laranja */
+        color: #992A00; 
+        border: 1px solid #FF8C54; 
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .alert-warning {
+        background-color: #FCD34D; /* Amber 300 */
+        color: #92400E; /* Amber 900 */
+        border: 1px solid #FBBF24; /* Amber 400 */
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .alert-danger {
+        background-color: #FCA5A5; /* Red 400 */
+        color: #7F1D1D; /* Red 900 */
+        border: 1px solid #F87171; /* Red 400 */
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+    }
+    
+    .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: background-color 0.2s, box-shadow 0.2s;
+        text-align: center; /* Garante que o texto dentro do <a> esteja centralizado */
+    }
+
+    /* CORREÇÃO: Define o botão primário (Editar Perfil) como laranja sólido */
+    .btn-primary-outline {
+        border: 2px solid var(--color-primary);
+        background-color: var(--color-primary); /* Fundo Laranja Sólido */
+        color: white; /* Letra Branca */
+    }
+    .btn-primary-outline:hover {
+        background-color: var(--color-secondary); /* Laranja mais escuro no hover */
+        border-color: var(--color-secondary);
+        color: white;
+    }
+</style>
+
+<div class="min-h-screen bg-main-dark py-10 px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-center">
+        <div class="w-full max-w-2xl">
+            <div class="card-custom">
                 
-                <div class="card-header bg-primary text-white text-center">
-                    <h2 class="mb-0">👤 Perfil do Usuário</h2>
+                <div class="card-header bg-gradient-primary p-6 text-white text-center rounded-t-xl">
+                    <h2 class="text-3xl font-extrabold mb-0">👤 Perfil do Usuário</h2>
                 </div>
                 
-                <div class="card-body">
+                <div class="card-body p-6 sm:p-8">
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
-                            <div class="flashes mb-3">
+                            <div class="flashes mb-4 space-y-3">
                             {% for category, message in messages %}
                                 <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
                             {% endfor %}
@@ -24,48 +114,47 @@
                     {% endwith %}
 
                     {% if current_user.is_authenticated %}
-                        <div class="profile-info">
-                            <h4 class="card-title text-primary mb-3">Informações da Conta</h4>
-                            <hr>
+                        <div class="profile-info space-y-4">
+                            <h4 class="text-2xl font-bold text-primary-orange mb-4 border-b pb-2 border-muted-dark">Informações da Conta</h4>
 
-                            <div class="row mb-3">
-                                <div class="col-5 text-muted"><strong>ID de Usuário:</strong></div>
-                                <div class="col-7">{{ current_user.id }}</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="text-muted-dark font-medium"><strong>ID de Usuário:</strong></div>
+                                <div class="text-light-gray break-all">{{ current_user.id }}</div>
                             </div>
 
-                            <div class="row mb-3">
-                                <div class="col-5 text-muted"><strong>Nome de Usuário:</strong></div>
-                                <div class="col-7">{{ current_user.username }}</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="text-muted-dark font-medium"><strong>Nome de Usuário:</strong></div>
+                                <div class="text-light-gray">{{ current_user.username }}</div>
                             </div>
 
-                            <div class="row mb-3">
-                                <div class="col-5 text-muted"><strong>E-mail:</strong></div>
-                                <div class="col-7">{{ current_user.email }}</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div class="col-span-1 text-muted-dark font-medium"><strong>E-mail:</strong></div>
+                                <div class="col-span-1 text-light-gray break-all">{{ current_user.email }}</div>
                             </div>
                             
                             {% if current_user.date_joined %}
-                                <div class="row mb-3">
-                                    <div class="col-5 text-muted"><strong>Membro Desde:</strong></div>
-                                    <div class="col-7">{{ current_user.date_joined.strftime('%d/%m/%Y') }}</div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                    <div class="col-span-1 text-muted-dark font-medium"><strong>Membro Desde:</strong></div>
+                                    <div class="col-span-1 text-light-gray">{{ current_user.date_joined.strftime('%d/%m/%Y') }}</div>
                                 </div>
                             {% endif %}
                         </div>
 
-                        <hr class="my-4">
+                        <hr class="my-6 border-muted-dark">
 
-                        <div class="profile-actions text-center">
-                            <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-secondary me-2">
+                        <div class="profile-actions flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <a href="{{ url_for('main.edit_profile') }}" class="btn-action btn-primary-outline">
                                 ✏️ Editar Perfil
                             </a>
                             
-                            <a href="{{ url_for('auth.logout') }}" class="btn btn-danger">
+                            <a href="{{ url_for('auth.logout') }}" class="btn-action bg-red-600 text-white hover:bg-red-700">
                                 🚪 Sair da Conta
                             </a>
                         </div>
                     {% else %}
                         <div class="alert alert-warning text-center" role="alert">
                             Você precisa estar logado para ver esta página.
-                            <br><a href="{{ url_for('auth.login') }}" class="alert-link">Fazer Login</a>
+                            <br><a href="{{ url_for('auth.login') }}" class="text-amber-900 font-semibold underline">Fazer Login</a>
                         </div>
                     {% endif %}
                 </div>

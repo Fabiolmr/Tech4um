@@ -5,11 +5,11 @@
 {% block content %}
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    /* Estilos Customizados para a paleta Laranja e Preto */
+    /* Estilos Customizados para a paleta Laranja Vibrante e Preto (Dark Mode) */
     :root {
-        --color-primary: #F97316; /* Tailwind Orange 500 */
-        --color-secondary: #EA580C; /* Tailwind Orange 600 */
-        --color-tertiary: #9A3412; /* Tailwind Orange 800 para texto escuro */
+        --color-primary: #FF4500; /* Laranja Vibrante: ff4500 */
+        --color-secondary: #E63E00; /* Laranja um pouco mais escuro para hover */
+        --color-tertiary: #992A00; /* Laranja Escuro para texto em alertas */
         --color-danger: #DC2626; /* Tailwind Red 600 */
         --color-background: #1F2937; /* Tailwind Gray 800 - Fundo mais escuro */
         --color-card-bg: #374151; /* Tailwind Gray 700 - Fundo do card */
@@ -51,7 +51,8 @@
     .form-control-custom:focus {
         border-color: var(--color-primary);
         outline: none;
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3); /* Sombra de foco laranja */
+        /* Sombra de foco laranja vibrante */
+        box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.3); 
     }
     
     /* Placeholders mais claros */
@@ -72,9 +73,9 @@
     }
 
     .alert-success {
-        background-color: #FDBA74; /* Orange 300 */
+        background-color: #FFC096; /* Baseado no novo laranja */
         color: var(--color-tertiary); /* Orange 800 */
-        border: 1px solid #FB923C; /* Orange 400 */
+        border: 1px solid #FF8C54; /* Baseado no novo laranja */
         padding: 0.75rem;
         border-radius: 0.5rem;
     }
@@ -104,7 +105,7 @@
         color: #9CA3AF; /* Tailwind Gray 400 */
     }
     .border-primary-orange-light {
-        border-color: #FED7AA; /* Orange 200 */
+        border-color: #FFC096; /* Laranja claro para divisores */
     }
     .border-muted-dark {
         border-color: var(--color-border-dark);
@@ -211,5 +212,3 @@
     </div>
 </div>
 {% endblock %}
-
-http://googleusercontent.com/immersive_entry_chip/0
