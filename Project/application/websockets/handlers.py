@@ -5,8 +5,6 @@ from application.extensions import rooms, users, online_users
 from application.models.user import User
 from datetime import datetime
 
-# Inicialize o socketio com suporte às sessões
-#socketio = SocketIO(manage_session=True)
 
 def get_participantes_list(room_id):
         if room_id in rooms:
@@ -49,9 +47,6 @@ def register_socketio_handlers(socketio: SocketIO):
             print(f"User {current_user.username} connected (Global)")
             # Atualiza a lista para todo mundo
             
-            #broadcast_users_list()
-
-    
     @socketio.on("disconnect")
     def handle_disconnect():
         if current_user.is_authenticated:
@@ -80,7 +75,6 @@ def register_socketio_handlers(socketio: SocketIO):
                                 emit("users_list", get_participantes_list(room_id), room=room_id)
             online_users.discard(current_user.id)
 
-            #broadcast_users_list()
 
     @socketio.on("join")
     def handle_join(data):
@@ -120,7 +114,6 @@ def register_socketio_handlers(socketio: SocketIO):
 
             emit("users_list", get_participantes_list(room), room=room)
 
-            #broadcast_users_list()
             print(f"{username} entrou {room}")
 
         else:
