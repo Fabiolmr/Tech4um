@@ -5,183 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tech4um | {% block title %}{% endblock %}</title>
 
-    {# O Tailwind CSS é carregado nas páginas filhas para evitar conflitos #}
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
              crossorigin="anonymous"></script>
-    
+
     <style>
-        /* =======================================================
-           DEFINIÇÕES DE TEMA (Variáveis CSS)
-           =======================================================
-        */
         :root {
-            /* MODO ESCURO (Padrão) */
+            --header-height: 64px;
+
+            --color-background: #000000; /* fundo preto */
+            --color-text-main: #F3F4F6;  /* texto claro */
             --color-primary: #FF4500; 
             --color-secondary: #E63E00;
-            --color-background: #1F2937;
-            --color-sidebar-bg: #111827;
-            --color-card-bg: #374151;
-            --color-text-main: #F3F4F6;
-            --color-border-dark: #4B5563;
-            --color-muted: #9CA3AF;
-            
-            /* Alertas */
-            --alert-success-bg: #d1fae5;
-            --alert-success-text: #065f46;
-            --alert-danger-bg: #fee2e2;
-            --alert-danger-text: #991b1b;
-            --alert-info-bg: #dbeafe;
-            --alert-info-text: #1e40af;
+
+            --alert-success-bg: #1f2a1f;
+            --alert-success-text: #a3f3c3;
+            --alert-danger-bg: #2a1f1f;
+            --alert-danger-text: #f38c8c;
+            --alert-info-bg: #1f1f2a;
+            --alert-info-text: #a3b9f3;
         }
 
-        /* MODO CLARO (Inverte Cores) */
-        body.light-mode {
-            --color-primary: #E63E00;
-            --color-secondary: #FF4500;
-            --color-background: #F3F4F6;
-            --color-sidebar-bg: #FFFFFF;
-            --color-card-bg: #FFFFFF;
-            --color-text-main: #1F2937;
-            --color-border-dark: #D1D5DB;
-            --color-muted: #6B7280;
-            
-            /* Alertas do modo claro */
-            --alert-success-bg: #D1FAE5;
-            --alert-success-text: #065F46;
-            --alert-danger-bg: #FEE2E2;
-            --alert-danger-text: #991B1B;
-            --alert-info-bg: #DBEAFE;
-            --alert-info-text: #1E40AF;
-        }
-
-        /* =======================================================
-           ESTILOS BASE DA PÁGINA (Aplicam as variáveis)
-           =======================================================
-        */
         body {
             background-color: var(--color-background);
             color: var(--color-text-main);
             margin: 0;
             font-family: 'Inter', sans-serif;
-            transition: background-color 0.3s;
         }
 
-        /* O CSS DO HEADER FIXO FOI REMOVIDO AQUI */
-
-        /* Estilo base do Botão de Tema (Mantido para uso em páginas filhas) */
-        .btn-header {
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            transition: opacity 0.2s, box-shadow 0.2s;
-        }
-        
-        /* Estilos de Flash Messages usando variáveis dinâmicas */
+        /* FLASH MESSAGES */
         .flash-messages {
-             padding-top: 1rem;
-             padding-left: 1rem;
-             padding-right: 1rem;
-             max-width: 800px;
-             margin: 0 auto;
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            z-index: 99999;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
         }
 
-        .alert {
-            padding: 0.75rem;
-            border-radius: 0.25rem;
-            margin-bottom: 10px;
+        .flash-messages .alert {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            max-width: 600px;
         }
 
-        .alert-success { background-color: var(--alert-success-bg); color: var(--alert-success-text); }
-        .alert-danger, .alert-error { background-color: var(--alert-danger-bg); color: var(--alert-danger-text); }
-        .alert-info { background-color: var(--alert-info-bg); color: var(--alert-info-text); }
+        .alert-success { background-color: #1f2a1f; color: #a3f3c3; }
+        .alert-danger, .alert-error { background-color: #2a1f1f; color: #f38c8c; }
+        .alert-info { background-color: #1f1f2a; color: #a3b9f3; }
 
+        /* CONTEÚDO */
         .content {
-            /* padding-top: 70px REMOVIDO - Não precisa mais de offset para a barra fixa */
-            padding-top: 0; 
+            padding-top: 0; /* header da filha vai controlar padding */
         }
-
     </style>
-
 </head>
 
 <body>
-
-    {# O HEADER FIXO FOI REMOVIDO DAQUI #}
-
-    <div class="content">
-        {# FLASH MESSAGES #}
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        {% block content %}{% endblock %}
+    <!-- FLASH MESSAGES FIXAS -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div>
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
     </div>
 
-    {# Script de Toggle de Tema #}
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.getElementById('theme-toggle');
-        const body = document.body;
-
-        // Função principal para aplicar/remover a classe
-        function applyTheme(theme) {
-            if (theme === 'light') {
-                body.classList.add('light-mode');
-                // Altera o texto do botão para sugerir a AÇÃO de mudar para o tema ESCURO
-                if (toggleButton) toggleButton.innerHTML = '🌙 Tema Escuro'; 
-            } else {
-                // Tema 'dark'
-                body.classList.remove('light-mode');
-                // Altera o texto do botão para sugerir a AÇÃO de mudar para o tema CLARO
-                if (toggleButton) toggleButton.innerHTML = '☀️ Tema Claro'; 
-            }
-        }
-
-        // 1. Tenta carregar o tema salvo ou usa 'dark' como padrão.
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        applyTheme(savedTheme);
-
-        // 2. Listener do botão
-        if (toggleButton) {
-            toggleButton.addEventListener('click', () => {
-                const isLight = body.classList.contains('light-mode');
-                const newTheme = isLight ? 'dark' : 'light';
-                
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            });
-        }
-    });
-
-    // Funções dummy para evitar erros de referência em páginas filhas
-    function toggleCreateForum() {
-         const box = document.getElementById("create-forum-box");
-         if (box) box.classList.toggle("hidden");
-    }
-    
-    function url_for(endpoint, params) {
-        let url = endpoint;
-        if (params) {
-            url += '?' + Object.keys(params).map(key => key + '=' + params[key]).join('&');
-        }
-        return url;
-    }
-    </script>
+    <!-- CONTEÚDO -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>
