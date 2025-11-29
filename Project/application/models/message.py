@@ -6,7 +6,7 @@ class Message(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(500), nullable=False)
-    timestamp = db.Column(db.String(20), default=datetime.now().strftime("%H:%M"))
+    timestamp = db.Column(db.String(20))
     
     # Quem enviou?
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))

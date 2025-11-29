@@ -48,7 +48,7 @@ def create_app():
     app.register_blueprint(chat_bp)   # "/chat"
 
     # 4. WebSockets
-    #from .websockets.handlers import register_socketio_handlers
-    #register_socketio_handlers(socketio)
+    from .websockets.handlers import register_socketio_handlers
+    register_socketio_handlers(socketio)
 
     return app
