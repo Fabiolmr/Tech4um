@@ -3,7 +3,7 @@ from flask_dance.contrib.google import google, make_google_blueprint
 from flask_dance.consumer import oauth_authorized
 from config import Config
 
-from application.extensions import login_manager, socketio, avatars
+from application.extensions import login_manager, socketio, avatars, db
 
 
 def create_app():
@@ -16,6 +16,7 @@ def create_app():
     app.config.from_object(Config)
 
     # Inicialização das extensões
+    db.init_app(app)
     socketio.init_app(app)
     avatars.init_app(app)
 
@@ -47,7 +48,7 @@ def create_app():
     app.register_blueprint(chat_bp)   # "/chat"
 
     # 4. WebSockets
-    from .websockets.handlers import register_socketio_handlers
-    register_socketio_handlers(socketio)
+    #from .websockets.handlers import register_socketio_handlers
+    #register_socketio_handlers(socketio)
 
     return app

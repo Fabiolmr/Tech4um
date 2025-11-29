@@ -10,8 +10,8 @@ socketio = SocketIO() #COMUNICAÇÃO SOCKET
 avatars = Avatars() #API AVATAR
 
 # variaveis globais para teste
-rooms = {}
-users = {}
+#rooms = {}
+#users = {}
 online_users = set()
 
 # Função para criar código de fórum

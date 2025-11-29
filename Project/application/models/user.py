@@ -1,22 +1,22 @@
-from application.extensions import login_manager, users
+from application.extensions import db, login_manager
 from flask_login import UserMixin
 from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash
-from flask_dance.contrib.google import google
+#from flask_dance.contrib.google import google
 
 #-----------CLASSE USUÁRIO-------------
-class User(UserMixin):
-    def __init__(self, id, email, username, password, avatar_url=None):
-        self.id = str(id)
-        self.email = email
-        self.username = username
-        self.password = password
-        self.avatar_url = avatar_url
+class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True) # ID agora é numérico e automático
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(256), nullable=False)
+    avatar_url = db.Column(db.String(500), nullable=True)
 
 # Loader para o Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return users.get(user_id) #RETORNA USUÁRIO
+   return User.query.get(int(user_id)) #RETORNA USUÁRIO
 
 
 # Função par caso o login google dê certo
@@ -36,18 +36,30 @@ def google_logged_in(blueprint, token):
     email = google_user_info["email"]
     name = google_user_info["name"]
 
-    user = next((u for u in users.values() if u.email == email), None)
+    user = User.query.filter_by(email=email).first()
 
     if not user:
-        new_id = str(len(users) + 1)
-        new_user = User(id=new_id, email=email, username=name, password=generate_password_hash("OAUTH_LOGIN"))
-        users[new_id] = new_user
-        user = new_user
-        flash(f"Conta criada com Google! Bem-vindo(a), {name}.", category="success")
+        new_user = User(
+            email=email, 
+            username=name, 
+            password=generate_password_hash("OAUTH_LOGIN_GOOGLE_KEY"),
+            avatar_url=google_user_info.get("picture") # Tenta pegar a foto do Google
+        )
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            user = new_user # Atualiza a variável user para o novo criado
+            flash(f"Conta criada com Google! Bem-vindo(a), {name}.", category="success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Erro ao criar usuário com Google.", "danger")
+            return redirect(url_for("auth.login"))
+        
     else:
         flash(f"Login bem-sucedido com Google! Bem-vindo(a), {name}.", category="success")
     
+    # 3. Loga o usuário (seja novo ou existente)
     login_user(user)
-    return redirect(url_for("chat.home"))
+    return redirect(url_for("main.home"))
 
 

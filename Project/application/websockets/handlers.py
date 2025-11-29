@@ -1,7 +1,7 @@
 from flask import request
 from flask_socketio import join_room, leave_room, send, emit, SocketIO
 from flask_login import current_user
-from application.extensions import rooms, users, online_users
+from application.extensions import online_users
 #from application.models.user import User
 from datetime import datetime
 

@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required, logout_user
-from application.extensions import rooms, generate_unique_code, socketio, users
+from application.extensions import generate_unique_code, socketio, db
 from application.models.forum import Forum
-#from application.models.user import User
+from application.models.user import User
 from application.websockets.handlers import get_participantes_list
 from application.controllers.auth import is_strong_password
 from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import or_
 
 #CRIA BLUEPRINT PRA MAIN
 main_bp = Blueprint('main', __name__)
@@ -59,38 +60,49 @@ def home():
                 return redirect(url_for("auth.login"))
 
             # VERIFICA SE NOME DO FÓRUM JÁ ESTÁ EM USO
-            for forum in rooms.values():
-                if create_name == forum.name:
-                    flash("Nome de fórum já está em uso", "danger")
-                    return redirect(url_for("main.home"))
+            if Forum.query.filter_by(name=create_name).first():
+                flash("Nome já em uso", "danger")
+                return redirect(url_for("main.home"))
             
             #NOVO CÓDIGO
             new_id = generate_unique_code(4)
+            while Forum.query.get(new_id): # Se existir, gera outro
+                new_id = generate_unique_code(4)
             
             # NOVO FÓRUM
-            new_forum = Forum(new_id, create_name, create_desc, current_user.username)
+            new_forum = Forum(id=new_id, name=create_name, description=create_desc, creator=current_user.username)
             #SALVA NOVO FÓRUM NA POSIÇÃO COM NOVO ID
-            rooms[new_id] = new_forum
+            new_forum.members.append(current_user)
+            
+            try:
+                db.session.add(new_forum)
+                db.session.commit()
 
 
-            socketio.emit("new_room", {
-                "id": new_id,
-                "name": create_name,
-                "description": create_desc,
-                "creator": current_user.username
-            })
+                socketio.emit("new_room", {
+                    "id": new_id,
+                    "name": create_name,
+                    "description": create_desc,
+                    "creator": current_user.username
+                })
 
-            # REDIRECIONA PARA ROTA DE ACESSAR FORUM
-            return redirect(url_for("chat.access_forum", forum_id=new_id))
-
+                # REDIRECIONA PARA ROTA DE ACESSAR FORUM
+                return redirect(url_for("chat.access_forum", forum_id=new_id))
+            except Exception as e:
+                db.session.rollback()
+                flash("Erro ao criar sala. Tente novamente.", "danger")
 
         # ------------- Entrar em fórum existente -------------
         code = request.form.get("entrar") #RECEBE AÇÃO DO BOTÃO ENTRAR
-        if code in rooms:
-            return redirect(url_for("chat.access_forum", forum_id=code))
+        if code:
+            forum = Forum.query.get(code) # Busca no Neon
+            if forum:
+                return redirect(url_for("chat.access_forum", forum_id=code))
+            else:
+                flash("Código inválido", "danger")
     
-
-    return render_template("home.html", rooms=rooms.values())
+    all_rooms = Forum.query.all()
+    return render_template("home.html", rooms=all_rooms)
 
 
 # ==========================
@@ -101,16 +113,18 @@ def home():
 @main_bp.route("/join_member/<forum_id>", methods=["POST"])
 @login_required # INDICA QUE PRECISA ESTAR LOGADO
 def join_member(forum_id):
-    if forum_id in rooms:
-        # ADICONA USUÁRIO ATUAL NA LISTA DE MEMBROS
-        rooms[forum_id].add_member(current_user.username)
-        flash(f"Agora você é membro do fórum {rooms[forum_id].name}!", "success")
+    forum = Forum.query.get(forum_id)
 
-        socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+    if forum:
+        # ADICONA USUÁRIO ATUAL NA LISTA DE MEMBROS
+        if current_user not in forum.members:
+            forum.members.append(current_user) # SQLAlchemy gerencia a tabela auxiliar
+            db.session.commit()
+            flash(f"Agora você é membro do fórum {forum.name}!", "success")
 
         socketio.emit("update_member_count", {
             "forum_id": forum_id,
-            "count": len(rooms[forum_id].members)
+            "count": len(forum.members)
         })
     else:
         flash("Fórum não encontrado.", "danger")
@@ -122,19 +136,21 @@ def join_member(forum_id):
 @main_bp.route("/leave_member/<forum_id>", methods=["POST"])
 @login_required #AUTENTICAÇÃO NECESSÁRIA
 def leave_member(forum_id):
-    if forum_id in rooms:
-        #REMOVE USUÁRIO ATUAL DA LISTA DE  MEMBROS
-        rooms[forum_id].remove_member(current_user.username)
-        flash(f"Você saiu do fórum {rooms[forum_id].name}.", "info")
-        socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+    forum = Forum.query.get(forum_id)
 
-        socketio.emit("update_member_count", {
-            "forum_id": forum_id,
-            "count": len(rooms[forum_id].members)
-        })
-        
-        
+    if current_user in forum.members:
+            forum.members.remove(current_user) # Remove da lista
+            db.session.commit()
+            
+            flash(f"Você saiu do fórum {forum.name}.", "info")
+            
+            socketio.emit("update_member_count", {
+                "forum_id": forum_id,
+                "count": len(forum.members)
+            })
+
     return redirect(url_for("main.home"))
+        
 
 # ==========================
 #   ROTA PERFIL    
@@ -165,16 +181,17 @@ def edit_profile():
             return redirect(url_for('main.edit_profile'))
 
         # VERIFICA SE NOME E EMAIL JÁ ESTÁ EM USO
-        for user_id, user_obj in users.items(): 
-            if user_id != current_user.id:
-                if user_obj.username == username:
-                    flash("Nome de usuário já está em uso.", "danger")
-                    return redirect(url_for('main.edit_profile'))
-                
-                if user_obj.email == email:
-                    flash("E-mail já está em uso.", "danger")
-                    return redirect(url_for('main.edit_profile'))
+        existing_user = User.query.filter(
+            (User.username == username) | (User.email == email),
+            User.id != current_user.id
+        ).first()
 
+        if existing_user:
+            if existing_user.username == username:
+                flash("Nome de usuário já está em uso.", "danger")
+            else:
+                flash("E-mail já está em uso.", "danger")
+            return redirect(url_for('main.edit_profile'))
 
         # PROCESSAR A NOVA SENHA
         if new_password:
@@ -182,29 +199,24 @@ def edit_profile():
                 flash("A nova senha e a confirmação não coincidem.", "danger")
                 return redirect(url_for('main.edit_profile'))
             
+
             if not is_strong_password(new_password):
                 flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir maiúsculas, minúsculas, números e pelo menos um caracter especial", "danger")
                 return redirect(url_for('main.edit_profile'))
             # Faz o hash e atualiza a senha no objeto current_user
             current_user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
 
-        old_username = current_user.username
-
         # ATUALIZA USERNAME E EMAIL
         current_user.username = username
         current_user.email = email
 
-        for room in rooms.values():
-            if old_username in room.members: #SE NOME ANTIGO TÁ NA LISTA DE MEMBROS
-                room.members.remove(old_username) # Remove o nome antigo
-                room.members.append(username)     # Adiciona o novo
-            
-            if room.creator == old_username: # SE ELE FOR CRIADOR DE ALGUM FORUM
-                room.creator = username # ATUALIZA NOME
+        try:
+            db.session.commit() # Salva todas as alterações no Neon
+            flash("Perfil atualizado com sucesso!", "success")
+        except:
+            db.session.rollback()
+            flash("Erro ao atualizar perfil.", "danger")
 
-            for p in room.participantes: # ATUALIZA NOME NA LISTA DE PARTICIPANTES DE FÓRUM
-                if p.get('id') == current_user.id:
-                    p['username'] = username
         
         flash("Perfil atualizado com sucesso!", "success")
         
@@ -216,28 +228,17 @@ def edit_profile():
 @main_bp.route("/delete_account", methods=["POST"])
 @login_required
 def delete_account():
-    user_id = current_user.id
-    username = current_user.username
-
-    for room in rooms.values():
-        # REMOVE DA LISTA DE MEMBROS
-        if username in room.members:
-            room.remove_member(username)
-
-        # ATUALIZA A LISTA DE PARTICIPANTES ṔARA TODOS MENOS O USUÁRIO DELETADO
-        room.participantes = [p for p in room.participantes if p['username'] != username]
-
-    # Remover usuário do dicionário global de usuários
-    if user_id in users:
-        del users[user_id]
-        
-    # Remover da lista de online (se estiver lá)
-    if username in online_users:
-        online_users.discard(username)
-
-    # 5. Logout e feedback
-    logout_user()
-    flash("Sua conta foi excluída permanentemente. Sentiremos sua falta!", "info")
+    try:
+        db.session.delete(current_user)
+        db.session.commit()
     
-    # Redireciona para a tela de login ou home
-    return redirect(url_for("auth.login"))
+        online_users.discard(current_user.username)
+
+        logout_user()
+        flash("Sua conta foi excluída permanentemente.", "info")
+        return redirect(url_for("auth.login"))
+    
+    except Exception as e:
+        db.session.rollback()
+        flash("Erro ao excluir conta. Tente novamente.", "danger")
+        return redirect(url_for("main.perfil"))

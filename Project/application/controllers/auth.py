@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.user import User
-from application.extensions import users
+from application.extensions import db
 import re
 #API DE FOTO
 import cloudinary
@@ -81,13 +81,18 @@ def register():
             return redirect(url_for("auth.register"))
         
         # VERIFICA SE EMAIL JÁ TÁ CADASTRADO
-        if any(u.email == email for u in users.values()):
-            flash("E-mail já cadastrado.", "danger")
-            return redirect(url_for("auth.register"))
-        
-        #VERIFICA SE NOME JÁ ESTÁ CADASTRADO
-        if any(u.username == username for u in users.values()):
-            flash("Nome de usuário já existe.", "danger")
+        #if any(u.email == email for u in users.values()):
+        #    flash("E-mail já cadastrado.", "danger")
+        #    return redirect(url_for("auth.register"))
+        #
+        ##VERIFICA SE NOME JÁ ESTÁ CADASTRADO
+        #if any(u.username == username for u in users.values()):
+        #    flash("Nome de usuário já existe.", "danger")
+        #    return redirect(url_for("auth.register"))
+
+        user_exists = User.query.filter_by(email=email).first()
+        if user_exists:
+            flash("Email já cadastrado", "danger")
             return redirect(url_for("auth.register"))
 
         # DECLARA LINK DE FOTO
@@ -115,16 +120,27 @@ def register():
         # GERA SENHA HASH
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
         # GERA NOVO ID
-        new_id = str(len(users) + 1)
+        #new_id = str(len(users) + 1)
         # CRIA NOVO USUÁRIO
-        new_user = User(id=new_id, email=email, username=username, password=hashed_password, avatar_url=avatar_url)
+        new_user = User(email=email, username=username, password=hashed_password, avatar_url=avatar_url)
+
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Conta criada!", "success")
+            return redirect(url_for("auth.login"))
+        except Exception as e:
+            db.session.rollback() # Cancela se der erro
+            flash("Erro ao criar conta.", "danger")
+            return redirect(url_for("auth.register"))
+
 
         #SALVA NA LISTA GLOBAL DE USUÁRIO
-        users[new_id] = new_user
+        #users[new_id] = new_user
 
-        flash("Conta criada com sucesso!", "success")
+        #flash("Conta criada com sucesso!", "success")
         # REDIRECIONA PARA TELA DE LOGIN
-        return redirect(url_for("auth.login"))
+        
 
     return render_template("register.html")
 
@@ -132,6 +148,8 @@ def register():
 # ROTA LOGIN
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    from sqlalchemy import or_
+
     # SE JÁ FOR AUTENTICADO, JÁ DIRECIONA PAR HOME
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
@@ -142,7 +160,10 @@ def login():
         password = request.form.get("password")
 
         # PROCURA POR USUÁRIO 
-        user = next((u for u in users.values() if u.username == identificador or u.email == identificador), None)
+        user = User.query.filter_by(username=identificador).first()
+
+        if not user:
+            user = User.query.filter_by(email=identificador).first()
         
         # SE USER É TRUE E AS SENHAS COINCIDEM
         if user and check_password_hash(user.password, password):
