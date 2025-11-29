@@ -450,6 +450,8 @@
 
     /* --- Envio de Mensagens (Com Lógica de DM) --- */
 
+    /* --- Envio de Mensagens (Com Lógica de DM Atualizada) --- */
+
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -457,13 +459,32 @@
         const msgTrimmed = fullMsg.trim();
 
         if(msgTrimmed){
-            // 1. Tenta encontrar o padrão de DM: @username mensagem
-            const dmMatch = msgTrimmed.match(/^@([^\s]+)\s+(.+)$/);
+            let recipient = null;
+            let messageText = null;
 
-            if (dmMatch) {
-                const recipient = dmMatch[1];
-                const messageText = dmMatch[2].trim();
+            // 1. Verifica se começa com @
+            if (msgTrimmed.startsWith('@')) {
+                // Ordena participantes pelo tamanho do nome (decrescente)
+                // Isso garante que "@Ana Clara" seja detectado antes de "@Ana"
+                const sortedParticipants = participants.sort((a, b) => b.username.length - a.username.length);
 
+                for (const p of sortedParticipants) {
+                    const prefix = `@${p.username}`;
+                    // Verifica se a mensagem começa com esse nome de usuário (case insensitive)
+                    if (msgTrimmed.toLowerCase().startsWith(prefix.toLowerCase())) {
+                        // Confirma se o próximo caractere é um espaço ou fim da string (evita falsos positivos como @AnaB detectando @Ana)
+                        const remaining = msgTrimmed.substring(prefix.length);
+                        if (remaining.length === 0 || remaining.startsWith(' ')) {
+                            recipient = p.username;
+                            messageText = remaining.trim();
+                            break; // Encontrou o match, para o loop
+                        }
+                    }
+                }
+            }
+
+            // Se encontrou um destinatário válido na lista
+            if (recipient) {
                 if (recipient.toLowerCase() === currentUser.toLowerCase()) {
                     alert("Você não pode enviar uma mensagem privada para si mesmo!");
                     messageInput.value = '';
@@ -487,9 +508,9 @@
                         time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                     });
                 }
-
             } else {
                 // 3. EMITE MENSAGEM PÚBLICA (Padrão)
+                // Se começou com @ mas não achou usuário, envia como mensagem normal
                 socket.emit('message', {room: room, message: msgTrimmed});
             }
             
