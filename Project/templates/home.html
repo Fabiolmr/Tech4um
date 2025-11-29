@@ -20,6 +20,8 @@
         --color-muted: #9CA3AF;
         --color-link-hover: #FF4500;
         --header-height: 64px; 
+        --color-light-gray-box: #FF4500; /* NOVO: Cinza Claro para a caixa de formulário */
+        --color-forum-box-bg: #4B5563; /* NOVO: Fundo Cinza Claro para a caixa do formulário */
     }
 
     body {
@@ -27,6 +29,28 @@
         color: var(--color-text-light);
         font-family: 'Inter', sans-serif;
     }
+        /* REGRAS ESPECÍFICAS: CAIXA DE CRIAÇÃO */
+    #create-forum-box.app-card {
+        background-color: var(--color-forum-box-bg);
+    }
+
+    #create-forum-box label {
+        color: var(--color-text-light);
+        display: block;
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    #create-forum-box input[type="text"] {
+        margin-bottom: 1rem; 
+        border-radius: 0.2rem;
+        background-color: var(--color-input-bg);
+        color: var(--color-text-light);
+    }
+
 
     /* Botão Gradiente (Principal) */
     .btn-gradiente {
@@ -47,7 +71,7 @@
     /* Botão Secundário */
     .btn-secondary {
         background-color: var(--color-border-dark);
-        color: var(--color-text-light);
+        color: var(--color-text-dark);
         padding: 0.5rem 1rem;
         border-radius: 0.5rem;
         font-weight: 600;
@@ -377,7 +401,7 @@
         const memberCount = 1;
         
         const enterButtonHTML = `
-             <a href="/forum/${data.id}" class="w-full">
+             <a href="/chat/access/${data.id}" class="w-full">
                 <button type="button" 
                         class="btn btn-gradiente w-full text-sm">
                     Entrar
