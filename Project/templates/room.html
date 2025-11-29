@@ -6,20 +6,22 @@
 
 <style>
     /* =======================================================
-    ESTILOS GLOBAIS (Mantidos do anterior)
+    ESTILOS GLOBAIS (CORES ORIGINAIS COM SATURAÇÃO AJUSTADA)
     =======================================================
     */
     :root {
-        --color-primary: #FF4500;
+        --color-primary: #FF5819; /* Laranja Original com mais brilho */
         --color-secondary: #E63E00;
-        --color-background: #1F2937;
-        --color-card-bg: #374151;
-        --color-text-light: #F3F4F6;
+        --color-background: #1D2B3A; /* Fundo Original com leve ajuste */
+        --color-card-bg: #3A4557; /* Fundo do Card Original com leve ajuste */
+        --color-text-light: #FFFFFF; /* Texto Branco Puro */
         --color-border-dark: #4B5563;
         --color-input-bg: #4B5563;
         --color-muted: #9CA3AF;
-        --color-chat-me: #FF6347;
-        --color-chat-other: #5d6874;
+        --color-chat-me: #FF5819; /* Minha Msg (Mais Vibrante) */
+        --color-chat-other: #687687; /* Msg de Outros (Mais Nítido) */
+        --color-online: #34D399; 
+        --color-offline: #F87171; 
         --header-height: 72px;
     }
 
@@ -49,7 +51,7 @@
     }
     .btn-gradiente:hover {
         opacity: 0.9;
-        box-shadow: 0 4px 12px rgba(255, 69, 0, 0.4);
+        box-shadow: 0 4px 12px rgba(255, 88, 25, 0.4); /* Sombra ajustada */
     }
     
     /* Sidebar Menu */
@@ -76,7 +78,7 @@
     }
 
     /* =======================================================
-    AJUSTES PARA LAYOUT DE JANELA/MODAL
+    AJUSTES PARA LAYOUT
     ======================================================= */
     
     /* Header Fixo e Transparente */
@@ -89,8 +91,9 @@
         height: var(--header-height);
         display: flex;
         align-items: center;
+        justify-content: flex-start;
         padding: 0 1.5rem;
-        background-color: rgba(31, 41, 55, 0.9); /* Fundo semi-transparente */
+        background-color: rgba(29, 43, 58, 0.9); /* Usando o novo background */
         border-bottom: 1px solid var(--color-border-dark);
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
@@ -101,9 +104,9 @@
         text-decoration: none;
     }
     
-    /* Sidebar (Reduzida a um painel de utilidades, não layout principal) */
+    /* Sidebar Fixa à Esquerda */
     .left-sidebar {
-        width: 250px; /* Largura menor */
+        width: 250px;
         min-width: 250px;
         background-color: var(--color-background);
         padding: 1.5rem;
@@ -114,14 +117,21 @@
         border-right: 1px solid var(--color-border-dark);
         z-index: 15;
     }
+
+    .participants-list p { 
+        padding: 5px 0; display: flex; align-items: center; font-weight: 500; margin: 0; font-size: 0.9rem;
+    }
+
+    .creator-badge { background-color: gold; color: black; font-size: 10px; padding: 1px 4px; border-radius: 4px; margin-left: 5px; font-weight: 700; line-height: 1; }
+    .member-badge { font-size: 10px; border: 1px solid var(--color-border-dark); background-color: var(--color-input-bg); color: var(--color-text-light); padding: 1px 4px; border-radius: 4px; margin-left: 5px; line-height: 1; }
     
     /* Container Principal da Janela do Chat (Centralizado) */
     .main-content-wrapper {
         padding: 1rem;
-        margin-left: 250px; /* Offset da sidebar */
-        padding-top: calc(var(--header-height) + 1rem); /* Espaço para o header */
+        margin-left: 250px; 
+        padding-top: calc(var(--header-height) + 1rem); 
         display: flex;
-        justify-content: center; /* Centraliza a janela do chat */
+        justify-content: center;
         min-height: 100vh;
         width: calc(100% - 250px);
     }
@@ -130,11 +140,14 @@
         display: flex;
         flex-direction: column;
         width: 100%;
-        max-width: 800px; /* Tamanho da "janela" */
-        height: 80vh; /* Altura da "janela" */
+        max-width: 800px;
+        
+        /* 💡 CORREÇÃO DA ALTURA */
+        height: calc(100vh - var(--header-height) - 2rem); 
+        
         min-height: 600px;
         background-color: var(--color-card-bg); 
-        border: 1px solid var(--color-primary); /* Borda destacada */
+        border: 1px solid var(--color-primary);
         border-radius: 1rem;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
@@ -156,7 +169,7 @@
         gap: 1rem;
     }
 
-    /* Estilo das Mensagens (Mantido) */
+    /* Estilo das Mensagens */
     .msg {
         max-width: 70%;
         padding: 0.75rem 1rem;
@@ -165,16 +178,22 @@
         word-wrap: break-word;
         line-height: 1.4;
     }
-    /*... (Outros estilos de .msg-me, .msg-other, .msg-user, .msg-time mantidos) ...*/
     .msg-user { font-weight: 600; font-size: 0.85rem; opacity: 0.8; margin-bottom: 4px; display: block; }
     .msg-text { margin: 0; }
     .msg-time { display: block; font-size: 0.7rem; color: var(--color-text-light); opacity: 0.6; text-align: right; margin-top: 5px; }
 
+    /* Minha Mensagem (Laranja Padrão, Mais Vibrante) */
     .msg-me { background-color: var(--color-chat-me); color: white; margin-left: auto; border-bottom-right-radius: 0; }
     .msg-me .msg-user { color: rgba(255, 255, 255, 0.9); }
     .msg-me .msg-time { color: rgba(255, 255, 255, 0.8); }
 
-    .msg-other { background-color: var(--color-chat-other); color: var(--color-text-light); margin-right: auto; border-bottom-left-radius: 0; }
+    /* Mensagem do Outro (Cinza Mais Nítido) */
+    .msg-other { 
+        background-color: var(--color-chat-other); 
+        color: var(--color-text-light); 
+        margin-right: auto; 
+        border-bottom-left-radius: 0; 
+    }
     .msg-other .msg-user { color: var(--color-primary); }
 
 
@@ -200,30 +219,9 @@
         outline: none;
     }
     
-    /* Painel de Participantes (Mantido) */
-    .participants-panel {
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        width: 300px;
-        background-color: var(--color-card-bg);
-        z-index: 30;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
-    }
-    .participants-panel.open {
-        transform: translateX(0);
-    }
-    .participants-toggle {
-        right: 25px;
-        bottom: 25px;
-    }
-    
-    /* Auto-complete (Ajustado a posição relativa à Janela) */
+    /* Auto-complete */
     .suggestions-box {
-        position: fixed; /* Mudar para fixed para funcionar com layout centralizado */
+        position: fixed; 
         background-color: var(--color-card-bg);
         border: 1px solid var(--color-border-dark);
         border-radius: 0.5rem;
@@ -235,10 +233,10 @@
         display: none;
     }
 
-    /* Media Query para responsividade (Dispositivos menores) */
+    /* Media Query para responsividade */
     @media (max-width: 1024px) {
         .left-sidebar {
-            display: none; /* Esconde a sidebar em telas menores */
+            display: none;
         }
         .main-content-wrapper {
             margin-left: 0; 
@@ -247,7 +245,7 @@
             padding-top: calc(var(--header-height) + 1rem); 
         }
         .chat-window {
-            height: calc(100vh - var(--header-height) - 2rem); /* Ocupa a altura da tela menos o header e padding */
+            height: calc(100vh - var(--header-height) - 2rem);
             max-width: 100%;
             min-height: auto;
         }
@@ -259,18 +257,29 @@
     <div class="header-left">
         <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
     </div>
-    <div class="topbar"></div>
 </header>
 
 <aside class="left-sidebar">
-    <div class="user-box p-4 app-card mb-4 text-center">
-        {% if current_user.avatar_url %}
-                    <img src="{{ current_user.avatar_url }}" 
-                         class="user-avatar w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 object-cover">
-        {% else %}
-            <img src="{{ avatars.gravatar(current_user.email, size=200, default='identicon') }}" 
-                 class="user-avatar w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 object-cover">
-        {% endif %}
+    <div class="user-box p-4 app-card mb-4 text-center rounded-2xl shadow-lg">
+        
+        <div class="relative w-16 h-16 mx-auto mb-3">
+            {% if current_user.avatar_url %}
+                <img src="{{ current_user.avatar_url }}" 
+                     class="user-avatar w-16 h-16 rounded-full border-2 border-gray-400 object-cover">
+            {% else %}
+                <img src="{{ avatars.gravatar(current_user.email, size=200, default='identicon') }}" 
+                     class="user-avatar w-16 h-16 rounded-full border-2 border-gray-400 object-cover">
+            {% endif %}
+            
+            <span class="absolute bottom-0 right-0 h-4 w-4 block rounded-full border-2 border-white 
+            {% if current_user.is_online %} 
+                bg-green-500 
+            {% else %} 
+                bg-red-500 
+            {% endif %}">
+            </span>
+        </div>
+
         <p class="username text-lg font-semibold mb-3">@{{ username }}</p>
         
         <a href="{{ url_for('auth.logout') }}">
@@ -278,19 +287,25 @@
         </a>
     </div>
 
-    <div class="sidebar-menu p-2 app-card">
-        <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">Navegação</h4>
+    <div class="sidebar-menu p-2 app-card mb-4">
+        <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">PARTICIPANTES NESSE FÓRUM</h4>
         <ul>
             <li><a href="{{ url_for('main.home') }}" class="sidebar-link">Fóruns</a></li>
             <li><a href="#" class="sidebar-link active">Chat: {{ room }}</a></li>
         </ul>
+    </div>
+    
+    <div class="users-status-list p-2 app-card">
+        <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">Participantes</h4>
+        
+        <div class="participants-list" id="participants-list-js">
+            </div>
     </div>
 </aside>
 
 <div class="main-content-wrapper">
     
     <div class="chat-window">
-
         <div class="chat-header">
             <h2 class="text-xl font-bold text-orange-400">CHAT - {{ room }}</h2>
         </div>
@@ -303,7 +318,7 @@
                         <p class="msg-text">{{ msg.text }}</p>
                         <span class="msg-time">{{ msg.time }}</span>
                     </div>
-                {% else %}  
+                {% else %}  
                     <div class="msg msg-other">
                         <span class="msg-user">@{{ msg.user }}</span>
                         <p class="msg-text">{{ msg.text }}</p>
@@ -318,28 +333,12 @@
             <button type="submit" class="btn-gradiente">Enviar</button>
         </form>
 
-    </div> <div id="suggestions" class="suggestions-box">
+    </div> 
+    <div id="suggestions" class="suggestions-box">
         <ul id="suggestions-list"></ul>
     </div>
 
-</div> <button class="participants-toggle" onclick="toggleParticipants()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" viewBox="0 0 24 24">
-        <path d="M16 14c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-8 0c2.21 0 4-1.79 4-4S10.21 6 8 6 4 7.79 4 10s1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h12v-2c0-2.66-5.33-4-8-4zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2.01 1.97 3.45v1.5h8v-2c0-2.66-5.33-4-8-4z"/>
-    </svg>
-</button>
-
-
-<div class="participants-panel" id="participantsPanel">
-    <div class="participants-header">
-        <h3>PARTICIPANTES</h3>
-        <button onclick="toggleParticipants()" class="close-btn text-2xl font-bold text-gray-400 hover:text-white">&times;</button>
-    </div>
-    <div class="participants-list">
-        {% for p in participantes %}
-            <p>@{{ p.username }}</p>
-        {% endfor %}
-    </div>
-</div>
+</div> 
 
 <script>
     const socket = io();
@@ -353,24 +352,29 @@
     const messageInput = chatForm.querySelector('input[name="message"]');
     const messagesDiv = document.getElementById('messages');
     let currentFocus = -1;
+    
+    // Lista completa de participantes para Autocomplete.
     let participants = [
     {% for p in participantes %}
-        { username: "{{ p.username }}" }{% if not loop.last %},{% endif %}
+        {
+            username: "{{ p.username }}", 
+            online: false, 
+            is_creator: {{ 'true' if p.is_creator else 'false' }},
+            is_member: {{ 'true' if p.is_member else 'false' }}
+        }{% if not loop.last %},{% endif %}
     {% endfor %}
     ];
 
-    /* --- Funções do Chat --- */
+    /* --- Funções de Conexão --- */
 
     function enterRoom() {
         console.log("Tentando entrar na sala:", room);
         socket.emit('join', {room: room});
     }
     
-    // Rola a área de mensagens para o final ao carregar
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-
-    /* --- Lógica de Conexão/Desconexão (Mantida) --- */
+    /* --- Lógica de Conexão/Desconexão --- */
     socket.on('connect', () => {
         console.log("Socket conectado!");
         enterRoom();
@@ -382,7 +386,6 @@
     
     window.addEventListener("pageshow", (event) => {
         if (event.persisted) {
-            console.log("Voltou do cache. Reiniciando socket para garantir.");
             if (socket.connected) {
                 socket.disconnect();
             }
@@ -391,7 +394,6 @@
     });
 
     window.addEventListener("pagehide", () => {
-        console.log("Saindo da página...");
         if (socket.connected) {
             socket.emit('leave', {room: room});
             socket.disconnect(); 
@@ -403,20 +405,99 @@
             socket.emit('leave', {room: room});
         }
     });
-    
 
-    /* --- Envio de Mensagens e Recebimento (Mantido) --- */
+    /* --- Função para Exibir Mensagens Privadas no Chat Feed (CORRIGIDA) --- */
+
+    function displayPrivateMessage(data) {
+        const msgDiv = document.createElement('div');
+        const isMe = (data.user === currentUser);
+        const isSent = data.is_sent; 
+
+        msgDiv.classList.add('msg');
+        msgDiv.classList.add(isMe ? 'msg-me': 'msg-other');
+        
+        // Borda amarela removida
+        
+        const time = data.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        // Adiciona o rótulo de DM
+        const dmIndicator = isSent 
+            ? `<span style="color: gold; font-size: 0.7rem; margin-left: 5px;">[DM para @${data.recipient}]</span>` 
+            : `<span style="color: gold; font-size: 0.7rem; margin-left: 5px;">[DM de @${data.user}]</span>`;
+
+        msgDiv.innerHTML= `
+            <span class="msg-user">@${data.user} ${dmIndicator}</span>
+            <p class="msg-text">${data.text}</p>
+            <span class="msg-time">${time}</span>
+        `;
+
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    /* --- Recebimento de Mensagens Privadas (Do Servidor) --- */
+
+    socket.on('private_message', function(data) {
+        displayPrivateMessage({
+            user: data.user, 
+            recipient: data.recipient, 
+            text: data.text, 
+            is_sent: data.user === currentUser, 
+            time: data.time
+        });
+    });
+
+
+    /* --- Envio de Mensagens (Com Lógica de DM) --- */
 
     chatForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const msg = messageInput.value;
-        if(msg.trim()){
-            socket.emit('message', {room: room, message: msg});
+        const fullMsg = messageInput.value;
+        const msgTrimmed = fullMsg.trim();
+
+        if(msgTrimmed){
+            // 1. Tenta encontrar o padrão de DM: @username mensagem
+            const dmMatch = msgTrimmed.match(/^@([\w]+)\s+(.+)$/); 
+
+            if (dmMatch) {
+                const recipient = dmMatch[1];
+                const messageText = dmMatch[2].trim();
+
+                if (recipient.toLowerCase() === currentUser.toLowerCase()) {
+                    alert("Você não pode enviar uma mensagem privada para si mesmo!");
+                    messageInput.value = '';
+                    return; 
+                }
+                
+                if (messageText) {
+                    // 2. EMITE MENSAGEM PRIVADA
+                    socket.emit('private_message', { 
+                        recipient: recipient, 
+                        message: messageText 
+                    });
+                    
+                    // 3. Adiciona a mensagem enviada ao feed imediatamente
+                    displayPrivateMessage({
+                        user: currentUser, 
+                        recipient: recipient, 
+                        text: messageText, 
+                        is_sent: true,
+                        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                    });
+                }
+
+            } else {
+                // 3. EMITE MENSAGEM PÚBLICA (Padrão)
+                socket.emit('message', {room: room, message: msgTrimmed});
+            }
+            
             messageInput.value = '';
             hideSuggestions(); 
         }
     });
+
+    /* --- Recebimento de Mensagens Públicas (Padrão) --- */
 
     socket.on('message', function(data) {
         const msgDiv = document.createElement('div');
@@ -438,22 +519,18 @@
     });
 
 
-    /* --- Painel de Participantes (Mantido) --- */
+    /* --- Função de Renderização da Lista de Usuários --- */
 
-    function toggleParticipants() {
-        const panel = document.getElementById('participantsPanel');
-        panel.classList.toggle('open');
-    }
-    window.toggleParticipants = toggleParticipants;
-
-    socket.on('users_list', (data) => {
-        participants = data;
-        const listDiv = document.querySelector('.participants-list');
+    function renderParticipantsList(data) {
+        
+        participants = data; 
+        
+        const listDiv = document.getElementById('participants-list-js'); 
         listDiv.innerHTML = '';
 
         const sortedData = data.sort((a, b) => {
             if (a.online !== b.online) {
-                return b.online - a.online;
+                return b.online - a.online; 
             }
             return a.username.localeCompare(b.username);
         });
@@ -461,15 +538,14 @@
         sortedData.forEach(u => {
             const p = document.createElement('p');
 
-            let statusColor = u.online ? 'var(--color-primary)' : 'var(--color-muted)';
+            let statusColor = u.online ? 'var(--color-online)' : 'var(--color-offline)';
             let badgesHTML = '';
             let opacity = u.online ? '1.0' : '0.6';
 
             if (u.is_creator)
-                badgesHTML += `<span title="Criador da Sala" class="creator-badge" style="margin-left:5px;">Criador</span>`;
-
+                badgesHTML += `<span title="Criador da Sala" class="creator-badge">Criador</span>`;
             if (u.is_member)
-                badgesHTML += `<span class="member-badge" style="font-size:10px; border:1px solid var(--color-border-dark); padding:2px 4px; border-radius:4px; margin-left:5px;">Membro</span>`;
+                badgesHTML += `<span class="member-badge">Membro</span>`;
 
             p.innerHTML = `
                 <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${statusColor};margin-right:8px;"></span>
@@ -480,10 +556,18 @@
             p.style.opacity = opacity;
             listDiv.appendChild(p);
         });
+    }
+
+    socket.on('users_list', (data) => {
+        renderParticipantsList(data);
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        renderParticipantsList(participants); 
     });
 
 
-    /* --- Autocomplete/Menções (@) - AJUSTADA A POSIÇÃO --- */
+    /* --- Autocomplete/Menções (@) - Funções --- */
     
     function showSuggestions(query) {
         suggestionsList.innerHTML = '';
@@ -493,7 +577,6 @@
             p.username.toLowerCase().startsWith(query) && p.username !== currentUser
         );
         
-        // Pega as dimensões da input box
         const rect = messageInput.getBoundingClientRect();
 
         if (filtered.length > 0) {
@@ -510,7 +593,6 @@
                 suggestionsList.appendChild(li);
             });
             
-            // AJUSTE CRUCIAL: Posiciona a caixa de sugestões DENTRO da janela de visualização
             suggestionsBox.style.width = `${rect.width}px`;
             suggestionsBox.style.left = `${rect.left}px`;
             suggestionsBox.style.bottom = `${window.innerHeight - rect.top + 5}px`;
@@ -527,7 +609,6 @@
         currentFocus = -1;
     }
     
-    // Navegação por teclado helper (Mantida)
     function addActive(items) {
         if (!items || items.length === 0) return false;
         removeActive(items);
@@ -544,7 +625,6 @@
         }
     }
     
-    // Event Listeners para Autocomplete (Mantido)
     messageInput.addEventListener('input', function() {
         const text = this.value;
         const cursorPos = this.selectionStart;

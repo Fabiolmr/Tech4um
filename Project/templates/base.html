@@ -14,7 +14,6 @@
         /* =======================================================
            DEFINIÇÕES DE TEMA (Variáveis CSS)
            =======================================================
-           Usamos CSS Variables para permitir a alternância de cores de tema.
         */
         :root {
             /* MODO ESCURO (Padrão) */
@@ -68,36 +67,9 @@
             transition: background-color 0.3s;
         }
 
-        /* HEADER FIXO */
-        header {
-            background-color: var(--color-sidebar-bg);
-            border-bottom: 1px solid var(--color-border-dark);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 1rem;
-            height: 60px;
-            width: 100%;
-            position: fixed;
-            top: 0;
-            z-index: 100;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
+        /* O CSS DO HEADER FIXO FOI REMOVIDO AQUI */
 
-        header .logo {
-            color: var(--color-primary);
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-        }
-
-        .header-right {
-            display: flex; 
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Estilo base do Botão de Tema */
+        /* Estilo base do Botão de Tema (Mantido para uso em páginas filhas) */
         .btn-header {
             background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
             color: white;
@@ -130,7 +102,8 @@
         .alert-info { background-color: var(--alert-info-bg); color: var(--alert-info-text); }
 
         .content {
-            padding-top: 70px; /* Garante que o conteúdo comece abaixo do header */
+            /* padding-top: 70px REMOVIDO - Não precisa mais de offset para a barra fixa */
+            padding-top: 0; 
         }
 
     </style>
@@ -139,17 +112,7 @@
 
 <body>
 
-    <header>
-        <a href="{{ url_for('main.home') }}" class="logo">TecH4um</a>
-        
-        <div class="header-right">
-            <button id="theme-toggle" class="btn-header" style="font-weight: normal;">
-                🌙 Tema Escuro 
-            </button>
-            
-            {% block header_actions %}{% endblock %}
-        </div>
-    </header>
+    {# O HEADER FIXO FOI REMOVIDO DAQUI #}
 
     <div class="content">
         {# FLASH MESSAGES #}
@@ -206,15 +169,13 @@
         }
     });
 
-    // Função dummy para evitar erros de referência em páginas filhas (Home)
+    // Funções dummy para evitar erros de referência em páginas filhas
     function toggleCreateForum() {
          const box = document.getElementById("create-forum-box");
          if (box) box.classList.toggle("hidden");
     }
     
-    // Para resolver erros de referência no Jinja2 (se houver)
     function url_for(endpoint, params) {
-        // Implementação dummy ou substitua por uma função Flask real se necessário
         let url = endpoint;
         if (params) {
             url += '?' + Object.keys(params).map(key => key + '=' + params[key]).join('&');
