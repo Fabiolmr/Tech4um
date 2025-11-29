@@ -458,7 +458,7 @@
 
         if(msgTrimmed){
             // 1. Tenta encontrar o padrão de DM: @username mensagem
-            const dmMatch = msgTrimmed.match(/^@([\w]+)\s+(.+)$/); 
+            const dmMatch = msgTrimmed.match(/^@([^\s]+)\s+(.+)$/);
 
             if (dmMatch) {
                 const recipient = dmMatch[1];

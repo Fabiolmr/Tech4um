@@ -9,6 +9,8 @@ from datetime import datetime
 
 user_sids = {}
 
+room_users = {}
+
 # PEGA LISTA DE PARTICIPANTES
 def get_participantes_list(room_id):
     forum = Forum.query.get(room_id)
@@ -16,39 +18,50 @@ def get_participantes_list(room_id):
         return []
     
     lista_exibicao = []
+    
+    #db_members = {m.username: m for m in forum.members}
 
-    # VERIFICA SE É MEMBRO
+    processed_usernames = set()  
+
     for member in forum.members:
-        is_online = member.username in online_users
-        
+        # Verifica se ele está online na sala AGORA
+        is_online_in_room = False
+        if room_id in room_users and member.username in room_users[room_id]:
+            is_online_in_room = True
+
         lista_exibicao.append({
             "username": member.username,
-            "online": is_online,
+            "online": is_online_in_room, 
             "is_member": True,
             "is_creator": (member.username == forum.creator)
         })
+        processed_usernames.add(member.username)
 
+    if room_id in room_users:
+        for visitor_username in room_users[room_id]:
+            # Se ainda não foi adicionado (ou seja, não é membro)
+            if visitor_username not in processed_usernames:
+                lista_exibicao.append({
+                    "username": visitor_username,
+                    "online": True, # Se está em room_users, com certeza está online
+                    "is_member": False,
+                    "is_creator": (visitor_username == forum.creator)
+                })
+
+    # VERIFICA SE É MEMBRO
+    #for username in active_usernames:
+    #    if username not in db_members: # Só adiciona se já não foi processado acima
+    #        lista_exibicao.append({
+    #            "username": username,
+    #            "online": True, # Se está em active_usernames, com certeza está online
+    #            "is_member": False,
+    #            "is_creator": (username == forum.creator)
+    #        })
+#
     lista_exibicao.sort(key=lambda x: (not x['online'], x['username']))
 
     return lista_exibicao
 
-
-    #        members_set = set(forum.members)
-    #        # VERIFICA SE É VISITANTE
-    #        for p in forum.participantes:
-    #            if p['username'] not in members_set and p.get('in_room', False):
-    #                lista_exibicao.append({
-    #                    "username": p['username'],
-    #                    "online": True,
-    #                    "is_member": False, # Visitante
-    #                    "is_creator": (p['username'] == forum.creator)
-    #                })
-#
-    #        lista_exibicao.sort(key=lambda x: (not x['online'], x['username']))
-#
-    #        return lista_exibicao
-    #        
-    #    return []
 
 
 # ==========================
@@ -61,6 +74,7 @@ def register_socketio_handlers(socketio: SocketIO):
     def handle_connect():
         if current_user.is_authenticated:
             # Adiciona ID do usuário ao set global de online
+            online_users.add(current_user.username)
             user_sids[current_user.username] = request.sid
             print(f"User {current_user.username} connected (SID: {request.sid})")
 
@@ -73,28 +87,13 @@ def register_socketio_handlers(socketio: SocketIO):
             user_sids.pop(current_user.username, None)
             print(f"User {current_user.username} disconnected")
 
-            # VÊ SE O PARTICIPANTE TÁ NA SALA
-            for room_id, forum in rooms.items():
-                for u in forum.participantes:
-                    if u['id'] == current_user.id:
-                        if u.get('sid') == request.sid:
-                            if u.get('in_room'):
-                                # CRIA MENSAGEM AVIZANDO QUE SAIU
-                                system_msg = {
-                                    "user": "Sistema",
-                                    "text": f"{current_user.username} saiu da sala."
-                                }
-                                # ADICIONA MENSAGEM
-                                forum.messages.append(system_msg)
-                                send(system_msg, room=room_id)    
-                                u['in_room'] = False
-                                u['online'] = False
-                                u['sid'] = None
-                                
-                                #AVISA OS OUTROS PARTICIPANTES ONLINE SOBRE A NOVA LISTA
-                                emit("users_list", get_participantes_list(room_id), room=room_id)
-            # DISCARTA USUÁRIO QUE SAIU
-            online_users.discard(current_user.id)
+            for r_id, users_set in room_users.items():
+                if current_user.username in users_set:
+                    users_set.discard(current_user.username)
+                    # Atualiza a lista visualmente para quem ficou na sala
+                    emit("users_list", get_participantes_list(r_id), room=r_id)
+       
+
 
     #ROTA JOIN
     @socketio.on("join")
@@ -109,16 +108,19 @@ def register_socketio_handlers(socketio: SocketIO):
         if forum:
             join_room(room_id)
 
-            username = current_user.username
+            # ADICIONA À MEMÓRIA DA SALA (IMPORTANTE PARA A LISTA)
+            if room_id not in room_users:
+                room_users[room_id] = set()
+            room_users[room_id].add(current_user.username)
 
             # CRIA MENSAGEM NOTIFICANDO ENTRADA
-            sys_msg_text = f"{current_user.username} entrou na sala."
-        
-            emit("message", {
-                "user": "Sistema",
-                "text": sys_msg_text,
-                "time": datetime.now().strftime("%H:%M")
-            }, room=room_id)
+            #sys_msg_text = f"{current_user.username} entrou na sala."
+        #
+            #emit("message", {
+            #    "user": "Sistema",
+            #    "text": sys_msg_text,
+            #    "time": datetime.now().strftime("%H:%M")
+            #}, room=room_id)
 
             
             emit("users_list", get_participantes_list(room_id), room=room_id)
@@ -141,18 +143,20 @@ def register_socketio_handlers(socketio: SocketIO):
             return
 
         room_id = data.get("room")
-        username = current_user.username
 
         if room_id:
             leave_room(room_id)
+
+            if room_id in room_users:
+                room_users[room_id].discard(current_user.username)
             
-            sys_msg_text = f"{current_user.username} saiu da sala."
-            
-            emit("message", {
-                "user": "Sistema",
-                "text": sys_msg_text,
-                "time": datetime.now().strftime("%H:%M")
-            }, room=room_id)
+            #sys_msg_text = f"{current_user.username} saiu da sala."
+            #
+            #emit("message", {
+            #    "user": "Sistema",
+            #    "text": sys_msg_text,
+            #    "time": datetime.now().strftime("%H:%M")
+            #}, room=room_id)
             
             # Atualiza lista (o usuário vai aparecer offline ou sair da lista)
             emit("users_list", get_participantes_list(room_id), room=room_id)
@@ -161,54 +165,6 @@ def register_socketio_handlers(socketio: SocketIO):
 # ==========================
 #   ROTA MENSAGEM
 # ==========================
-
-
-  # ROTA MEMSAGEM PRIVADA
-    #OBS.: O usuário digita: "@nome_exato mensagem"
-    #       onde nome_exato = nome da pessoa igual a que tá salva e mensagem é a mensagem a ser mandada no privado
-
-    #@socketio.on("private_message")
-    #def handle_private_message(data):
-    #    if not current_user.is_authenticated:
-    #        return
-#
-    #    room_id = data.get("room")
-    #    # USUÁRIO ALVO
-    #    recipient_username = data.get("recipient")
-    #    message = data.get("message")
-    #    
-    #    if not room_id or not recipient_username or not message:
-    #        return
-    #        
-    #    if room_id not in rooms:
-    #        return
-#
-    #    username = current_user.username
-    #    current_time = datetime.now().strftime("%H:%M")
-#
-    #    # Procura o usuário alvo na lista de participantes daquela sala
-    #    target_user_in_room = next((u for u in rooms[room_id].participantes if u['username'] == recipient_username), None)
-#
-    #    # Se encontrou o usuário e ele tem um ID de sessão (sid)
-    #    if target_user_in_room and target_user_in_room.get('sid'):
-    #        # Emite o evento 'private_message' para o sid do alvo
-    #        emit("private_message", {
-    #            "user": username,
-    #            "text": message,
-    #            "recipient": recipient_username,
-    #            "time": current_time,
-    #            "is_sent": False
-    #        }, to=target_user_in_room['sid'])
-    #        
-    #        print(f"[Privado] {username} para {recipient_username}: {message}")
-    #    else:
-    #        # Avisar quem enviou que o usuário não foi encontrado
-    #        emit("private_message", {
-    #            "user": "Sistema",
-    #            "text": f"Usuário {recipient_username} não encontrado ou offline nesta sala.",
-    #            "recipient": username,
-    #            "time": current_time
-    #        }, to=request.sid)
 
 
     #ROTA MENSAGEM PÚBLICA
@@ -245,7 +201,7 @@ def register_socketio_handlers(socketio: SocketIO):
             return
 
         # 2. EMITE PARA O SOCKET (TEMPO REAL)
-        current_time = datetime.now().strftime("%H:%M")
+       
         msg_data = {
             "user": current_user.username,
             "text": text,

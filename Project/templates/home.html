@@ -209,7 +209,7 @@
                         <ul id="forums-submenu" class="hidden mt-1 pl-2 border-l-2 border-gray-700 ml-3 space-y-1 transition-all">
                             {% set has_forums = false %}
                             {% for room in rooms %}
-                                {% if current_user.is_authenticated and current_user.username in room.members %}
+                                {% if current_user.is_authenticated and current_user in room.members %}
                                     {% set has_forums = true %}
                                     <li>
                                         <a href="{{ url_for('chat.access_forum', forum_id=room.id) }}" 
@@ -272,7 +272,7 @@
                         <div class="card-actions flex flex-col space-y-2 ml-4 min-w-[150px] items-end">
                             {% if current_user.is_authenticated %}
                                 
-                                {% if current_user.username in room.members %}
+                                {% if current_user in room.members %}
                                     <button type="submit" 
                                             formaction="{{ url_for('main.leave_member', forum_id=room.id) }}"
                                             class="text-xs text-red-400 hover:text-red-300 transition-colors self-end"
