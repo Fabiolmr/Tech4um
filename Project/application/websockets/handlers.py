@@ -80,7 +80,7 @@ def register_socketio_handlers(socketio: SocketIO):
                                 emit("users_list", get_participantes_list(room_id), room=room_id)
             online_users.discard(current_user.id)
 
-    
+
     @socketio.on("join")
     def handle_join(data):
         room = data.get("room")
@@ -153,6 +153,48 @@ def register_socketio_handlers(socketio: SocketIO):
             print(f"{username} saiu da sala {room}")
 
 
+    @socketio.on("private_message")
+    def handle_private_message(data):
+        if not current_user.is_authenticated:
+            return
+
+        room_id = data.get("room")
+        recipient_username = data.get("recipient")
+        message = data.get("message")
+        
+        if not room_id or not recipient_username or not message:
+            return
+            
+        if room_id not in rooms:
+            return
+
+        username = current_user.username
+        current_time = datetime.now().strftime("%H:%M")
+
+        # Procura o usuário alvo na lista de participantes daquela sala
+        target_user_in_room = next((u for u in rooms[room_id].participantes if u['username'] == recipient_username), None)
+
+        # Se encontrou o usuário e ele tem um ID de sessão (sid)
+        if target_user_in_room and target_user_in_room.get('sid'):
+            # Emite o evento 'private_message' especificamente para o SID do destinatário
+            emit("private_message", {
+                "user": username,
+                "text": message,
+                "recipient": recipient_username,
+                "time": current_time,
+                "is_sent": False
+            }, to=target_user_in_room['sid'])
+            
+            print(f"[Privado] {username} para {recipient_username}: {message}")
+        else:
+            # Opcional: Avisar quem enviou que o usuário não foi encontrado
+            emit("private_message", {
+                "user": "Sistema",
+                "text": f"Usuário {recipient_username} não encontrado ou offline nesta sala.",
+                "recipient": username,
+                "time": current_time
+            }, to=request.sid)
+
     @socketio.on("message")
     def handle_message(data):
         if not current_user.is_authenticated:
@@ -169,28 +211,28 @@ def register_socketio_handlers(socketio: SocketIO):
         #----------- LÓGICA PARA MENSAGEM PRIVADA----------#
         #OBS.: O usuário digita: "@nome_exato mensagem"
         #       onde nome_exato = nome da pessoa igual a que tá salva e mensagem é a mensagem a ser mandada no privado
-        if message.startswith("@"):
-            partes = message.split(" ", 1)
-
-            if len(partes) > 1:
-                target_username = partes[0][1:]
-                msg_text = partes[1]
-
-                target_user_in_room = next((u for u in rooms[room].participantes if u['username'] == target_username), None)
-
-                if target_user_in_room and target_user_in_room.get('sid'):
-                     emit("message", {
-                         "user": username,
-                         "text": f"[Privado]: {msg_text}"}, to=target_user_in_room['sid'])
-                     emit("message", {
-                         "user": username,
-                         "text": f"[Privado para {target_username}]: {msg_text}"}, to=request.sid)
-                     return
-                
-            emit("message", {
-                "user": "Sistema",
-                "text": "Usuário não encontrado ou offline."}, to=request.sid)
-            return
+        #if message.startswith("@"):
+        #    partes = message.split(" ", 1)
+#
+        #    if len(partes) > 1:
+        #        target_username = partes[0][1:]
+        #        msg_text = partes[1]
+#
+        #        target_user_in_room = next((u for u in rooms[room].participantes if u['username'] == target_username), None)
+#
+        #        if target_user_in_room and target_user_in_room.get('sid'):
+        #             emit("message", {
+        #                 "user": username,
+        #                 "text": f"[Privado]: {msg_text}"}, to=target_user_in_room['sid'])
+        #             emit("message", {
+        #                 "user": username,
+        #                 "text": f"[Privado para {target_username}]: {msg_text}"}, to=request.sid)
+        #             return
+        #        
+        #    emit("message", {
+        #        "user": "Sistema",
+        #        "text": "Usuário não encontrado ou offline."}, to=request.sid)
+        #    return
             
         #----------- LÓGICA PARA MENSAGEM PÚBLICA ----------#
 

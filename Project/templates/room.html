@@ -474,7 +474,8 @@
                     // 2. EMITE MENSAGEM PRIVADA
                     socket.emit('private_message', { 
                         recipient: recipient, 
-                        message: messageText 
+                        message: messageText,
+                        room: room
                     });
                     
                     // 3. Adiciona a mensagem enviada ao feed imediatamente
