@@ -109,7 +109,7 @@
                     <img src="{{ avatars.gravatar(current_user.email, size=200, default='identicon') }}" 
                          class="user-avatar w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 object-cover">
                 {% endif %}
-                </div>
+                
                 
                 <div class="card-body p-6 sm:p-8">
                     {% with messages = get_flashed_messages(with_categories=true) %}
