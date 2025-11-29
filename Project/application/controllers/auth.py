@@ -35,7 +35,9 @@ def is_strong_password(password):
     # Pelo menos um dígito
     if not re.search(r"\d", password):
         return False
-    # Opcional: Adicionar verificação para caractere especial (e.g., r"[!@#$%^&*()]")
+    # Pelo menos algum caracter especial
+    if not re.search(r"[^a-zA-Z0-9]", password):
+        return False
 
     return True
 
@@ -75,7 +77,7 @@ def register():
         
         # VERIFICAÇÃO DE FORÇA DA SENHA
         if not is_strong_password(password):
-            flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas e números.", "danger")
+            flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas, números e caracteres especiais.", "danger")
             return redirect(url_for("auth.register"))
         
         # VERIFICA SE EMAIL JÁ TÁ CADASTRADO

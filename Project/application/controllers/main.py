@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_required, logout_user
 from application.extensions import rooms, generate_unique_code, socketio, users
 from application.models.forum import Forum
-from application.models.user import User
+#from application.models.user import User
 from application.websockets.handlers import get_participantes_list
+from application.controllers.auth import is_strong_password
 from werkzeug.security import check_password_hash, generate_password_hash
 
 #CRIA BLUEPRINT PRA MAIN
@@ -34,7 +35,7 @@ def handle_disconnect():
     if current_user.is_authenticated:
         #RETIRA DA LISTA
         online_users.discard(current_user.username)
-        
+
     #AVIZA A COMUNICAÇÃO WEBSOCKET SOBRE NOVA LISTA DE USUÁRIOS ONLINE
     socketio.emit("online_users", list(online_users))
 
@@ -181,6 +182,9 @@ def edit_profile():
                 flash("A nova senha e a confirmação não coincidem.", "danger")
                 return redirect(url_for('main.edit_profile'))
             
+            if not is_strong_password(new_password):
+                flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir maiúsculas, minúsculas, números e pelo menos um caracter especial", "danger")
+                return redirect(url_for('main.edit_profile'))
             # Faz o hash e atualiza a senha no objeto current_user
             current_user.password = generate_password_hash(new_password, method="pbkdf2:sha256")
 
