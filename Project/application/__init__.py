@@ -36,7 +36,7 @@ def create_app():
         client_id=app.config["GOOGLE_CLIENT_ID"],
         client_secret=app.config["GOOGLE_CLIENT_SECRET"],
         scope=["profile", "email"],
-        redirect_to="chat.home"
+        redirect_to="main.home"
     )
 
     app.register_blueprint(google_bp, url_prefix="/login/google")

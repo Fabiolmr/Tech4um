@@ -1,8 +1,13 @@
 #executar este arquivo para teste local
 #Obs: o login com o google não está 100% implementado
+import os
 
 from application import create_app, socketio
 from application.extensions import db
+
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
 app = create_app()
 
