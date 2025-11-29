@@ -87,9 +87,11 @@ def home():
                 })
 
                 # REDIRECIONA PARA ROTA DE ACESSAR FORUM
+                flash("Fórum criado com sucesso!", "success")
                 return redirect(url_for("chat.access_forum", forum_id=new_id))
             except Exception as e:
                 db.session.rollback()
+                print(e)
                 flash("Erro ao criar sala. Tente novamente.", "danger")
 
         # ------------- Entrar em fórum existente -------------

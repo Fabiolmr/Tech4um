@@ -2,7 +2,7 @@ from flask import request
 from flask_socketio import join_room, leave_room, send, emit, SocketIO
 from flask_login import current_user
 from application.extensions import online_users
-#from application.models.user import User
+from application.models.forum import Forum
 from datetime import datetime
 
 # PEGA LISTA DE PARTICIPANTES
@@ -86,14 +86,16 @@ def register_socketio_handlers(socketio: SocketIO):
     #ROTA JOIN
     @socketio.on("join")
     def handle_join(data):
-        room = data.get("room")
+        room_id = data.get("room")
         # BLOQUEIA USUÁRIOS NÃO AUTENTICAOD  E QUE NÃO EXISTA FÓRUM
         if not current_user.is_authenticated or not room:
             return
 
+        room = Forum.query.get(room_id)
+
         username = current_user.username
         
-        if room in rooms:
+        if room:
             # BUSCA SE O USUÁRIO JÁ EXISTE NA LISTA GLOBAL
             rooms[room].participantes = [u for u in rooms[room].participantes if u['id'] != current_user.id]
 

@@ -17,8 +17,6 @@ online_users = set()
 # Função para criar código de fórum
 from string import ascii_uppercase
 import random
+
 def generate_unique_code(length):
-    while True:
-        code = "".join(random.choice(ascii_uppercase) for _ in range(length))
-        if code not in rooms:
-            return code
+        return "".join(random.choice(ascii_uppercase) for _ in range(length))
