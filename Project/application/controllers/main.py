@@ -24,6 +24,7 @@ def handle_connect():
         #ADICIONA USUÁRIO ATUAL NA LISTA
         online_users.add(current_user.username)
 
+    #AVIZA A COMUNICAÇÃO WEBSOCKET SOBRE NOVA LISTA DE USUÁRIOS ONLINE
     socketio.emit("online_users", list(online_users))
 
 #ROTA DISCONNECT
@@ -33,7 +34,8 @@ def handle_disconnect():
     if current_user.is_authenticated:
         #RETIRA DA LISTA
         online_users.discard(current_user.username)
-
+        
+    #AVIZA A COMUNICAÇÃO WEBSOCKET SOBRE NOVA LISTA DE USUÁRIOS ONLINE
     socketio.emit("online_users", list(online_users))
 
 

@@ -5,7 +5,11 @@ from application.extensions import rooms, users, online_users
 from application.models.user import User
 from datetime import datetime
 
+# ==========================
+#   ROTA COMUNICAÇÃO    
+# ==========================
 
+# PEGA LISTA DE PARTICIPANTES
 def get_participantes_list(room_id):
         if room_id in rooms:
             forum = rooms[room_id]
@@ -38,7 +42,7 @@ def get_participantes_list(room_id):
         return []
 
 def register_socketio_handlers(socketio: SocketIO):
-
+    #ROTA CONNECT
     @socketio.on("connect")
     def handle_connect():
         if current_user.is_authenticated:
@@ -46,7 +50,8 @@ def register_socketio_handlers(socketio: SocketIO):
             online_users.add(current_user.id)
             print(f"User {current_user.username} connected (Global)")
             # Atualiza a lista para todo mundo
-            
+
+    #ROTA DISCONNECT        
     @socketio.on("disconnect")
     def handle_disconnect():
         if current_user.is_authenticated:
@@ -75,7 +80,7 @@ def register_socketio_handlers(socketio: SocketIO):
                                 emit("users_list", get_participantes_list(room_id), room=room_id)
             online_users.discard(current_user.id)
 
-
+    
     @socketio.on("join")
     def handle_join(data):
         room = data.get("room")
