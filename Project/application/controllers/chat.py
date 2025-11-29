@@ -21,7 +21,7 @@ def access_forum(forum_id):
     #SE NÃO CONSEGUE FORUNS, RETORNA HOME
     if not forum:
         flash("Sala não encontrada.", "danger")
-        return (redirect(url_for("chat.home")))
+        return (redirect(url_for("main.home")))
 
     session["room"] = forum_id #MUDA SALA DA SESSÃO PARA SALA ESCOLHIDA
     session["name"] = current_user.username 
