@@ -6,12 +6,12 @@ from flask_dance.contrib.google import google
 
 #-----------CLASSE USUÁRIO-------------
 class User(UserMixin):
-    def __init__(self, id, email, username, password):
+    def __init__(self, id, email, username, password, avatar_url=None):
         self.id = str(id)
         self.email = email
         self.username = username
         self.password = password
-
+        self.avatar_url = avatar_url
 
 # Loader para o Flask-Login
 @login_manager.user_loader

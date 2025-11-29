@@ -1,10 +1,19 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.user import User
 from application.extensions import users
 import re
+import cloudinary
+import cloudinary.uploader
 
+
+def configure_cloudinary():
+    cloudinary.config(
+        cloud_name = "de0mrgc37", # Ou use os.getenv
+        api_key = "632973276334999",
+        api_secret = "wjlQtLeBDxve3WUEiWkr5792se4"
+    )
 
 def is_valid_email(email):
     padrao = r"^[\w\.-]+@[\w\.-]+\.\w+$"
@@ -44,6 +53,9 @@ def register():
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
+        #pega arquivo de foto
+        file_avatar = request.files.get("avatar")
+
         # ✔ Verificação se o e-mail é válido
         if not is_valid_email(email):
             flash("E-mail inválido! Digite um endereço válido.", "danger")
@@ -66,9 +78,27 @@ def register():
             flash("Nome de usuário já existe.", "danger")
             return redirect(url_for("auth.register"))
 
+        avatar_url = None
+
+        if file_avatar:
+            try:
+                configure_cloudinary()
+                upload_result = cloudinary.uploader.upload(
+                    file_avatar, folder= "tech4um_profiles",
+                    transformation=[
+                        # Corta a imagem quadrada focando no rosto automaticamente
+                        {'width': 200, 'height': 200, 'gravity': "face", 'crop': "thumb"},
+                        {'quality': "auto"} # Otimiza o tamanho do arquivo
+                    ]
+                )
+                avatar_url = upload_result['secure_url']
+            except Exception as e:
+                flash(f"Erro ao enviar imagem: {e}", "danger")
+                return redirect(url_for("auth.register"))
+
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
         new_id = str(len(users) + 1)
-        new_user = User(id=new_id, email=email, username=username, password=hashed_password)
+        new_user = User(id=new_id, email=email, username=username, password=hashed_password, avatar_url=avatar_url)
 
         users[new_id] = new_user
 

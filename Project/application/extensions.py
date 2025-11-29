@@ -1,11 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
+from flask_avatars import Avatars
 
 # Inicializamos as extensões aqui
 db = SQLAlchemy()
 login_manager = LoginManager()
 socketio = SocketIO()
+avatars = Avatars()
 
 # variaveis globais para teste
 rooms = {}

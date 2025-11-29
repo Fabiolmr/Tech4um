@@ -3,7 +3,7 @@ from flask_dance.contrib.google import google, make_google_blueprint
 from flask_dance.consumer import oauth_authorized
 from config import Config
 
-from application.extensions import login_manager, socketio
+from application.extensions import login_manager, socketio, avatars
 
 
 def create_app():
@@ -17,6 +17,7 @@ def create_app():
 
     # Inicialização das extensões
     socketio.init_app(app)
+    avatars.init_app(app)
 
     # Login Manager
     login_manager.init_app(app)
