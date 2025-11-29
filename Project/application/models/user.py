@@ -2,7 +2,7 @@ from application.extensions import db, login_manager
 from flask_login import UserMixin
 from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash
-#from flask_dance.contrib.google import google
+import secrets
 
 #-----------CLASSE USUÁRIO-------------
 class User(db.Model, UserMixin):
@@ -42,7 +42,7 @@ def google_logged_in(blueprint, token):
         new_user = User(
             email=email, 
             username=name, 
-            password=generate_password_hash("OAUTH_LOGIN_GOOGLE_KEY"),
+            password=generate_password_hash(secrets.token_urlsafe(32)),
             avatar_url=google_user_info.get("picture") # Tenta pegar a foto do Google
         )
         try:

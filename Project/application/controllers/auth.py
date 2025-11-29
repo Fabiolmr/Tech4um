@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from application.models.user import User
 from application.extensions import db
 import re
+import os
 #API DE FOTO
 import cloudinary
 import cloudinary.uploader
@@ -11,9 +12,9 @@ import cloudinary.uploader
 #CONFIGURAÇÃO DE API
 def configure_cloudinary():
     cloudinary.config(
-        cloud_name = "de0mrgc37", # Ou use os.getenv
-        api_key = "632973276334999",
-        api_secret = "wjlQtLeBDxve3WUEiWkr5792se4"
+        cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), # Ou use os.getenv
+        api_key = os.getenv("CLOUDINARY_API_KEY"),
+        api_secret = os.getenv("CLOUDINARY_API_SECRET")
     )
 
 #VALIDA EMAIL
@@ -79,16 +80,6 @@ def register():
         if not is_strong_password(password):
             flash("A senha é muito fraca. Deve ter pelo menos 8 caracteres, incluir letras maiúsculas, minúsculas, números e caracteres especiais.", "danger")
             return redirect(url_for("auth.register"))
-        
-        # VERIFICA SE EMAIL JÁ TÁ CADASTRADO
-        #if any(u.email == email for u in users.values()):
-        #    flash("E-mail já cadastrado.", "danger")
-        #    return redirect(url_for("auth.register"))
-        #
-        ##VERIFICA SE NOME JÁ ESTÁ CADASTRADO
-        #if any(u.username == username for u in users.values()):
-        #    flash("Nome de usuário já existe.", "danger")
-        #    return redirect(url_for("auth.register"))
 
         user_exists = User.query.filter_by(email=email).first()
         if user_exists:
@@ -119,8 +110,7 @@ def register():
 
         # GERA SENHA HASH
         hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
-        # GERA NOVO ID
-        #new_id = str(len(users) + 1)
+
         # CRIA NOVO USUÁRIO
         new_user = User(email=email, username=username, password=hashed_password, avatar_url=avatar_url)
 
@@ -134,13 +124,6 @@ def register():
             flash("Erro ao criar conta.", "danger")
             return redirect(url_for("auth.register"))
 
-
-        #SALVA NA LISTA GLOBAL DE USUÁRIO
-        #users[new_id] = new_user
-
-        #flash("Conta criada com sucesso!", "success")
-        # REDIRECIONA PARA TELA DE LOGIN
-        
 
     return render_template("register.html")
 

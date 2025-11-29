@@ -1,11 +1,9 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
 from flask_login import login_required, current_user
 
-from application.extensions import generate_unique_code, db
+from application.extensions import db
 from application.models.forum import Forum
 from application.models.message import Message
-from application.websockets.handlers import register_socketio_handlers
-from datetime import datetime
 
 #BLUEPRINT DE CHAT
 chat_bp = Blueprint('chat', __name__)

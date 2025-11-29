@@ -98,10 +98,6 @@
         <div class="w-full max-w-2xl">
             <div class="card-custom">
                 
-                <!--<div class="flex justify-center mb-6">
-                    <img src="{{ avatars.gravatar(current_user.email, size=400, default='identicon') }}" 
-                    class="w-36 h-36 rounded-full border-4 border-orange-500 shadow-lg object-cover">
-                </div>-->
                 {% if current_user.avatar_url %}
                     <img src="{{ current_user.avatar_url }}" 
                          class="user-avatar w-16 h-16 rounded-full mx-auto mb-3 border-2 border-orange-500 object-cover">

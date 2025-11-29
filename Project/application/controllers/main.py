@@ -3,10 +3,8 @@ from flask_login import current_user, login_required, logout_user
 from application.extensions import generate_unique_code, socketio, db
 from application.models.forum import Forum
 from application.models.user import User
-from application.websockets.handlers import get_participantes_list
 from application.controllers.auth import is_strong_password
 from werkzeug.security import check_password_hash, generate_password_hash
-from sqlalchemy import or_
 
 #CRIA BLUEPRINT PRA MAIN
 main_bp = Blueprint('main', __name__)
