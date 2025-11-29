@@ -4,10 +4,10 @@ from flask_socketio import SocketIO
 from flask_avatars import Avatars
 
 # Inicializamos as extensões aqui
-db = SQLAlchemy()
+db = SQLAlchemy() #BANCO DE DADOS (FUTURAMENTE IMPLEMENTADO)
 login_manager = LoginManager()
-socketio = SocketIO()
-avatars = Avatars()
+socketio = SocketIO() #COMUNICAÇÃO SOCKET
+avatars = Avatars() #API AVATAR
 
 # variaveis globais para teste
 rooms = {}

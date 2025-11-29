@@ -6,46 +6,56 @@ from application.models.forum import Forum
 from application.websockets.handlers import register_socketio_handlers
 from datetime import datetime
 
-
+#BLUEPRINT DE CHAT
 chat_bp = Blueprint('chat', __name__)
 
+# ==========================
+#   ROTA FORUM    
+# ==========================
+
+# ROTA PARA SABER QUAL SALA ACESSA
 @chat_bp.route("/forum/<forum_id>")
-@login_required
+@login_required #AUTENTICAÇÃO NECESSÁRIA
 def access_forum(forum_id):
     forum = rooms.get(forum_id)
 
     #SE NÃO CONSEGUE FORUNS, RETORNA HOME
     if not forum:
         return (redirect(url_for("chat.home")))
-    
-    #forum.add_participant(current_user)
 
-    session["room"] = forum_id
-    session["name"] = current_user.username
+    session["room"] = forum_id #MUDA SALA DA SESSÃO PARA SALA ESCOLHIDA
+    session["name"] = current_user.username 
 
+    # REDIRECIONA PARA FORUM ESCOLHIDO
     return redirect(url_for("chat.room"))
-    #return render_template("room.html", room=forum_id, name=current_user.username, forum=forum)
 
+#ROTA DE SALA
 @chat_bp.route("/room")
 @login_required
 def room():
+    # PEGA FORUM DA SESSÃO ATUAL
     room = session.get("room")
     name = session.get("name")
     
+    # SE NÃO TIVER NENHUM DOS VALORES, RETORNA PARA HOME
     if room is None or name is None or room not in rooms:
         return redirect(url_for("main.home"))
 
+    #CARREGA PAGINA DO FÓRUM, MANDANDO O FORUM DA SESSÃO, NOME DO USUÁRIO, LISTA DE MENSAGENS E LISTA DE PARTICIPANTES
     return render_template("room.html", room=room, username=name, messages=rooms[room].messages, participantes=rooms[room].participantes)
 
+#ROTA PARA MANDAR MENSAGEM
 @chat_bp.route("/send/<room>", methods=["POST"])
 @login_required
 def send_message(room):
-
+    #VERIFICAÇÃO DE SALA POR SEGURANÇA
     if room not in rooms:
         return redirect(url_for("main.home"))
 
+    #ARMAZENA VALOR DA MENSAGEM
     message = request.form.get("message")
 
+    
     if message.strip() == "":
         return redirect(url_for("chat.room"))
 
