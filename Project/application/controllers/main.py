@@ -47,8 +47,13 @@ def home():
                 flash("Você precisa estar logado para criar uma sala.", "danger")
                 return redirect(url_for("auth.login"))
 
+            for forum in rooms.values():
+                if create_name == forum.name:
+                    flash("Nome de fórum já está em uso", "danger")
+                    return redirect(url_for("main.home"))
+                
             new_id = generate_unique_code(4)
-
+            
             # Novo fórum
             new_forum = Forum(new_id, create_name, create_desc, current_user.username)
             rooms[new_id] = new_forum
