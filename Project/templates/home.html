@@ -184,11 +184,55 @@
 
             </div>
 
-            <div class="sidebar-menu p-2 app-card">
+            <!--<div class="sidebar-menu p-2 app-card">
                 <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">Navegação</h4>
                 <ul>
                     <li><a href="{{ url_for('main.home') }}" class="sidebar-link active">Fóruns</a></li>
                     </ul>
+            </div>-->
+
+            <div class="sidebar-menu p-2 app-card ">
+                <h4 class="text-xs font-semibold uppercase text-gray-400 mb-2 px-2">Navegação</h4>
+                <ul class="space-y-1">
+                    <li>
+                        <button onclick="toggleForumsMenu()" 
+                                class="sidebar-link w-full flex justify-between items-center group focus:outline-none btn-gradiente w-full" >
+                            <span class="flex items-center gap-2">
+                                 Meus Fóruns
+                            </span>
+                            <span id="menu-arrow" class="text-xs text-gray-500 transform transition-transform duration-200 group-hover:text-orange-400">
+                                ▼
+                            </span>
+                        </button>
+                    
+                        <ul id="forums-submenu" class="hidden mt-1 pl-2 border-l-2 border-gray-700 ml-3 space-y-1 transition-all">
+                            {% for room in rooms %}
+                                {% if current_user.is_authenticated and current_user.username in room.members %}
+                                    <li>
+                                        <a href="{{ url_for('chat.access_forum', forum_id=room.id) }}" 
+                                           class="block p-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors truncate"
+                                           title="{{ room.name }}">
+                                            💬 {{ room.name }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                                
+                            {% set has_forums = false %}
+                            {% for room in rooms %}
+                                {% if current_user.username in room.members %}
+                                    {% set has_forums = true %}
+                                {% endif %}
+                            {% endfor %}
+                                
+                            {% if not has_forums %}
+                                <li class="p-2 text-xs text-gray-500 italic">
+                                    Você ainda não participa de nenhum fórum.
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                </ul>
             </div>
 
             {% else %}
@@ -390,5 +434,40 @@
         }
     });
 </script>
+
+<!--Script para barra de listar foruns membros-->
+<script>
+    function toggleForumsMenu() {
+        const submenu = document.getElementById('forums-submenu');
+        const arrow = document.getElementById('menu-arrow');
+        
+        submenu.classList.toggle('hidden');
+        
+        // Gira a seta
+        if (submenu.classList.contains('hidden')) {
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            arrow.style.transform = 'rotate(180deg)';
+        }
+        
+        // Salva estado
+        const isOpen = !submenu.classList.contains('hidden');
+        localStorage.setItem('forumsMenuOpen', isOpen);
+    }
+
+    // Restaura estado ao recarregar
+    document.addEventListener("DOMContentLoaded", function() {
+        const submenu = document.getElementById('forums-submenu');
+        const arrow = document.getElementById('menu-arrow');
+        const wasOpen = localStorage.getItem('forumsMenuOpen') === 'true';
+
+        if (wasOpen && submenu && arrow) {
+            submenu.classList.remove('hidden');
+            arrow.style.transform = 'rotate(180deg)';
+        }
+    });
+</script>
+
+
 
 {% endblock %}
