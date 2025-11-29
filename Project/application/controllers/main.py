@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from application.extensions import rooms, generate_unique_code, socketio, users
 from application.models.forum import Forum
 from application.models.user import User
@@ -175,3 +175,33 @@ def edit_profile():
         return redirect(url_for('main.perfil'))
 
     return render_template("edit_profile.html")
+
+
+@main_bp.route("/delete_account", methods=["POST"])
+@login_required
+def delete_account():
+    user_id = current_user.id
+    username = current_user.username
+
+    for room in rooms.values():
+        # Remove da lista de membros
+        if username in room.members:
+            room.remove_member(username)
+
+        # Filtra a lista mantendo apenas quem NÃO é o usuário deletado
+        room.participantes = [p for p in room.participantes if p['username'] != username]
+
+    # Remover usuário do dicionário global de usuários
+    if user_id in users:
+        del users[user_id]
+        
+    # Remover da lista de online (se estiver lá)
+    if username in online_users:
+        online_users.discard(username)
+
+    # 5. Logout e feedback
+    logout_user()
+    flash("Sua conta foi excluída permanentemente. Sentiremos sua falta!", "info")
+    
+    # Redireciona para a tela de login ou home
+    return redirect(url_for("auth.login"))

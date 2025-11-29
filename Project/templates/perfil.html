@@ -159,6 +159,11 @@
                             <a href="{{ url_for('auth.logout') }}" class="btn-action bg-red-600 text-white hover:bg-red-700">
                                 🚪 Sair da Conta
                             </a>
+                            <form action="{{ url_for('main.delete_account') }}" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja excluir sua conta? Esta ação é irreversível e todos os seus dados serão perdidos.');" style="display:inline;">
+                                <button type="submit" class="btn-action bg-red-900 text-white hover:bg-black border border-red-700 w-full sm:w-auto">
+                                    💀 Excluir Conta
+                                </button>
+                            </form>
                         </div>
                     {% else %}
                         <div class="alert alert-warning text-center" role="alert">
