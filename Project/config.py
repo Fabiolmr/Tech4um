@@ -15,7 +15,7 @@ class Config:
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
     
     # Se não houver no .env, usa o sqlite padrão
-    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", f"sqlite:///{os.path.join(BASE_DIR, 'instance/users.db')}")
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI", f"sqlite:///{os.path.join(BASE_DIR, 'users.db')}")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Google OAuth
