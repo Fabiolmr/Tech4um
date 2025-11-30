@@ -95,5 +95,5 @@ Carlos
 
 Inicialmente, o sistema salvava os dados na memória do computador,
 depois foi implementado o banco de dados PostgreSQL com o Neon.
-Também houve uma tentativa de hospedagem, 
-mas por falta de tempo, não conseguimos sucesso.
+
+Consegui subir o projeto: https://tech4um-eucx.onrender.com/
