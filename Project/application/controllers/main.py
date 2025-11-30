@@ -48,7 +48,7 @@ def home():
     #SE FOR METODO POST (RECEBE VALORES)
     if request.method == "POST":
         create_name = request.form.get("create_name") #SALVA NOME
-        create_desc = request.form.get("create-desc") #SALVA DESCRIÇÃO
+        create_desc = request.form.get("create_desc") #SALVA DESCRIÇÃO
 
         # ------------ Criar novo fórum ------------
         if create_name:
@@ -126,6 +126,10 @@ def join_member(forum_id):
             "forum_id": forum_id,
             "count": len(forum.members)
         })
+
+        from application.websockets.handlers import get_participantes_list
+        socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
+
     else:
         flash("Fórum não encontrado.", "danger")
     
@@ -148,6 +152,9 @@ def leave_member(forum_id):
                 "forum_id": forum_id,
                 "count": len(forum.members)
             })
+
+            from application.websockets.handlers import get_participantes_list
+            socketio.emit("users_list", get_participantes_list(forum_id), room=forum_id)
 
     return redirect(url_for("main.home"))
         

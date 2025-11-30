@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_dance.contrib.google import google, make_google_blueprint
+from flask_dance.contrib.google import make_google_blueprint
 from flask_dance.consumer import oauth_authorized
 from config import Config
 

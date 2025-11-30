@@ -4,7 +4,6 @@ from flask_login import current_user
 from application.extensions import online_users, db
 from application.models.forum import Forum
 from application.models.message import Message
-from application.models.user import User
 from datetime import datetime
 
 user_sids = {}
@@ -18,8 +17,6 @@ def get_participantes_list(room_id):
         return []
     
     lista_exibicao = []
-    
-    #db_members = {m.username: m for m in forum.members}
 
     processed_usernames = set()  
 
@@ -48,20 +45,9 @@ def get_participantes_list(room_id):
                     "is_creator": (visitor_username == forum.creator)
                 })
 
-    # VERIFICA SE É MEMBRO
-    #for username in active_usernames:
-    #    if username not in db_members: # Só adiciona se já não foi processado acima
-    #        lista_exibicao.append({
-    #            "username": username,
-    #            "online": True, # Se está em active_usernames, com certeza está online
-    #            "is_member": False,
-    #            "is_creator": (username == forum.creator)
-    #        })
-#
     lista_exibicao.sort(key=lambda x: (not x['online'], x['username']))
 
     return lista_exibicao
-
 
 
 # ==========================
@@ -92,8 +78,6 @@ def register_socketio_handlers(socketio: SocketIO):
                     users_set.discard(current_user.username)
                     # Atualiza a lista visualmente para quem ficou na sala
                     emit("users_list", get_participantes_list(r_id), room=r_id)
-       
-
 
     #ROTA JOIN
     @socketio.on("join")
@@ -112,24 +96,8 @@ def register_socketio_handlers(socketio: SocketIO):
             if room_id not in room_users:
                 room_users[room_id] = set()
             room_users[room_id].add(current_user.username)
-
-            # CRIA MENSAGEM NOTIFICANDO ENTRADA
-            #sys_msg_text = f"{current_user.username} entrou na sala."
-        #
-            #emit("message", {
-            #    "user": "Sistema",
-            #    "text": sys_msg_text,
-            #    "time": datetime.now().strftime("%H:%M")
-            #}, room=room_id)
-
             
             emit("users_list", get_participantes_list(room_id), room=room_id)
-
-            #ENVIA MENSAGEM
-
-            # NOTIFICA A COMUNICAÇÃO DA NOVA LISTA
-
-            #print(f"{username} entrou {room}")
 
         else:
             # NOTIFICA CASO DÊ ALGUM ERRO
@@ -165,7 +133,6 @@ def register_socketio_handlers(socketio: SocketIO):
 # ==========================
 #   ROTA MENSAGEM
 # ==========================
-
 
     #ROTA MENSAGEM PÚBLICA
     @socketio.on("message")
@@ -225,7 +192,7 @@ def register_socketio_handlers(socketio: SocketIO):
         recipient_sid = user_sids.get(recipient_username)
 
         if recipient_sid:
-            # Envia APENAS para o socket do destinatário
+            # Envia apenas para o socket do destinatário
             emit("private_message", {
                 "user": current_user.username,
                 "text": message,
